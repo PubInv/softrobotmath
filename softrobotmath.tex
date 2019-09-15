@@ -26,11 +26,55 @@ Megan Cadena
 \maketitle
 
 \section{Introduction}
-This paper analyzes
+This is a study of the basic math of inflatable spheres as a tool for soft robotics.
+We begin with a study in two dimension to simplify the problem.
+Our final goal is to analyze three dimensional soft robots composed of inflatable
+spheres.
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.80\textwidth]{figures/FixedAxisCircles.png}
+     \caption{Problem I: Fixed Circles Centers}
+  \label{fig:fixed}
+\end{figure}
 
 \section{Problem I: Circles in Fixed Postions}
-2D circles each of fixed distance from the origin
- 
+
+A very simplified version of the problem is to imagine that a two-dimensional
+plane.  Instead of spheres, we will assume we have circles of changable radius.
+This is in fact realistic of a soft robot constrained to a plane.
+
+
+
+
+Eventually we hope to have circles pressing against each other, or tangent
+or ``kissing''. However, the problem is a bit simpler if we assume we have
+two circles, each of which is constrained to have its center on the a vertical
+line (see Figure \ref{fig:fixed}.)  We place the circle $C_1$ with radius $r_1$ on the $x = -1$ line, and
+assume that it rests on a shelf or plane on the $x$-axis.
+Assume the $C_2$ circle whose radius if $r_2$ is on the $x = 1$ line.
+
+Let $A$ the intersection of the tangent line supported
+by the inflatable circles with the $x$-axis. Call the distance of $A$
+on the $x$-axis $x$. Let $\psi$ be the angle formed by the
+circle centers with the $x$ axis (measured counterclockwise).
+
+\begin{align}
+  \tan{\psi} &= \frac{r_1}{x-1} = \frac{r_2}{x+1}  \\
+  r_2(x - 1) &= r_1(x+1) \\
+  r_2x - r_2 &= r_1x + r_1 \\
+  r_2x - r_1x &= r_1 + r_2 \\
+  x(r_2 - r_1) &= r_1 + r_2 \\
+  x &= \frac{r_1+r_2}{r_2 - r_1} \\
+  \tan{2 \psi} = \frac{y}{x} \\
+  2 \psi = \arctan{\frac{r_1}{\frac{r_1+r_2}{r_2-r_1} - 1}} \\
+     \psi = \frac{\arctan{\frac{r_1}{\frac{r_1+r_2}{r_2-r_1} - 1}}}{2} \\
+\end{align}
+
+
+
+
+
 \section{Problem II: Tangent Circles}
 
 \end{document}
