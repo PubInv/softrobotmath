@@ -81,4 +81,40 @@ of the circles arise, we have:
 
 \section{Problem II: Tangent Circles}
 
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.80\textwidth]{figures/TangentCircles.png}
+     \caption{Problem II: Tangent Circles}
+  \label{fig:Tangent}
+\end{figure}
+
+\begin{align}
+ %
+\frac{r_2}{||(C2 - A)||} &= \frac{r_1}{||(C_1-A)||} \\
+||C2 - A|| &= r_2+2r_1+z \\
+||C1 - A|| &= r_1 + z \\
+\frac{r_2}{r_2+2r_1+z} &= \frac{r_1}{r_1+z} \\
+z &= -(2 r_1^2)/(r_1 - r_2) \text{ and } r_1 \neq r_2 \text{ and } r_1 r_2 (r_1 + r_2) \neq 0 \\
+\sin{\psi} &= \frac{r_1}{z + r_1} \\
+\theta &= 2 \arcsin{r_1/(z+r_1)} \\
+Nx &= -\sin{\pi/2 + \theta} \\
+Ny &= -\cos{\pi/2 + \theta} \\
+\end{align}
+%
 \end{document}
+
+
+r2/||(C2 - A)|| = r1/||(C1-A)||
+||C2 - A|| = r2+2*r1+z
+||C1 - A|| = r1 + z
+r2/(r2+2*r1+z) = r1/(r1+z)
+
+z = -(2 r1^2)/(r1 - r2) and r1!=r2 and r1 r2 (r1 + r2)!=0
+
+sin(psi) = r1/(z + r1)
+Theta = 2 * arcsin(r1/(z+r1))
+Nx = -sin(pi/2 + theta)
+Ny = -cos(pi/2 + theta)
+
+
