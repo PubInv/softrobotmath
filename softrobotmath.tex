@@ -90,7 +90,6 @@ of the circles arise, we have:
 \end{figure}
 
 \begin{align}
- %
 \frac{r_2}{||(C2 - A)||} &= \frac{r_1}{||(C_1-A)||} \\
 ||C2 - A|| &= r_2+2r_1+z \\
 ||C1 - A|| &= r_1 + z \\
@@ -101,20 +100,56 @@ z &= -\frac{2 r_1^2}{r_1 - r_2} \text{ and } r_1 \neq r_2 \text{ and } r_1 r_2 (
 Nx &= -\sin{\pi/2 + \theta} \\
 Ny &= -\cos{\pi/2 + \theta} \\
 \end{align}
-%
+
+\section{Problem: Three Touching Circles}
+
+Our goal is to be able to determine the orientation of plane resting on top of three spheres of different radii which are touching each
+other.
+Because there is a plane through any three points and we have three spheres, we can construct the plane through
+the center of these points.
+The projection of the edges of the spheres onto this plane form three touching circles.
+Knowing the position of these circles is a valuable prelude to solving the three dimenstional problem.
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.80\textwidth]{figures/ThreeTouchingCircles.png}
+     \caption{Three Touching Circles}
+  \label{fig:Tangent}
+\end{figure}
+
+To solve this problem most conveniently, we place the first circle on the negative $x$-axis, and the second circle
+on the positive $x$-axis, with the circles intersecting at the origin.
+The third circle is place in the positive $y$ direction. It's center will not be on the $y$-axis itself unless the
+radii of the first two circles are equal.
+
+We seek a formula for the coordinates of the third circle in terms of three input radii $r_1,r_2,r_3$.
+
+Because the distance between adjacent circles is the sum of their radii, define:
+\begin{align}
+a  &= r_2 + r_3 \\
+b  &= r_1 + r_3 \\
+c  &= r_1 + r_2
+\end{align}
+
+Then we can use the cosine law to compute the angle $\angle ABC = \theta$:
+
+
+\begin{align}
+  \theta  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}} \\
+  \theta  &= \arccos{\frac{(r_2+r_3)^2 + (r_1+r_3)^2 - (r_1+r_2)^2}{2(r_2+r_3)(r_1+r_3)}} \\
+\end{align}
+
+It is clear that once $\theta$ has been calculated:
+
+\begin{align}
+ C_y  &= a\sin{\theta}
+\end{align}
+Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean theorem:
+\begin{align}
+  b^2  &= y^2 + (r_1-C_x)^2 \\
+  b^2 - y^2  &= (r_1-C_x)^2  \\
+  \sqrt{b^2 - y^2}  &= r_1-C_x  \\
+  C_x &= r_1 -  \sqrt{b^2 - y^2}
+\end{align}
+
 \end{document}
-
-
-r2/||(C2 - A)|| = r1/||(C1-A)||
-||C2 - A|| = r2+2*r1+z
-||C1 - A|| = r1 + z
-r2/(r2+2*r1+z) = r1/(r1+z)
-
-z = -(2 r1^2)/(r1 - r2) and r1!=r2 and r1 r2 (r1 + r2)!=0
-
-sin(psi) = r1/(z + r1)
-Theta = 2 * arcsin(r1/(z+r1))
-Nx = -sin(pi/2 + theta)
-Ny = -cos(pi/2 + theta)
-
-
