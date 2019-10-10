@@ -82,9 +82,10 @@ of the circles arise, we have:
 \section{Problem II: Tangent Circles}
 
 
+
 \begin{figure}
      \centering
-     \includegraphics[width=0.80\textwidth]{figures/TangentCircles.png}
+     \includegraphics[width=0.80\textwidth]{figures/TangentCirclesGeneral.png}
      \caption{Problem II: Tangent Circles}
   \label{fig:Tangent}
 \end{figure}
@@ -101,11 +102,37 @@ N_x &= -\sin{\pi/2 + \theta} \\
 N_y &= -\cos{\pi/2 + \theta} \\
 \end{align}
 
+We would like to know the coordinates of $T_1$ and $T_2$.
+
+\begin{align}
+  d_1 &= \sqrt{(z+r_1)^2 - r_1^2} \\
+  d_2 &= \sqrt{(z+r_2+2r_1)^2 - r_2^2} \\
+  \alpha &= \pi - \psi \\
+  T_{1y} &= d_1\cos{\theta} \\
+  T_{2y} &= d_2\cos{\theta} \\
+  T_{1x} &= - (r_1\sin{\alpha} + r_1) \\
+  T_{2x} &= r_2 - r_2\sin{\alpha}
+\end{align}
+
+
 The slope of the vector $\overrightarrow{T_1T_2}$ is $\tan{\theta}$.
   \begin{align}
     \overrightarrow{T_1T_2}_x &= \cos{\theta} \\
     \overrightarrow{T_1T_2}_y &= \sin{\theta}
     \end{align}
+
+  \section{Problem III: Support points of Two tangent spheres }
+
+  In attempting to solve a latter problem, we identified the following problem as useful.
+
+  Suppose that you have two spheres which are tangent. The centers of these spheres are
+  in the $XY$-plane, in arbitrary positions.   Find the three-dimensional coordinates
+  of the ``support points'', which are the points upon which a flat plane would rest
+  if lowered onto the spheres. If the spheres are different sizes, these will not quite
+  be the tops of the spheres.  Assume the plane is symmetric about the support line; that
+  is, not tilted to one side.
+
+
 
 \section{Problem: Three Touching Circles}
 
@@ -188,8 +215,23 @@ We would expect an iterative approach to converge very quickly.
 Nonetheless we seek an analytic solution.
 
 
+Idea: It may be possible to solve for the support points as the intersection of cones\cite{shene1994lower}.
 
+Althernatively, each support point is the intersection of its sphere
+with two cones, whose axes pass through the center of that
+sphere.
 
+Try to formulate in this way, we can ask:
+
+Given two cones whose axes pass throuch the center of the sphere,
+what is the intersection of the cones with the sphere? Except for
+degenerate cases it will be the two intersections of circles on
+spherical surface.
+
+I now believe it may be possible to think of rotatining the tangent plane
+around a cone, producing a single variable---the angle of rotation--
+by aligning the problem on the axes, until the plane is in the correct
+position.
 
 \bibliographystyle{acm}
 
