@@ -1,0 +1,26 @@
+
+#function-status { color: darkred }
+
+#stack {display: inline-block; }
+
+
+#titlearea,#zoocontrolarea,.rowarea {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.toprowarea {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+
+#spinnerarea,#computedarea,.columnarea {
+    display: flex;
+    flex-direction: column;
+}
+
+#link-spinner,#face-spinner {
+    width: 20px;
+}

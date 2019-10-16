@@ -1,0 +1,136 @@
+<!--
+Copyright (C) 2019 by
+  Robert L. Read <read.robert@gmail.com>
+  David Jeschke <djeschke@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Segmented Helices</title>
+    <meta name="description" content="Segmented Helices">
+    <meta name="author" content="Robert L. Read">
+    <link rel="stylesheet" href="./jquery-ui-1.11.4.custom/jquery-ui.min.css">
+    <!--
+    <link rel="stylesheet" href="./jquery-ui-1.12.4.custom/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="./jquery-ui-1.12.4.custom/jquery-ui.theme.min.css">
+    -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="icon" href="./images/favicon.ico">
+    <script type="text/javascript" src="https://latex.codecogs.com/latexit.js"></script>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="./js/scijs-newton-raphson.js"></script>
+    <script src="./js/tm_bundle.js"></script>
+    <script src="./js/axes.js"></script>
+    <script src="./js/three.js"></script>
+    <script src="./js/THREE.MeshLine.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+    <script src="./js/Detector.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="./js/d3-scale.min.js"></script>
+    <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+    <script src="https://d3js.org/d3-array.v1.min.js"></script>
+    <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+    <script src="https://d3js.org/d3-color.v1.min.js"></script>
+    <script src="https://d3js.org/d3-format.v1.min.js"></script>
+    <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+    <script src="https://d3js.org/d3-time.v1.min.js"></script>
+    <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+    <script src="https://d3js.org/d3-scale.v1.min.js"></script>
+<style>
+codenza, code {}
+codenza {display:block;white-space:pre-wrap}
+
+</style>
+</head>
+<script>
+  var GLOBAL_DHELIX_PAGE = true;
+  </script>
+<body>
+  <div id="threecontainer"></div>
+
+
+  <h2>Control Mode (Scroll Down for Usage Explanation)</h2>
+  <div id="titlearea">
+
+</div>
+
+    <section>
+<table style="width:100%">
+  <tr>
+    <th width='10%'>Coord</th>
+    <th width='10%'>Value</th>
+    <th width='60%'>Slider</th>
+    <th width='20%'>Text Input</th>
+  </tr>
+  <tr>
+    <td><label for="radius_a">Radius A</label></td>
+    <td> <input type="text" id="radius_a" readonly style="border:0; color:#f6931f; font-weight:bold;">
+</td>
+    <td> <div id="radius_a_slider"></div> </td>
+    <td>  &nbsp;  &nbsp; <label>R a <input id="r_a" />  </label> </td>
+  </tr>
+  <tr>
+    <td><label for="radius_b">Radius B</label></td>
+    <td> <input type="text" id="radius_b" readonly style="border:0; color:#f6931f; font-weight:bold;">
+</td>
+    <td> <div id="radius_b_slider"></div> </td>
+    <td>  &nbsp;  &nbsp; <label>R b <input id="r_b" />  </label> </td>
+  </tr>
+  <tr>
+    <td><label for="radius_c">Raidus C</label></td>
+    <td> <input type="text" id="radius_c" readonly style="border:0; color:#f6931f; font-weight:bold;">
+</td>
+    <td> <div id="radius_c_slider"></div> </td>
+    <td>  &nbsp;  &nbsp; <label>R c <input id="r_c" />  </label> </td>
+  </tr>
+</table>
+
+
+      </section>
+
+  <section id="textsection">
+    <p> <strong>This is an interactive 3D simulation. To change the view, place your mouse in the view area, and
+        hold and "drag" the mouse to rotate the image.
+        The mouse wheel or a drag on your trackpad should zoom you in or out.</strong> </p>
+
+
+
+    <h2>Unit Tests</h2>
+    This code has extensive unit tests which are executed in-browser.
+    Clicking on the button below executes these tests.
+    Refer to the code and the console for details.
+
+    <p>
+      <button type="button" onclick="runUnitTests()">
+        Execute Tests!</button>
+    </p>
+
+    <h2>Licensing</h2>
+
+    <img src="https://www.gnu.org/graphics/gplv3-or-later.png"></img>
+    <p>All of the code on this site is released under the <a href="https://www.gnu.org/licenses/gpl-3.0.txt">GNU General Public License Version 3</a>, and I hope you will
+      reuse it. The code, including technical documentation, can be found <a href="https://github.com/PubInv/segmented-helixes">in the repo</a>.</p>
+    <p>This project is part of <a href="https://pubinv.github.io/PubInv/">Public Invention</a>. To assist on this project, contact Robert L. Read &lt; read.robert@gmail.com &gt;</p>
+  </section>
+    <script src="./js/segment_helix_math.js"></script>
+    <script src="./js/main.js"></script>
+
+</body>
