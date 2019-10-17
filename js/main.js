@@ -701,14 +701,29 @@ function onComputeParams() {
 
   clearAm();
 
+  const ra = $( "#radius_a_slider" ).slider( "value" );
+  const rb = $( "#radius_b_slider" ).slider( "value" );
+  const rc = $( "#radius_c_slider" ).slider( "value" );
+
+  console.log("ra,rb,rc",ra,rb,rc);
+
+
+
   let colors = [d3.color("DarkRed"),
                 d3.color("DarkOrange"),
                 d3.color("Green")];
 
+  const vs = Compute3TouchingCircles(ra,rb,rc);
+
+  const A = vs[0];
+  const B = vs[1];
+  const C = vs[2];
+
+
   // Sphere
-  var a = new THREE.Vector3(1,0,0);
-  var b = new THREE.Vector3(0,0,3);
-  var c = new THREE.Vector3(1,0,4);
+  var a = new THREE.Vector3(A.x,0,A.y);
+  var b = new THREE.Vector3(B.x,0,B.y);
+  var c = new THREE.Vector3(C.x,0,C.y);
 
   colors[0].hex();
   colors[1].hex();

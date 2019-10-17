@@ -146,8 +146,63 @@ function isRigidTransformation(R) {
   return true;
 }
 
+// This returns 3 Vecto2 obects, A, B, C in our convention.
+function Compute3TouchingCircles(ra,rb,rc) {
+  const A = new THREE.Vector2(-ra,0);
+  const B = new THREE.Vector2(rb,0);
+  const a  = rb + rc;
+  const b  = ra + rc;
+  const c  = ra + rb;
+  const theta = Math.acos((a**2 + c**2 - b**2)/(2*a*c));
+  const cy = a * Math.sin(theta);
+  const cx = B.x - a * Math.cos(theta)
+//  const cx = A.x - Math.sqrt(b**2 - cy**2);
+  const C = new THREE.Vector2(cx,cy);
+  return [A,B,C];
+}
+function testCircle(ra,rb,rc) {
+  const vs = Compute3TouchingCircles(ra,rb,rc);
+
+  const A = vs[0];
+  const B = vs[1];
+  const C = vs[2];
+
+  console.assert(near(A.y,0));
+  console.assert(near(B.y,0));
+  console.assert(near(A.distanceTo(B),ra+rb));
+  console.assert(near(B.distanceTo(C),rb+rc));
+  console.assert(near(A.distanceTo(C),ra+rc));
+
+  console.log("C",C);
+  return true;
+}
+function testCompute3TouchingCirclesSimple() {
+  const ra = 1;
+  const rb = 2;
+  const rc = 3;
+  var result = testCircle(ra,rb,rc);
+  if (!result) {
+    console.log("ra,rb,rc",ra,rb,rc);
+  }
+}
+
+function testCompute3TouchingCircles() {
+  const ra = 1;
+  for(var rb = 1; rb < 3; rb += 0.2) {
+    for(var rc = 1; rc < 3; rc += 0.2) {
+      var result = testCircle(ra,rb,rc);
+      if (!result) {
+        console.log("ra,rb,rc",ra,rb,rc);
+      }
+    }
+  }
+}
 
 function runUnitTests() {
+
+  testCompute3TouchingCirclesSimple();
+  testCompute3TouchingCircles();
+
  // testClosestPoint();
   // testComputeRotation();
   // testComputeRotationFull();

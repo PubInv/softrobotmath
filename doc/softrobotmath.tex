@@ -97,6 +97,7 @@ of the circles arise, we have:
 \frac{r_2}{r_2+2r_1+z} &= \frac{r_1}{r_1+z} \\
 z &= -\frac{2 r_1^2}{r_1 - r_2} \text{ and } r_1 \neq r_2 \text{ and } r_1 r_2 (r_1 + r_2) \neq 0 \\
 \sin{\psi} &= \frac{r_1}{z + r_1} \\
+\sin{\psi} &= \frac{r_1}{z + r_1} \\
 \theta &=2 \arcsin{\frac{r_1}{z+r_1}} \\
 N_x &= -\sin{\pi/2 + \theta} \\
 N_y &= -\cos{\pi/2 + \theta} \\
@@ -107,11 +108,12 @@ We would like to know the coordinates of $T_1$ and $T_2$.
 \begin{align}
   d_1 &= \sqrt{(z+r_1)^2 - r_1^2} \\
   d_2 &= \sqrt{(z+r_2+2r_1)^2 - r_2^2} \\
-  \alpha &= \pi - \psi \\
-  T_{1y} &= d_1\cos{\theta} \\
-  T_{2y} &= d_2\cos{\theta} \\
-  T_{1x} &= - (r_1\sin{\alpha} + r_1) \\
-  T_{2x} &= r_2 - r_2\sin{\alpha}
+  T_{1y} &= d_1\sin{\theta} \\
+  T_{2y} &= d_2\sin{\theta} \\
+  A_x &= (z + 2r_1)\cos{\psi} \\
+  f  &= \sqrt{d_1^2 - T_{1y}^2} \\
+  T_{1x} &= A_x - f \\
+  T_{2x} &=  \sqrt{d_2^2 - T_{2y}^2} - A_x \\
 \end{align}
 
 
