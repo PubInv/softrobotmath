@@ -756,15 +756,19 @@ function onComputeParams() {
   // Cone Apexes
   var cA1 = A.clone();
   if (theta1 != 0) {
-    cA1.add(A1unit.clone().multiplyScalar( ra / Math.tan(theta1)));
+    var sgn = (rb > ra) ? 1 : -1;
+    cA1.add(A1unit.clone().multiplyScalar( sgn * ra / Math.tan(theta1)));
   }
   var cA2 = B.clone();
   if (theta2 != 0) {
-    cA2.add(A2unit.clone().multiplyScalar( rb / Math.tan(theta2)));
+    var sgn = (rb > rc) ? 1 : -1;
+    cA2.add(A2unit.clone().multiplyScalar( sgn * rb / Math.tan(theta2)));
   }
   var cA3 = C.clone();
   if (theta3 != 0) {
-    cA3.add(A3unit.clone().multiplyScalar( rc / Math.tan(theta3)));
+    var sgn = (ra > rc) ? 1 : -1;
+    cA3.add(A3unit.clone().multiplyScalar( sgn *rc / Math.tan(theta3)));
+
   }
 
   console.log("theta1",theta1 * 180 / Math.PI);
