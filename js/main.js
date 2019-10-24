@@ -694,7 +694,20 @@ function setSelectedTau(tau_radians) {
   }
 
 }
+// construct a cone that is sort of around sphere at c
+// with apex at point apex of half-angle angle
+function positionConeOnSphere(apex,c,angle) {
+  var len = apex.distanceTo(c);
+  var r = len * Math.tan(angle);
+  var geometry = new THREE.ConeGeometry( r, len, 32, false );
+  var material = new THREE.MeshPhongMaterial( {color: 0x0000ff, opacity: 0.5, transparent: true} );
+  var cone = new THREE.Mesh( geometry, material );
+  cone.castShadow = true;
+  cone.receiveShadow = true;
+  cone.debugObject = true;
+  return cone;
 
+}
 
 // This is the main recomputation
 function onComputeParams() {
@@ -722,53 +735,79 @@ function onComputeParams() {
   const B = new THREE.Vector3(B2d.x,0,B2d.y);
   const C = new THREE.Vector3(C2d.x,0,C2d.y);
 
-  // Cone Axes
-  const A1 = new THREE.Vector3().subVectors(C,B).clampLength(1.0,1.0);
-  const A2 = new THREE.Vector3().subVectors(C,A).clampLength(1.0,1.0);
-  const A3 = new THREE.Vector3().subVectors(B,A).clampLength(1.0,1.0);
+  console.assert(near(A.distanceTo(B),ra+rb));
+  console.assert(near(B.distanceTo(C),rb+rc));
+  console.assert(near(A.distanceTo(C),ra+rc));
 
-  const theta1 = ComputeAxisAngleOfCone(rc,rb);
-  const theta2 = ComputeAxisAngleOfCone(rc,ra);
-  const theta3 = ComputeAxisAngleOfCone(rb,ra);
+  // Cone Axes
+  const A1 = new THREE.Vector3().subVectors(A,B);
+  const A2 = new THREE.Vector3().subVectors(B,C);
+  const A3 = new THREE.Vector3().subVectors(C,A);
+
+  const A1unit = A1.clone().clampLength(1.0,1.0);
+  const A2unit = A2.clone().clampLength(1.0,1.0);
+  const A3unit = A3.clone().clampLength(1.0,1.0);
+
+
+  const theta1 = ComputeAxisAngleOfCone(ra,rb);
+  const theta2 = ComputeAxisAngleOfCone(rb,rc);
+  const theta3 = ComputeAxisAngleOfCone(rc,ra);
+
+  // Cone Apexes
+  var cA1 = A.clone();
+  if (theta1 != 0) {
+    cA1.add(A1unit.clone().multiplyScalar( ra / Math.tan(theta1)));
+  }
+  var cA2 = B.clone();
+  if (theta2 != 0) {
+    cA2.add(A2unit.clone().multiplyScalar( rb / Math.tan(theta2)));
+  }
+  var cA3 = C.clone();
+  if (theta3 != 0) {
+    cA3.add(A3unit.clone().multiplyScalar( rc / Math.tan(theta3)));
+  }
 
   console.log("theta1",theta1 * 180 / Math.PI);
   console.log("theta2",theta2 * 180 / Math.PI);
   console.log("theta3",theta3 * 180 / Math.PI);
-  const c_theta1 = Math.cos(theta1);
-  const c_theta2 = Math.cos(theta2);
-  const c_theta3 = Math.cos(theta3);
+//   const c_theta1 = Math.cos(theta1);
+//   const c_theta2 = Math.cos(theta2);
+//   const c_theta3 = Math.cos(theta3);
 
-  const k = new THREE.Vector3(c_theta1,c_theta2,c_theta3);
+//   const k = new THREE.Vector3(c_theta1,c_theta2,c_theta3);
 
-  console.assert(A1.y == 0);
-  console.assert(A2.y == 0);
-  console.assert(A3.y == 0);
+//   console.assert(A1.y == 0);
+//   console.assert(A2.y == 0);
+//   console.assert(A3.y == 0);
 
-  var MA = new THREE.Matrix3();
-  MA.set(A1.x, A1.y, A1.z,
-         A2.x, A2.y, A2.z,
-         A3.x, A3.y, A3.z);
-  console.log("elements",MA.elements);
+//   var MA = new THREE.Matrix3();
+//   MA.set(A1.x, A1.y, A1.z,
+//          A2.x, A2.y, A2.z,
+//          A3.x, A3.y, A3.z);
+// //  console.log("elements",MA.elements);
 
-  var MAinv = new THREE.Matrix3();
-  MAinv.getInverse(MA,false);
-  k.applyMatrix3(MAinv);
-  console.log("k",k);
+//   var MAinv = new THREE.Matrix3();
+// //  MAinv.getInverse(MA,false);
+// //  k.applyMatrix3(MAinv);
+// //  console.log("k",k);
 
+  console.log("A3.length",A3.length());
+  // if (theta1 != 0) {
+  //   var cone = positionConeOnSphere(cA1,A,theta1);
+  //   am.scene.add( cone );
+  // }
+  // if (theta2 != 0) {
+  //   var cone = positionConeOnSphere(cA2,B,theta2);
+  //   am.scene.add( cone );
+  // }
+  // if (theta3 != 0) {
+  //   var cone = positionConeOnSphere(cA3,C,theta3);
+  //   am.scene.add( cone );
+  // }
 
-
-  // Sphere
-  var a = new THREE.Vector3(A.x,A.y,A.z);
-  var b = new THREE.Vector3(B.x,B.y,B.z);
-  var c = new THREE.Vector3(C.x,C.y,C.z);
-
-  colors[0].hex();
-  colors[1].hex();
-  colors[2].hex();
-
-  var ma = createSphere(RADIUS_A,a,colors[0].hex());
-  var mb = createSphere(RADIUS_B,b,colors[1].hex());
-  var mc = createSphere(RADIUS_C,c,colors[2].hex());
+  var ma = createSphere(ra,A,colors[0].hex());
+  var mb = createSphere(rb,B,colors[1].hex());
+  var mc = createSphere(rc,C,colors[2].hex());
 
   ma.castShadow = false;
   ma.receiveShadow = false;
@@ -784,6 +823,19 @@ function onComputeParams() {
   mc.receiveShadow = false;
   mc.debugObject = true;
   am.scene.add(mc);
+
+  // Add Apex points
+
+  var map = createSphere(0.1,cA1,colors[0].hex());
+  var mbp = createSphere(0.1,cA2,colors[1].hex());
+  var mcp = createSphere(0.1,cA3,colors[2].hex());
+  map.debugObject = true;
+  mbp.debugObject = true;
+  mcp.debugObject = true;
+  am.scene.add(map);
+  am.scene.add(mbp);
+  am.scene.add(mcp);
+
 }
 
 function main() {

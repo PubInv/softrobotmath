@@ -158,6 +158,9 @@ function Compute3TouchingCircles(ra,rb,rc) {
   const cx = B.x - a * Math.cos(theta)
 //  const cx = A.x - Math.sqrt(b**2 - cy**2);
   const C = new THREE.Vector2(cx,cy);
+  console.assert(near(A.distanceTo(B),ra+rb));
+  console.assert(near(B.distanceTo(C),rb+rc));
+  console.assert(near(A.distanceTo(C),ra+rc));
   return [A,B,C];
 }
 function testCircle(ra,rb,rc) {
@@ -169,9 +172,7 @@ function testCircle(ra,rb,rc) {
 
   console.assert(near(A.y,0));
   console.assert(near(B.y,0));
-  console.assert(near(A.distanceTo(B),ra+rb));
-  console.assert(near(B.distanceTo(C),rb+rc));
-  console.assert(near(A.distanceTo(C),ra+rc));
+
 
   return true;
 }
@@ -198,7 +199,6 @@ function testCompute3TouchingCircles() {
 }
 
 
-
 function ComputeAxisAngleOfCone(r1,r2) {
   if (r1 == r2) {
     return 0;
@@ -213,9 +213,10 @@ function ComputeAxisAngleOfCone(r1,r2) {
     r1 = r2;
     r2 = temp;
   }
-  let z = -2 * r1**2 / (r1 - r2);
+  let z = -2 * (r1**2 / (r1 - r2));
   console.assert( z >= 0);
   let psi = Math.asin(r1/ (z + r1));
+  console.log("r1,r2,z,psi",r1,r2,z,psi *180/Math.PI);
   return psi;
 }
 
