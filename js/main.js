@@ -715,15 +715,52 @@ function onComputeParams() {
 
   const vs = Compute3TouchingCircles(ra,rb,rc);
 
-  const A = vs[0];
-  const B = vs[1];
-  const C = vs[2];
+  const A2d = vs[0];
+  const B2d = vs[1];
+  const C2d = vs[2];
+  const A = new THREE.Vector3(A2d.x,0,A2d.y);
+  const B = new THREE.Vector3(B2d.x,0,B2d.y);
+  const C = new THREE.Vector3(C2d.x,0,C2d.y);
+
+  // Cone Axes
+  const A1 = new THREE.Vector3().subVectors(C,B).clampLength(1.0,1.0);
+  const A2 = new THREE.Vector3().subVectors(C,A).clampLength(1.0,1.0);
+  const A3 = new THREE.Vector3().subVectors(B,A).clampLength(1.0,1.0);
+
+  const theta1 = ComputeAxisAngleOfCone(rc,rb);
+  const theta2 = ComputeAxisAngleOfCone(rc,ra);
+  const theta3 = ComputeAxisAngleOfCone(rb,ra);
+
+  console.log("theta1",theta1 * 180 / Math.PI);
+  console.log("theta2",theta2 * 180 / Math.PI);
+  console.log("theta3",theta3 * 180 / Math.PI);
+  const c_theta1 = Math.cos(theta1);
+  const c_theta2 = Math.cos(theta2);
+  const c_theta3 = Math.cos(theta3);
+
+  const k = new THREE.Vector3(c_theta1,c_theta2,c_theta3);
+
+  console.assert(A1.y == 0);
+  console.assert(A2.y == 0);
+  console.assert(A3.y == 0);
+
+  var MA = new THREE.Matrix3();
+  MA.set(A1.x, A1.y, A1.z,
+         A2.x, A2.y, A2.z,
+         A3.x, A3.y, A3.z);
+  console.log("elements",MA.elements);
+
+  var MAinv = new THREE.Matrix3();
+  MAinv.getInverse(MA,false);
+  k.applyMatrix3(MAinv);
+  console.log("k",k);
+
 
 
   // Sphere
-  var a = new THREE.Vector3(A.x,0,A.y);
-  var b = new THREE.Vector3(B.x,0,B.y);
-  var c = new THREE.Vector3(C.x,0,C.y);
+  var a = new THREE.Vector3(A.x,A.y,A.z);
+  var b = new THREE.Vector3(B.x,B.y,B.z);
+  var c = new THREE.Vector3(C.x,C.y,C.z);
 
   colors[0].hex();
   colors[1].hex();

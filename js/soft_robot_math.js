@@ -173,7 +173,6 @@ function testCircle(ra,rb,rc) {
   console.assert(near(B.distanceTo(C),rb+rc));
   console.assert(near(A.distanceTo(C),ra+rc));
 
-  console.log("C",C);
   return true;
 }
 function testCompute3TouchingCirclesSimple() {
@@ -198,10 +197,43 @@ function testCompute3TouchingCircles() {
   }
 }
 
+
+
+function ComputeAxisAngleOfCone(r1,r2) {
+  if (r1 == r2) {
+    return 0;
+  }
+  if ((r1 == 0) || (r2 == 0)) {
+    console.log("error! We can't handle zero radii!");
+    return null;
+  }
+
+  if (r2 < r1) {
+    var temp = r1;
+    r1 = r2;
+    r2 = temp;
+  }
+  let z = -2 * r1**2 / (r1 - r2);
+  console.assert( z >= 0);
+  let psi = Math.asin(r1/ (z + r1));
+  return psi;
+}
+
+function testComputeAxisAngleOfCone() {
+  let r1 = 0.25;
+  let r2 = 1.5;
+  let c1 = new THREE.Vector3(0,0,0);
+  let c2 = new THREE.Vector3(10,0,0);
+  let psi = ComputeAxisAngleOfCone(r1,r2,c1,c2);
+  console.log("computed theta",psi * 180 / Math.PI);
+}
+
 function runUnitTests() {
 
   testCompute3TouchingCirclesSimple();
   testCompute3TouchingCircles();
+
+  testComputeAxisAngleOfCone();
 
  // testClosestPoint();
   // testComputeRotation();
