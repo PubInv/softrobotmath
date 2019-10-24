@@ -71,7 +71,7 @@ function createSphere(r, pos, color) {
   //    var cmat = memo_color_mat(tcolor);
   var tcolor = new THREE.Color(color);
   var cmat = new THREE.MeshPhongMaterial({ color: tcolor });
-  var ball = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 16), cmat);
+  var ball = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 32), cmat);
   ball.position.set(pos.x, pos.y, pos.z);
   ball.castShadow = false;;
   ball.receiveShadow = true;
@@ -580,6 +580,9 @@ function clearAm() {
   am.clear_non_floor_body_mesh_pairs();
   for (var i = am.scene.children.length - 1; i >= 0; i--) {
     var obj = am.scene.children[i];
+    if (obj.debugObject) {
+      am.scene.remove(obj);
+    }
     if (obj.type == "Mesh" && obj.name != "GROUND") {
       am.scene.remove(obj);
     }
@@ -753,7 +756,7 @@ function onComputeParams() {
   const theta2 = ComputeAxisAngleOfCone(rb,rc);
   const theta3 = ComputeAxisAngleOfCone(rc,ra);
 
-  // Cone Apexes
+  // Cone Apexes - TODO -- put this is soft_robot_math.js
   var cA1 = A.clone();
   if (theta1 != 0) {
     var sgn = (rb > ra) ? 1 : -1;
@@ -839,6 +842,62 @@ function onComputeParams() {
   am.scene.add(map);
   am.scene.add(mbp);
   am.scene.add(mcp);
+
+  // Experimental...
+  // Assume A > B, and A and B are on the z axis (z = 0)
+  console.assert(A.z == 0);
+  console.assert(B.z == 0);
+  // Assume their contact point is at the origin,
+  // so that A.x == -ra;
+  console.assert(A.x == -ra);
+  // let AC len = the distance from A to C
+  const AClen = A.distanceTo(cA3);
+  console.log("AClen",AClen);
+  var psi = new THREE.Vector3(1,0,0).angleTo(A3unit);
+  console.log("psi",psi * 180/Math.PI);
+  var zproj = AClen * Math.cos(psi);
+  console.log("zproj",zproj);
+  var theta = Math.atan(zproj/ra);
+  console.log("theta",theta * 180 / Math.PI);
+  var P = new THREE.Vector3(-ra,
+                            ra*Math.sin(theta),
+                            ra*Math.cos(theta));
+  console.log("P",P);
+  var PB = new THREE.Vector3().subVectors(P,cA1);
+  var PC = new THREE.Vector3().subVectors(P,cA3);
+  var N = new THREE.Vector3().crossVectors(PC,PB);
+  N.clampLength(1,1);
+  console.log("N",N);
+  var origin = new THREE.Vector3( 0, 0, 0 );
+
+
+  var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
+  var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
+  var plane = new THREE.Mesh( geometry, pmaterial );
+  plane.debugObject = true;
+  let qz = new THREE.Quaternion();
+  const Z = new THREE.Vector3(0,0,1);
+  const Y = new THREE.Vector3(0,1,0);
+  const X = new THREE.Vector3(1,0,0);
+  qz.setFromUnitVectors(Z,Y);
+  const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
+  plane.applyMatrix(RM0);
+
+  // S is my attempt to construct a true "support point"
+  const S = A.clone().add(N.clone().clampLength(ra,ra));
+   let qzn = new THREE.Quaternion();
+  qzn.setFromUnitVectors(Y,N);
+  const RM1 = new THREE.Matrix4().makeRotationFromQuaternion(qzn);
+  plane.applyMatrix(RM1);
+
+  const TM0 = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
+  plane.applyMatrix(TM0);
+
+    var narrowHelper = new THREE.ArrowHelper( N, S, 3, 0xff00ff );
+  narrowHelper.debugObject = true;
+  am.scene.add( narrowHelper );
+
+  am.scene.add( plane );
 
 }
 
