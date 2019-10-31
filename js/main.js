@@ -760,57 +760,25 @@ function onComputeParams() {
   var cA1 = A.clone();
   if (theta1 != 0) {
     var sgn = (rb > ra) ? 1 : -1;
-    cA1.add(A1unit.clone().multiplyScalar( sgn * ra / Math.tan(theta1)));
+    cA1.add(A1unit.clone().multiplyScalar( sgn * ra / Math.sin(theta1)));
   }
   var cA2 = B.clone();
   if (theta2 != 0) {
-    var sgn = (rb > rc) ? 1 : -1;
-    cA2.add(A2unit.clone().multiplyScalar( sgn * rb / Math.tan(theta2)));
+    var sgn = (rc > rb) ? 1 : -1;
+    cA2.add(A2unit.clone().multiplyScalar( sgn * rb / Math.sin(theta2)));
   }
   var cA3 = C.clone();
   if (theta3 != 0) {
     var sgn = (ra > rc) ? 1 : -1;
-    cA3.add(A3unit.clone().multiplyScalar( sgn *rc / Math.tan(theta3)));
+    cA3.add(A3unit.clone().multiplyScalar( sgn * rc / Math.sin(theta3)));
 
   }
 
   console.log("theta1",theta1 * 180 / Math.PI);
   console.log("theta2",theta2 * 180 / Math.PI);
   console.log("theta3",theta3 * 180 / Math.PI);
-//   const c_theta1 = Math.cos(theta1);
-//   const c_theta2 = Math.cos(theta2);
-//   const c_theta3 = Math.cos(theta3);
-
-//   const k = new THREE.Vector3(c_theta1,c_theta2,c_theta3);
-
-//   console.assert(A1.y == 0);
-//   console.assert(A2.y == 0);
-//   console.assert(A3.y == 0);
-
-//   var MA = new THREE.Matrix3();
-//   MA.set(A1.x, A1.y, A1.z,
-//          A2.x, A2.y, A2.z,
-//          A3.x, A3.y, A3.z);
-// //  console.log("elements",MA.elements);
-
-//   var MAinv = new THREE.Matrix3();
-// //  MAinv.getInverse(MA,false);
-// //  k.applyMatrix3(MAinv);
-// //  console.log("k",k);
 
   console.log("A3.length",A3.length());
-  // if (theta1 != 0) {
-  //   var cone = positionConeOnSphere(cA1,A,theta1);
-  //   am.scene.add( cone );
-  // }
-  // if (theta2 != 0) {
-  //   var cone = positionConeOnSphere(cA2,B,theta2);
-  //   am.scene.add( cone );
-  // }
-  // if (theta3 != 0) {
-  //   var cone = positionConeOnSphere(cA3,C,theta3);
-  //   am.scene.add( cone );
-  // }
 
   var ma = createSphere(ra,A,colors[0].hex());
   var mb = createSphere(rb,B,colors[1].hex());
@@ -853,32 +821,64 @@ function onComputeParams() {
   // let AC len = the distance from A to C
   const AClen = A.distanceTo(cA3);
   console.log("AClen",AClen);
-  var psi = new THREE.Vector3(1,0,0).angleTo(A3unit);
+  var psi = new THREE.Vector3(0,0,1).angleTo(A3unit);
   console.log("psi",psi * 180/Math.PI);
   var zproj = AClen * Math.cos(psi);
-  console.log("zproj",zproj);
-  var theta = Math.atan(zproj/ra);
+  var zprime = zproj * (cA1.x + ra) / ((cA1.x +ra) - (cA3.x +ra));
+  console.log("zproj",zproj,zprime);
+//    var theta = Math.atan(zproj/ra);
+  //  var theta = Math.acos(ra/zproj);
+
+//  var theta = Math.acos(ra*(cA1.x - cA3.x)/(cA1.x * cA3.z));
+  var theta = Math.acos(ra/zprime);
   console.log("theta",theta * 180 / Math.PI);
-  var P = new THREE.Vector3(-ra,
-                            ra*Math.sin(theta),
-                            ra*Math.cos(theta));
-  console.log("P",P);
-  var PB = new THREE.Vector3().subVectors(P,cA1);
-  var PC = new THREE.Vector3().subVectors(P,cA3);
-  var N = new THREE.Vector3().crossVectors(PC,PB);
+
+
+
+
+  var alpha = Math.PI/2 - Math.acos(ra/AClen);
+  console.log("alpha",alpha * 180 / Math.PI);
+  const Z = new THREE.Vector3(0,0,1);
+  const Y = new THREE.Vector3(0,1,0);
+  const X = new THREE.Vector3(1,0,0);
+
+  var Pp = new THREE.Vector3(1,0,0);
+  var Pp1 = new THREE.Vector3(1,0,0);
+  var Pp2 = new THREE.Vector3(1,0,0);
+
+  Pp.applyAxisAngle(Z,Math.PI/2 - theta1);
+  Pp1.applyAxisAngle(Z,Math.PI/2 - theta1);
+  console.log("pp, pp1",Pp,Pp1);
+
+  Pp2.applyAxisAngle(Z,Math.PI/2);
+
+  Pp.applyAxisAngle(X,Math.PI/2-theta);
+
+  console.log("pp, pp1",Pp,Pp1);
+  Pp2.applyAxisAngle(X,Math.PI/2-theta);
+
+  var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
+  ppHelper.debugObject = true;
+  am.scene.add( ppHelper );
+
+  var ppHelper1 = new THREE.ArrowHelper( Pp1, A, 5, 0x00ff00 );
+  ppHelper1.debugObject = true;
+  am.scene.add( ppHelper1 );
+
+  var ppHelper2 = new THREE.ArrowHelper( Pp2, A, 6, 0x0000ff );
+  ppHelper2.debugObject = true;
+  am.scene.add( ppHelper2 );
+
+  N = Pp.clone();
   N.clampLength(1,1);
   console.log("N",N);
   var origin = new THREE.Vector3( 0, 0, 0 );
 
-
-  var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
+  var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
   var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
   var plane = new THREE.Mesh( geometry, pmaterial );
   plane.debugObject = true;
   let qz = new THREE.Quaternion();
-  const Z = new THREE.Vector3(0,0,1);
-  const Y = new THREE.Vector3(0,1,0);
-  const X = new THREE.Vector3(1,0,0);
   qz.setFromUnitVectors(Z,Y);
   const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
   plane.applyMatrix(RM0);
@@ -898,6 +898,13 @@ function onComputeParams() {
   am.scene.add( narrowHelper );
 
   am.scene.add( plane );
+
+  var zc = createSphere(0.1,new THREE.Vector3(-ra,0,zprime),0xffffff);
+
+  zc.castShadow = false;
+  zc.receiveShadow = false;
+  zc.debugObject = true;
+  am.scene.add(zc);
 
 }
 

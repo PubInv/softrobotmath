@@ -215,18 +215,20 @@ function ComputeAxisAngleOfCone(r1,r2) {
   }
   let z = -2 * (r1**2 / (r1 - r2));
   console.assert( z >= 0);
+
   let psi = Math.asin(r1/ (z + r1));
   console.log("r1,r2,z,psi",r1,r2,z,psi *180/Math.PI);
+  console.assert(near((z+r1)**2,r1**2 + (Math.cos(psi)*(z+r1))**2));
   return psi;
 }
-
+// TODO: This is not a good enough test!!! Need to fix.
 function testComputeAxisAngleOfCone() {
-  let r1 = 0.25;
-  let r2 = 1.5;
+  let r1 = 3;
+  let r2 = 1;
   let c1 = new THREE.Vector3(0,0,0);
   let c2 = new THREE.Vector3(10,0,0);
-  let psi = ComputeAxisAngleOfCone(r1,r2,c1,c2);
-  console.log("computed theta",psi * 180 / Math.PI);
+  let psi = ComputeAxisAngleOfCone(r1,r2);
+  console.log("computed psi",psi * 180 / Math.PI);
 }
 
 function runUnitTests() {
