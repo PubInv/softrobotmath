@@ -1,3 +1,18 @@
+ %% Copyright (C) 2019 by
+ %%   Robert L. Read <read.robert@gmail.com>, Megan Cadena <megancad@gmail.com>
+
+ %% This program is free software: you can redistribute it and/or modify
+ %% it under the terms of the GNU General Public License as published by
+ %% the Free Software Foundation, either version 3 of the License, or
+ %% (at your option) any later version.
+
+ %% This program is distributed in the hope that it will be useful,
+ %% but WITHOUT ANY WARRANTY; without even the implied warranty of
+ %% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ %% GNU General Public License for more details.
+
+ %% You should have received a copy of the GNU General Public License
+ %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 \documentclass{article}
 \usepackage{hyperref}
@@ -228,24 +243,59 @@ We would expect an iterative approach to converge very quickly.
 
 Nonetheless we seek an analytic solution.
 
+\begin{figure}
+     \centering
+     \includegraphics[width=0.80\textwidth]{figures/StandardThreeSphereDiagram.png}
+     \caption{Three Touching Spheres}
+  \label{fig:fixed}
+\end{figure}
+
+\subsection{Variable definitions}
+
+We assume that the spheres centered at points $A,B,$ and $C$
+of radii $r_A,r_b,$ and $r_c$. We setup our coordinate system as a right-
+handed coordinate system with $XZ$ plane contaning the center of all spheres.
+The $A$ sphere is placed at the origin, so that $O = A$, and the $B$ sphere
+is place on the positive $X$ axis. Without loss of generality assume $r_a \geq r_b \geq r_c$.
+Following computer graphics convention, we think of the $Y$ dimension as vertical.
+
+Taking any two spheres defines a cone whose apex is in the $XZ$ plane.
+Call the apex of the $AB$ cone $U$, the $AC$ cone $V$, and the $BC$ cone $W$.
+
+We assert that these three points form a line, which we call the {\em apex line}, in the $XZ$ plane and that this
+line is the intersection of the {\em tangent plane} touching all three spheres at a single point
+with the $XZ$ plane. We will use points $U$ and $V$ in our calculation.
+Let $\alpha$ be the half-angle of the $AB$ cone.
+
+It behooves us to name the intersection of the apex line with the $Z$ axis, $I_z$, so
+that we can use it in calculations.
+
+\subsection{Strategy}
+
+We seek to compute the normal of the tangent plane.
+Observe that this plane is tangent to all three cones.
+Observe that the $AB$ cone intersects
+the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
+
+A vector of length $r_A$ that begins pointing in the $X$ direction and is rotated counterclockwise
+about the $Z$-axis by $\pi/2 - \alpha$.
+
+However, we must rotate this vector about the $X$ axis by an unknown amount $\theta$ in order
+to bring capture the tilt which is not purely a rotation about the $Z$ axis.
+Since this angle is computed in the $ZY$ plane, we compute a projection of the point $V$ into
+that plane, forming a triangle in the $ZY$ plane.  Call this point $I_z$, the intersection
+of the apex line with the $Z$-axis.
+
+
+
+
+
+
+\section{Thing to Research}
 
 Idea: It may be possible to solve for the support points as the intersection of cones\cite{shene1994lower}.
 
-Althernatively, each support point is the intersection of its sphere
-with two cones, whose axes pass through the center of that
-sphere.
 
-Try to formulate in this way, we can ask:
-
-Given two cones whose axes pass throuch the center of the sphere,
-what is the intersection of the cones with the sphere? Except for
-degenerate cases it will be the two intersections of circles on
-spherical surface.
-
-I now believe it may be possible to think of rotatining the tangent plane
-around a cone, producing a single variable---the angle of rotation--
-by aligning the problem on the axes, until the plane is in the correct
-position.
 
 \bibliographystyle{acm}
 
