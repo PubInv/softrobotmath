@@ -245,11 +245,7 @@ var AM = function () {
   this.gplane = false;
 
 
-//  this.INITIAL_EDGE_LENGTH = TET_DISTANCE;
-//  this.INITIAL_EDGE_WIDTH = this.INITIAL_EDGE_LENGTH / 40;
-//  this.INITIAL_HEIGHT = 3 * this.INITIAL_EDGE_LENGTH / 2;
   this.NUMBER_OF_TETRAHEDRA = 70;
-  //       this.NUMBER_OF_TETRAHEDRA = 5;
 
 
 //  this.JOINT_RADIUS = 0.09 * this.INITIAL_EDGE_LENGTH; // This is the current turret joint ball.
@@ -811,33 +807,14 @@ function onComputeParams() {
   am.scene.add(mbp);
   am.scene.add(mcp);
 
-  // Experimental...
-  // Assume A > B, and A and B are on the z axis (z = 0)
-  console.assert(A.z == 0);
-  console.assert(B.z == 0);
-  // Assume their contact point is at the origin,
-  // so that A.x == -ra;
-  console.assert(A.x == -ra);
-  // let AC len = the distance from A to C
-  const AClen = A.distanceTo(cA3);
-  console.log("AClen",AClen);
-  var psi = new THREE.Vector3(0,0,1).angleTo(A3unit);
-  console.log("psi",psi * 180/Math.PI);
-  var zproj = AClen * Math.cos(psi);
-  var zprime = zproj * (cA1.x + ra) / ((cA1.x +ra) - (cA3.x +ra));
-  console.log("zproj",zproj,zprime);
-//    var theta = Math.atan(zproj/ra);
-  //  var theta = Math.acos(ra/zproj);
+  var gamma;
+  var theta;
+  var zprime;
+  [gamma,theta,zprime] =
+    ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
 
-//  var theta = Math.acos(ra*(cA1.x - cA3.x)/(cA1.x * cA3.z));
-  var theta = Math.acos(ra/zprime);
   console.log("theta",theta * 180 / Math.PI);
 
-
-
-
-  var alpha = Math.PI/2 - Math.acos(ra/AClen);
-  console.log("alpha",alpha * 180 / Math.PI);
   const Z = new THREE.Vector3(0,0,1);
   const Y = new THREE.Vector3(0,1,0);
   const X = new THREE.Vector3(1,0,0);
@@ -846,16 +823,16 @@ function onComputeParams() {
   var Pp1 = new THREE.Vector3(1,0,0);
   var Pp2 = new THREE.Vector3(1,0,0);
 
-  Pp.applyAxisAngle(Z,Math.PI/2 - theta1);
-  Pp1.applyAxisAngle(Z,Math.PI/2 - theta1);
+  Pp.applyAxisAngle(Z,gamma);
+  Pp1.applyAxisAngle(Z,gamma);
   console.log("pp, pp1",Pp,Pp1);
 
   Pp2.applyAxisAngle(Z,Math.PI/2);
 
-  Pp.applyAxisAngle(X,Math.PI/2-theta);
+  Pp.applyAxisAngle(X,theta);
 
   console.log("pp, pp1",Pp,Pp1);
-  Pp2.applyAxisAngle(X,Math.PI/2-theta);
+  Pp2.applyAxisAngle(X,theta);
 
   var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
   ppHelper.debugObject = true;
@@ -899,7 +876,7 @@ function onComputeParams() {
 
   am.scene.add( plane );
 
-  var zc = createSphere(0.1,new THREE.Vector3(-ra,0,zprime),0xffffff);
+  var zc = createSphere(0.1,new THREE.Vector3(0,0,zprime),0xffffff);
 
   zc.castShadow = false;
   zc.receiveShadow = false;

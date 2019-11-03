@@ -147,7 +147,7 @@ function isRigidTransformation(R) {
 }
 
 // This returns 3 Vecto2 obects, A, B, C in our convention.
-function Compute3TouchingCircles(ra,rb,rc) {
+function Compute3TouchingCirclesX(ra,rb,rc) {
   const A = new THREE.Vector2(-ra,0);
   const B = new THREE.Vector2(rb,0);
   const a  = rb + rc;
@@ -163,6 +163,55 @@ function Compute3TouchingCircles(ra,rb,rc) {
   console.assert(near(A.distanceTo(C),ra+rc));
   return [A,B,C];
 }
+function Compute3TouchingCircles(ra,rb,rc) {
+  const A = new THREE.Vector2(0,0);
+  const B = new THREE.Vector2(ra+rb,0);
+  const a  = rb + rc;
+  const b  = ra + rc;
+  const c  = ra + rb;
+  const theta = Math.acos((a**2 + c**2 - b**2)/(2*a*c));
+  const cy = a * Math.sin(theta);
+  const cx = B.x - a * Math.cos(theta)
+//  const cx = A.x - Math.sqrt(b**2 - cy**2);
+  const C = new THREE.Vector2(cx,cy);
+  console.assert(near(A.distanceTo(B),ra+rb));
+  console.assert(near(B.distanceTo(C),rb+rc));
+  console.assert(near(A.distanceTo(C),ra+rc));
+  return [A,B,C];
+}
+
+function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
+  const A3 = new THREE.Vector3().subVectors(C,A);
+  const A3unit = A3.clone().clampLength(1.0,1.0);
+
+  const theta1 = ComputeAxisAngleOfCone(ra,rb);
+  const theta2 = ComputeAxisAngleOfCone(rb,rc);
+  const theta3 = ComputeAxisAngleOfCone(rc,ra);
+
+  // Experimental...
+  // Assume A > B, and A and B are on the z axis (z = 0)
+  console.assert(A.z == 0);
+  console.assert(B.z == 0);
+  // Assume their contact point is at the origin,
+  // so that A.x == -ra;
+  console.assert(A.x == 0);
+  // let AC len = the distance from A to C
+  const AClen = A.distanceTo(cA3);
+  console.log("AClen",AClen);
+  var psi = new THREE.Vector3(0,0,1).angleTo(A3unit);
+  console.log("psi",psi * 180/Math.PI);
+  var zprime = AClen * Math.cos(psi) * (cA1.x) / ((cA1.x) - (cA3.x));
+
+//  var theta = Math.acos(ra/zprime);
+
+  var alpha = Math.PI/2 - Math.acos(ra/AClen);
+  var gamma = Math.PI/2 - theta1;
+  var theta = Math.PI/2 - Math.acos(ra/zprime);
+  console.log("theta",theta * 180 / Math.PI);
+
+  return [gamma,theta,zprime];
+}
+
 function testCircle(ra,rb,rc) {
   const vs = Compute3TouchingCircles(ra,rb,rc);
 
