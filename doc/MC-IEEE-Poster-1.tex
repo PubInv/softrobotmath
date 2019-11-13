@@ -90,10 +90,22 @@ Megan Cadena
   Such a tentacle can be scaled down nicely for {\em in vivo} medical
   applications such as endoscopy and arterial catheterization.
   }
+ \begin{columns}
+     \column{0.5}
+     \block{Screenshot of Online Calculator}{
+       \includegraphics[width=0.40\textwidth]{figures/GUIScreenShot.png}
+     }
+     \column{0.5}
+     \block{Mechanical Stewart Platform}{
+       \begin{tikzfigure}[Stewart Platform]
+         \includegraphics[width=0.24\textwidth]{figures/Hexapod_general.jpg}
+       \end{tikzfigure}
+     }
 
+          \end{columns}
      \begin{columns}
    \column{0.5}
-     \block{Problem: Three Touching Circles}{
+     \block{Three Touching Circles}{
        \includegraphics[width=0.40\textwidth]{figures/ThreeTouchingCircles.png}
        }
    \column{0.5}
@@ -141,42 +153,12 @@ Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean the
   }
      \end{columns}
 
-         \begin{columns}
-   \column{0.5}
-     \block{Screenshot of Online Calculator}{
-       \includegraphics[width=0.40\textwidth]{figures/GUIScreenShot.png}
-       }
-     \column{0.5}
-     \block{Three Sphere Math}{
 
-We seek to compute the normal of the tangent plane.
-Observe that this plane is tangent to all three cones.
-Observe that the $AB$ cone intersects
-the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
 
-A vector of length $r_A$ that begins pointing in the $X$ direction and is rotated counterclockwise
-about the $Z$-axis by $\pi/2 - \alpha$.
 
-However, we must rotate this vector about the $X$ axis by an unknown amount $\theta$ in order
-to bring capture the tilt which is not purely a rotation about the $Z$ axis.
-Since this angle is computed in the $ZY$ plane, we compute a projection of the point $V$ into
-that plane, forming a triangle in the $ZY$ plane.  Call this point $I_z$, the intersection
-of the apex line with the $Z$-axis.
+ \end{document}
 
-\begin{align}
- \phi &= \arcsin{\frac{r_c}{I_z}}\\
-\theta &= \frac{\pi}{2} - (\frac{\pi}{2} - \phi)\\
-\theta &= \phi\\
-I_z &= U_x(\frac{V_z}{(U_x - V_x})
-\end{align}
 
-       }
-          \end{columns}
-
-  \block{References}{
-    \bibliographystyle{acm}
-    \bibliography{softrobotmath}
-    }
      \begin{columns}%blocks will be placed into columns
          \column{.55}
          \block[roundedcorners=40]{Creating the document}{
@@ -310,10 +292,6 @@ I_z &= U_x(\frac{V_z}{(U_x - V_x})
              }
          \end{quote}
      }
-
- \end{document}
-
-
 
 
 \endinput

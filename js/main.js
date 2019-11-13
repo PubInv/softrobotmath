@@ -834,15 +834,15 @@ function onComputeParams() {
   console.log("pp, pp1",Pp,Pp1);
   Pp2.applyAxisAngle(X,theta);
 
-  var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
-  ppHelper.debugObject = true;
-  am.scene.add( ppHelper );
+  // var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
+  // ppHelper.debugObject = true;
+  // am.scene.add( ppHelper );
 
-  var ppHelper1 = new THREE.ArrowHelper( Pp1, A, 5, 0x00ff00 );
+  var ppHelper1 = new THREE.ArrowHelper( Pp1, A, 3, 0x00ff00 );
   ppHelper1.debugObject = true;
   am.scene.add( ppHelper1 );
 
-  var ppHelper2 = new THREE.ArrowHelper( Pp2, A, 6, 0x0000ff );
+  var ppHelper2 = new THREE.ArrowHelper( Pp2, A, 3, 0x0000ff );
   ppHelper2.debugObject = true;
   am.scene.add( ppHelper2 );
 
@@ -870,7 +870,7 @@ function onComputeParams() {
   const TM0 = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
   plane.applyMatrix(TM0);
 
-    var narrowHelper = new THREE.ArrowHelper( N, S, 3, 0xff00ff );
+    var narrowHelper = new THREE.ArrowHelper( N, S,2, 0xff00ff );
   narrowHelper.debugObject = true;
   am.scene.add( narrowHelper );
 

@@ -247,7 +247,7 @@ function testCompute3TouchingCircles() {
   }
 }
 
-
+// "Axis Angle" is the half-aperture
 function ComputeAxisAngleOfCone(r1,r2) {
   if (r1 == r2) {
     return 0;

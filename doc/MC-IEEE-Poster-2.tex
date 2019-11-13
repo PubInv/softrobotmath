@@ -64,10 +64,78 @@
 \begin{document}
 \maketitle
 
-   \block{Future Work}{
-   Hello!\cite{payne1881}
-    }
+     \begin{columns}
+       \column{0.5}
+     \block{Three Sphere Math}{
 
+We seek to compute the normal of the tangent plane.
+Observe that this plane is tangent to all three cones.
+Observe that the $AB$ cone intersects
+the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
+
+A vector of length $r_A$ that begins pointing in the $X$ direction and is rotated counterclockwise
+about the $Z$-axis by $\pi/2 - \alpha$.
+
+However, we must rotate this vector about the $X$ axis by an unknown amount $\theta$ in order
+to bring capture the tilt which is not purely a rotation about the $Z$ axis.
+Since this angle is computed in the $ZY$ plane, we compute a projection of the point $V$ into
+that plane, forming a triangle in the $ZY$ plane.  Call this point $I_z$, the intersection
+of the apex line with the $Z$-axis.
+
+\begin{align}
+ \phi &= \arcsin{\frac{r_c}{I_z}}\\
+\theta &= \frac{\pi}{2} - (\frac{\pi}{2} - \phi)\\
+\theta &= \phi\\
+I_z &= U_x(\frac{V_z}{(U_x - V_x})
+\end{align}
+
+     }
+        \end{columns}
+          \begin{columns}
+       \column{0.5}
+       \block{Future Work: Inflatable Stewart Platform}{
+         By constructing soft mechanism that serves the same positioning perfomed
+         by a mechanical Stewart Platform\cite{wiki:stewart}, we might build
+         machines scalable up or down that that are gentle enough to be used
+         for medical purposes.
+
+         By solving the problem posed as an exercise in 1881\cite{payne1881} with
+         closed-form expressions as shown here, we allow the possibility of
+         computing the derivative of the tilt with respect to change of the radii.
+         This allows control of the tilt by changing the pressure
+         within the spheres.
+    }
+       \column{0.5}
+       \block{Future Work: A Soft Tentacle}{
+         By stacking such mechanisms, we propose to make a soft {\em tentacle}.
+         By composing the derivative of tilt with respect to many such platforms,
+         we may construct a Jacobian which allows positioning of the tentacle and
+         even motion planning.
+
+         Such a tentacle could be used as an endoscope or arthroscope.
+         Because potentially scalable down to minute sizes,
+         arterial catheterization may be possible.
+    }
+          \end{columns}
+
+                 \begin{columns}
+       \column{0.5}
+          \block{Future Work: Joule Heating Phase Change for Inflation}{
+            Although inflatable spheres could be controlled by pneumatics,
+            it would be more elegant to build a sphere that inflates not
+            by air tubes, but with a simple electrical connection, consisting
+            of two wires.
+
+            Although a gas changes pressure when heated, the change in
+            pressure is proportional to the absolute temperature.
+            Doubling this temperature is relatively impractical.
+            However, water or alcohol can be vaporized at practically
+            low temperatrues. We hope to design way to add simple heating wires
+            inside an inflatable sphere in order to accomplish a phase change,
+            and therefore a drastic pressure change,
+            with a simple application of voltage.
+          }
+          \end{columns}
 
   \block{References}{
     \bibliographystyle{acm}
