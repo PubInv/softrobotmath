@@ -198,18 +198,20 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   // let AC len = the distance from A to C
   const AClen = A.distanceTo(cA3);
   console.log("AClen",AClen);
-  var psi = new THREE.Vector3(0,0,1).angleTo(A3unit);
+  var psi_old = new THREE.Vector3(0,0,1).angleTo(A3unit);
+
+  var psi = Math.acos(A3unit.z);
   console.log("psi",psi * 180/Math.PI);
+  console.assert(near(psi,psi_old));
   var zprime = AClen * Math.cos(psi) * (cA1.x) / ((cA1.x) - (cA3.x));
 
 //  var theta = Math.acos(ra/zprime);
 
-  var alpha = Math.PI/2 - Math.acos(ra/AClen);
-  var gamma = Math.PI/2 - theta1;
-  var theta = Math.PI/2 - Math.acos(ra/zprime);
-  console.log("theta",theta * 180 / Math.PI);
+//  var alpha = Math.PI/2 - Math.acos(ra/AClen);
+  var gamma = Math.PI/2 - Math.acos(ra/zprime);
+  console.log("theta",gamma * 180 / Math.PI);
 
-  return [gamma,theta,zprime];
+  return [theta1,gamma,zprime];
 }
 
 function testCircle(ra,rb,rc) {
@@ -248,7 +250,7 @@ function testCompute3TouchingCircles() {
 }
 
 // "Axis Angle" is the half-aperture
-function ComputeAxisAngleOfCone(r1,r2) {
+function ComputeAxisAngleOfConeX(r1,r2) {
   if (r1 == r2) {
     return 0;
   }
@@ -270,6 +272,32 @@ function ComputeAxisAngleOfCone(r1,r2) {
   console.assert(near((z+r1)**2,r1**2 + (Math.cos(psi)*(z+r1))**2));
   return psi;
 }
+
+function ComputeAxisAngleOfCone(r1,r2) {
+  if (r1 == r2) {
+    return 0;
+  }
+  if ((r1 == 0) || (r2 == 0)) {
+    console.log("error! We can't handle zero radii!");
+    return null;
+  }
+
+  if (r2 < r1) {
+    var temp = r1;
+    r1 = r2;
+    r2 = temp;
+  }
+  let z = -2 * (r1**2 / (r1 - r2));
+  console.assert( z >= 0);
+
+  console.assert(near((r2-r1)/(r2+r1),r1/ (z + r1)));
+  let psi = Math.asin((r2-r1)/(r2+r1));
+
+  console.log("r1,r2,z,psi",r1,r2,z,psi *180/Math.PI);
+  console.assert(near((z+r1)**2,r1**2 + (Math.cos(psi)*(z+r1))**2));
+  return psi;
+}
+
 // TODO: This is not a good enough test!!! Need to fix.
 function testComputeAxisAngleOfCone() {
   let r1 = 3;

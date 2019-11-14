@@ -707,11 +707,58 @@ function positionConeOnSphere(apex,c,angle) {
   return cone;
 
 }
+// This is done only for the rendering...
+function render_tentacle() {
+  const NUM_LEVELS = 10;
+  const R = 1;
+  for(var i = 0; i < NUM_LEVELS; i++) {
+    const a = R*2;
+    const h = a*Math.sqrt(3)/2;
+    var A = new THREE.Vector3(a/2,i*R*2,-h/2);
+    var B = new THREE.Vector3(0,i*R*2,h/2);
+    var C = new THREE.Vector3(-a/2,i*R*2,-h/2);
+
+    var ma = createSphere(R,A,colors[0].hex());
+    var mb = createSphere(R,B,colors[1].hex());
+    var mc = createSphere(R,C,colors[2].hex());
+
+    ma.castShadow = false;
+    ma.receiveShadow = false;
+    ma.debugObject = true;
+    am.scene.add(ma);
+
+    mb.castShadow = false;
+    mb.receiveShadow = false;
+    mb.debugObject = true;
+    am.scene.add(mb);
+
+    mc.castShadow = false;
+    mc.receiveShadow = false;
+    mc.debugObject = true;
+    am.scene.add(mc);
+
+    var geometry = new THREE.CircleGeometry( 2*R, 32 );
+    geometry.rotateX(Math.PI/2);
+    geometry.translate(0,i*2+R,0);
+
+    var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.7, side: THREE.DoubleSide} );
+    var circle = new THREE.Mesh( geometry,pmaterial );
+    circle.debugObject = true;
+
+    am.scene.add( circle );
+  }
+
+}
+const RENDER_TENTACLE = false;
 
 // This is the main recomputation
 function onComputeParams() {
 
   clearAm();
+  if (RENDER_TENTACLE) {
+    render_tentacle();
+    return;
+  }
 
   const ra = $( "#radius_a_slider" ).slider( "value" );
   const rb = $( "#radius_b_slider" ).slider( "value" );
@@ -810,7 +857,7 @@ function onComputeParams() {
   var gamma;
   var theta;
   var zprime;
-  [gamma,theta,zprime] =
+  [theta,gamma,zprime] =
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
 
   console.log("theta",theta * 180 / Math.PI);
@@ -819,20 +866,20 @@ function onComputeParams() {
   const Y = new THREE.Vector3(0,1,0);
   const X = new THREE.Vector3(1,0,0);
 
-  var Pp = new THREE.Vector3(1,0,0);
-  var Pp1 = new THREE.Vector3(1,0,0);
-  var Pp2 = new THREE.Vector3(1,0,0);
+  var Pp = new THREE.Vector3(0,1,0);
+  var Pp1 = new THREE.Vector3(0,1,0);
+  var Pp2 = new THREE.Vector3(0,1,0);
 
-  Pp.applyAxisAngle(Z,gamma);
-  Pp1.applyAxisAngle(Z,gamma);
+  Pp.applyAxisAngle(Z,-theta1);
+  Pp1.applyAxisAngle(Z,-theta1);
   console.log("pp, pp1",Pp,Pp1);
 
   Pp2.applyAxisAngle(Z,Math.PI/2);
 
-  Pp.applyAxisAngle(X,theta);
+  Pp.applyAxisAngle(X,gamma);
 
   console.log("pp, pp1",Pp,Pp1);
-  Pp2.applyAxisAngle(X,theta);
+  Pp2.applyAxisAngle(X,gamma);
 
   // var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
   // ppHelper.debugObject = true;

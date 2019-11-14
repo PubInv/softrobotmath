@@ -68,7 +68,7 @@
        \column{0.5}
      \block{Three Sphere Math}{
 
-We seek to compute the normal of the tangent plane.
+We seek to compute the normal of the tangent plane\cite{payne1881,softrobotcalc}.
 Observe that this plane is tangent to all three cones.
 Observe that the $AB$ cone intersects
 the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
@@ -90,8 +90,59 @@ I_z &= U_x(\frac{V_z}{(U_x - V_x})
 \end{align}
 
      }
+              \column{0.5}
+            \block{Diagram}{
+       \begin{tikzfigure}[Rotation Math]
+         \includegraphics[width=0.325\textwidth]{figures/RotationMath.png}
+       \end{tikzfigure}
+            }
+
         \end{columns}
-          \begin{columns}
+     \begin{columns}
+       \column{0.3}
+     \block{Rotations}{
+
+       Compute these by considering the three cones that envelope the three spheres
+taken in a pair-wise fashion. Let $\theta_{xy}$ be the half-angle of the
+aperture of the cone that envelopes sphere $x$ and sphere $y$.
+
+Compute the apices of the three cones, naming the apex of the cone that
+envelopes sphere $X$ and sphere $Y$ $\overrightarrow{XY_{apex}}$. It is interesting
+to note that the three apices lie on a line, which is where the normal plane
+intersects the $XZ$-plane where the center of all the spheres lie.
+
+Let $Z'$ be the $z$ value of the intersection of this line with $z$-axis.
+
+Let the normal of the plane tangent to the three spheres be generated
+by a (negative) rotation $\theta_{AB}$ of the $[0,1,0]$ vector about the $Z$-axis followed by a rotation $\gamma$
+about the $X$-axis.
+}
+              \column{0.4}
+     \block{Rotations}{
+
+\begin{align}
+  \overrightarrow{AB} &= \overrightarrow{A} - \overrightarrow{B} \\
+  \overrightarrow{BC} &= \overrightarrow{B} - \overrightarrow{C} \\
+  \overrightarrow{CA} &= \overrightarrow{C} - \overrightarrow{A} \\
+  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \\
+  \theta_{bc} &= \arcsin{\frac{r_b - r_c}{r_b + r_c}} \\
+  \theta_{ca} &= \arcsin{\frac{r_a - r_c}{r_a + r_c}} \\
+  \overrightarrow{AB_{apex}} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{r_a}{\sin{\theta_{ab}}} \\
+  \overrightarrow{BC_{apex}} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{r_b}{\sin{\theta_{bc}}} \\
+  \overrightarrow{CA_{apex}} &= \overrightarrow{C} + \hat{\overrightarrow{CA}} \frac{r_c}{\sin{\theta_{ca}}} \\
+  \psi &= \arccos{\hat{\overrightarrow{CA}}_z } \text{(angle of CA against the z axis)} \\
+  L &= \| A - CA_{apex} \| \\
+  Z' &= L \cos{\psi} \frac{AB_{apex}[x]}{AB_{apex}[x]-CA_{apex}[x]} \\
+  \gamma &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}};
+\end{align}
+
+     }
+        \column{0.3}
+         \block{Tentacl3}{
+         \includegraphics[width=0.15\textwidth]{figures/TentacleConcept.png}
+         }
+         \end{columns}
+\begin{columns}
        \column{0.5}
        \block{Future Work: Inflatable Stewart Platform}{
          By constructing soft mechanism that serves the same positioning perfomed
@@ -99,14 +150,13 @@ I_z &= U_x(\frac{V_z}{(U_x - V_x})
          machines scalable up or down that that are gentle enough to be used
          for medical purposes.
 
-         By solving the problem posed as an exercise in 1881\cite{payne1881} with
+         By solving the problem\cite{payne1881} with
          closed-form expressions as shown here, we allow the possibility of
-         computing the derivative of the tilt with respect to change of the radii.
-         This allows control of the tilt by changing the pressure
-         within the spheres.
-    }
+         computing the derivative of the tilt with respect to change of the radii,
+         a function of the pressure in the spheres.
+       }
        \column{0.5}
-       \block{Future Work: A Soft Tentacle}{
+        \block{Future Work: A Soft Tentacle}{
          By stacking such mechanisms, we propose to make a soft {\em tentacle}.
          By composing the derivative of tilt with respect to many such platforms,
          we may construct a Jacobian which allows positioning of the tentacle and
@@ -115,27 +165,24 @@ I_z &= U_x(\frac{V_z}{(U_x - V_x})
          Such a tentacle could be used as an endoscope or arthroscope.
          Because potentially scalable down to minute sizes,
          arterial catheterization may be possible.
-    }
-          \end{columns}
+       }
 
-                 \begin{columns}
-       \column{0.5}
-          \block{Future Work: Joule Heating Phase Change for Inflation}{
+     \end{columns}
+    \block{Future Work: Joule Heating Phase Change for Inflation}{
             Although inflatable spheres could be controlled by pneumatics,
             it would be more elegant to build a sphere that inflates not
-            by air tubes, but with a simple electrical connection, consisting
-            of two wires.
+            by air tubes, but with a simple two-wire electrical connection.
 
-            Although a gas changes pressure when heated, the change in
+           Gas changes pressure when heated, but the change in
             pressure is proportional to the absolute temperature.
             Doubling this temperature is relatively impractical.
-            However, water or alcohol can be vaporized at practically
-            low temperatrues. We hope to design way to add simple heating wires
+
+            Water or alcohol can be vaporized at
+            low temperatures. We hope to design a way to add simple heating wires
             inside an inflatable sphere in order to accomplish a phase change,
             and therefore a drastic pressure change,
             with a simple application of voltage.
           }
-          \end{columns}
 
   \block{References}{
     \bibliographystyle{acm}

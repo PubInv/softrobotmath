@@ -44,7 +44,7 @@ Megan Cadena
   In 1881, the problem of computing the plane tangent to three spheres was
   set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881}.
   We have solved this problem in JavaScript, producing an interactive,
-  browser-based web page that dynamically solves the problem.
+  browser-based web page that dynamically solves the problem\cite{softrobotcalc}.
   All of the code is released under the GNU Public License.
   We propose constructing a ``soft'' Stewart platform using this theory which
   allows us to control the inclination of two planes with a very simple
@@ -326,9 +326,28 @@ where $r1 < r2$ without loss of generality.
 
 \subsection{Computation of $\gamma$ and $\theta$ }
 
+Compute these by considering the three cones that envelope the three spheres
+taken in a pair-wise fashion. Let $\theta_{xy}$ be the half-angle of the
+aperture of the cone that envelopes sphere $x$ and sphere $y$.
+
+Compute the apices of the three cones, naming the apex of the cone that
+envelopes sphere $X$ and sphere $Y$ $\overrightarrow{XY_{apex}}$. It is interesting
+to note that the three apices lie on a line, which is where the normal plane
+intersects the $XZ$-plane where the center of all the spheres lie.
+
+Let $Z'$ be the $z$ value of the intersection of this line with $z$-axis.
+
 Let the normal of the plane tangent to the three spheres be generated
-by a rotation $\gamma$ of the $[1,0,0]$ vector about the $Z$-axis followed by a rotation $\theta$
-about the $X$-axis.
+by a (negative) rotation $\theta_{AB}$ of the $[0,1,0]$ vector about the $Z$-axis followed by a rotation $\gamma$
+about the $X$-axis, as depicted in Figure \ref{fig:rotation}.
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.80\textwidth]{figures/RotationMath.png}
+     \caption{Rotation Math}
+  \label{fig:rotation}
+\end{figure}
+
 
 \begin{align}
   \overrightarrow{AB} &= \overrightarrow{A} - \overrightarrow{B} \\
@@ -340,11 +359,10 @@ about the $X$-axis.
   \overrightarrow{AB_{apex}} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{r_a}{\sin{\theta_{ab}}} \\
   \overrightarrow{BC_{apex}} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{r_b}{\sin{\theta_{bc}}} \\
   \overrightarrow{CA_{apex}} &= \overrightarrow{C} + \hat{\overrightarrow{CA}} \frac{r_c}{\sin{\theta_{ca}}} \\
-  \psi &= \text{angle of CA against the z axis} \\
+  \psi &= \arccos{\hat{\overrightarrow{CA}}_z } \text{(angle of CA against the z axis)} \\
   L &= \| A - CA_{apex} \| \\
   Z' &= L \cos{\psi} \frac{AB_{apex}[x]}{AB_{apex}[x]-CA_{apex}[x]} \\
-  \gamma &= \frac{\pi}{2} - \theta_{ab} \\
-  \theta &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}};
+  \gamma &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}};
 \end{align}
 
 \section{Thing to Research}
