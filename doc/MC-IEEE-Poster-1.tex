@@ -119,12 +119,17 @@ Because there is a plane through any three points and we have three spheres, we 
 construct the plane through
 the center of these points.
 The projection of the edges of the spheres onto this plane form three touching circles.
+
+\vspace{10 mm}
+
 Knowing the position of these circles is a valuable prelude to solving the
 three dimensional problem.
+
 
 We seek a formula for the coordinates of the third circle in terms of three input radii $r_1,r_2,r_3$.
 
 Because the distance between adjacent circles is the sum of their radii, define:
+
 \begin{align}
 a  &= r_2 + r_3 \\
 b  &= r_1 + r_3 \\
@@ -144,7 +149,9 @@ It is clear that once $\theta$ has been calculated:
 \begin{align}
  C_y  &= a\sin{\theta}
 \end{align}
+
 Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean theorem:
+
 \begin{align}
   b^2  &= C_y^2 + (r_1-C_x)^2 \\
   b^2 - C_y^2  &= (r_1-C_x)^2  \\
