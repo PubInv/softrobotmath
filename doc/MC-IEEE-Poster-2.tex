@@ -66,6 +66,25 @@
 
 \begin{columns}
   \column{0.3}
+      \block{Three Cones}{
+We seek to compute the normal of the tangent plane\cite{payne1881,softrobotcalc}.
+      Consider the three cones that envelope the three spheres
+taken in a pair-wise fashion. Let $\theta_{xy}$ be the half-angle of the
+aperture of the cone that envelopes sphere $x$ and sphere $y$.
+Observe that this plane is tangent to all three cones.
+
+Compute the apices of the three cones, naming the apex of the cone that
+envelopes sphere $X$ and sphere $Y$ $\overrightarrow{XY_{apex}}$. It is interesting
+to note that the three apices lie on a line, which is where the normal plane
+intersects the $XZ$-plane where the center of all the spheres lie.
+
+Let $I_z$ be the $z$ value of the intersection of this line with $z$-axis.
+
+Let the normal of the plane tangent to the three spheres be generated
+by a (negative) rotation $\theta_{AB}$ of the $[0,1,0]$ vector about the $Z$-axis followed by a rotation $\gamma$
+about the $X$-axis. But what is $\gamma$?
+      }
+      \column{0.3}
   \block{Definitions}{
     \begin{align}
   \overrightarrow{AB} &= \overrightarrow{A} - \overrightarrow{B} \\
@@ -82,11 +101,21 @@
   \overrightarrow{W} &= \overrightarrow{BC_{apex}}
 \end{align}
     }
-       \column{0.4}
+
+              \column{0.4}
+            \block{Diagram}{
+       \begin{tikzfigure}[Rotation Math]
+         \includegraphics[width=0.325\textwidth]{figures/RotationMath.png}
+       \end{tikzfigure}
+            }
+
+        \end{columns}
+     \begin{columns}
+       \column{0.7}
+
      \block{Three Sphere Math}{
 
-We seek to compute the normal of the tangent plane\cite{payne1881,softrobotcalc}.
-Observe that this plane is tangent to all three cones.
+
 Observe that the $AB$ cone intersects
 the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
 
@@ -97,55 +126,19 @@ However, we must rotate this vector about the $X$ axis by an unknown amount $\th
 to bring capture the tilt which is not purely a rotation about the $Z$ axis.
 Since this angle is computed in the $ZY$ plane, we compute a projection of the point $V$ into
 that plane, forming a triangle in the $ZY$ plane.  Call this point $I_z$, the intersection
-of the apex line with the $Z$-axis.
+of the apex line with the $Z$-axis. Let $h$ be the height of the
+intersection of the $y$-axis with the $AB$ cone.
 
 \begin{align}
- \phi &= \arcsin{\frac{r_c}{I_z}}\\
-\theta &= \frac{\pi}{2} - (\frac{\pi}{2} - \phi)\\
-\theta &= \phi\\
-I_z &= U_x(\frac{V_z}{(U_x - V_x})
+  I_z &= \frac{U_x V_z}{U_x - V_x} \\
+  h &= U_x \tan{ \theta_{ab}}  \\
+ \gamma &= \arcsin{\frac{h}{I_z}}
 \end{align}
 
+Having computed $\theta_{ab}$ and $\gamma$, two rotations give us the plane tanget to all three spheres, and hence in theory the ``tilt'' of our soft Stewart Platform.
      }
-              \column{0.3}
-            \block{Diagram}{
-       \begin{tikzfigure}[Rotation Math]
-         \includegraphics[width=0.325\textwidth]{figures/RotationMath.png}
-       \end{tikzfigure}
-            }
 
-        \end{columns}
-     \begin{columns}
-       \column{0.3}
-     \block{Rotations}{
-
-       Compute these by considering the three cones that envelope the three spheres
-taken in a pair-wise fashion. Let $\theta_{xy}$ be the half-angle of the
-aperture of the cone that envelopes sphere $x$ and sphere $y$.
-
-Compute the apices of the three cones, naming the apex of the cone that
-envelopes sphere $X$ and sphere $Y$ $\overrightarrow{XY_{apex}}$. It is interesting
-to note that the three apices lie on a line, which is where the normal plane
-intersects the $XZ$-plane where the center of all the spheres lie.
-
-Let $Z'$ be the $z$ value of the intersection of this line with $z$-axis.
-
-Let the normal of the plane tangent to the three spheres be generated
-by a (negative) rotation $\theta_{AB}$ of the $[0,1,0]$ vector about the $Z$-axis followed by a rotation $\gamma$
-about the $X$-axis.
-}
-              \column{0.4}
-     \block{Rotations}{
-
-\begin{align}
-  \psi &= \arccos{\hat{\overrightarrow{CA}}_z } \text{(angle of CA against the z axis)} \\
-  L &= \| A - CA_{apex} \| \\
-  Z' &= L \cos{\psi} \frac{U_x}{U_x-V_x} \\
-  \gamma &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}};
-\end{align}
-
-     }
-        \column{0.3}
+        \column{0.2}
          \block{Tentacle}{
          \includegraphics[width=0.15\textwidth]{figures/TentacleConcept.png}
          }

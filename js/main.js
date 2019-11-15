@@ -870,8 +870,8 @@ function onComputeParams() {
   var Pp1 = new THREE.Vector3(0,1,0);
   var Pp2 = new THREE.Vector3(0,1,0);
 
-  Pp.applyAxisAngle(Z,-theta1);
-  Pp1.applyAxisAngle(Z,-theta1);
+  Pp.applyAxisAngle(Z,theta);
+  Pp1.applyAxisAngle(Z,theta);
   console.log("pp, pp1",Pp,Pp1);
 
   Pp2.applyAxisAngle(Z,Math.PI/2);

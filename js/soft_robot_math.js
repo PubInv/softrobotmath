@@ -185,8 +185,6 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   const A3unit = A3.clone().clampLength(1.0,1.0);
 
   const theta1 = ComputeAxisAngleOfCone(ra,rb);
-  const theta2 = ComputeAxisAngleOfCone(rb,rc);
-  const theta3 = ComputeAxisAngleOfCone(rc,ra);
 
   // Experimental...
   // Assume A > B, and A and B are on the z axis (z = 0)
@@ -203,15 +201,17 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   var psi = Math.acos(A3unit.z);
   console.log("psi",psi * 180/Math.PI);
   console.assert(near(psi,psi_old));
-  var zprime = AClen * Math.cos(psi) * (cA1.x) / ((cA1.x) - (cA3.x));
+//  var zprime = AClen * Math.cos(psi) * (cA1.x) / ((cA1.x) - (cA3.x));
 
-//  var theta = Math.acos(ra/zprime);
+  var zprime = cA3.z * (cA1.x) / ((cA1.x) - (cA3.x));
+//  console.assert(near(zprimep,zprime));
 
-//  var alpha = Math.PI/2 - Math.acos(ra/AClen);
-  var gamma = Math.PI/2 - Math.acos(ra/zprime);
+  var h = Math.tan(theta1) * cA1.x;
+
+  //  var gamma = Math.asin(ra/zprime);
+  var gamma = Math.asin(h/zprime);
   console.log("theta",gamma * 180 / Math.PI);
-
-  return [theta1,gamma,zprime];
+  return [-theta1,gamma,zprime];
 }
 
 function testCircle(ra,rb,rc) {
