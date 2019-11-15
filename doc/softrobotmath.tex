@@ -305,6 +305,21 @@ that plane, forming a triangle in the $ZY$ plane.  Call this point $I_z$, the in
 of the apex line with the $Z$-axis.
 
 \begin{align}
+  \overrightarrow{AB} &= \overrightarrow{A} - \overrightarrow{B} \\
+  \overrightarrow{BC} &= \overrightarrow{B} - \overrightarrow{C} \\
+  \overrightarrow{CA} &= \overrightarrow{C} - \overrightarrow{A} \\
+  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \\
+  \theta_{bc} &= \arcsin{\frac{r_b - r_c}{r_b + r_c}} \\
+  \theta_{ca} &= \arcsin{\frac{r_a - r_c}{r_a + r_c}} \\
+  \overrightarrow{AB_{apex}} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{r_a}{\sin{\theta_{ab}}} \\
+  \overrightarrow{BC_{apex}} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{r_b}{\sin{\theta_{bc}}} \\
+  \overrightarrow{CA_{apex}} &= \overrightarrow{C} + \hat{\overrightarrow{CA}} \frac{r_c}{\sin{\theta_{ca}}} \\
+  \overrightarrow{U} &= \overrightarrow{AB_{apex}} \\
+  \overrightarrow{V} &= \overrightarrow{BC_{apex}} \\
+  \overrightarrow{W} &= \overrightarrow{CA_{apex}}
+\end{align}
+
+\begin{align}
  \phi &= \arcsin{\frac{r_c}{I_z}}\\
 \theta &= \frac{\pi}{2} - (\frac{\pi}{2} - \phi)\\
 \theta &= \phi\\
@@ -350,18 +365,9 @@ about the $X$-axis, as depicted in Figure \ref{fig:rotation}.
 
 
 \begin{align}
-  \overrightarrow{AB} &= \overrightarrow{A} - \overrightarrow{B} \\
-  \overrightarrow{BC} &= \overrightarrow{B} - \overrightarrow{C} \\
-  \overrightarrow{CA} &= \overrightarrow{C} - \overrightarrow{A} \\
-  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \\
-  \theta_{bc} &= \arcsin{\frac{r_b - r_c}{r_b + r_c}} \\
-  \theta_{ca} &= \arcsin{\frac{r_a - r_c}{r_a + r_c}} \\
-  \overrightarrow{AB_{apex}} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{r_a}{\sin{\theta_{ab}}} \\
-  \overrightarrow{BC_{apex}} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{r_b}{\sin{\theta_{bc}}} \\
-  \overrightarrow{CA_{apex}} &= \overrightarrow{C} + \hat{\overrightarrow{CA}} \frac{r_c}{\sin{\theta_{ca}}} \\
   \psi &= \arccos{\hat{\overrightarrow{CA}}_z } \text{(angle of CA against the z axis)} \\
   L &= \| A - CA_{apex} \| \\
-  Z' &= L \cos{\psi} \frac{AB_{apex}[x]}{AB_{apex}[x]-CA_{apex}[x]} \\
+  Z' &= L \cos{\psi} \frac{U_x}{U_x-V_x} \\
   \gamma &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}};
 \end{align}
 
