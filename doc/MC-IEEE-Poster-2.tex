@@ -122,12 +122,17 @@ the $A$ sphere in a circle on the surface of the $A$ perpendicular to and center
 A vector of length $r_A$ that begins pointing in the $X$ direction and is rotated counterclockwise
 about the $Z$-axis by $\pi/2 - \alpha$.
 
-However, we must rotate this vector about the $X$ axis by an unknown amount $\theta$ in order
+However, we must rotate this vector about the $X$ axis by an unknown amount $\gamma$ in order
 to bring capture the tilt which is not purely a rotation about the $Z$ axis.
-Since this angle is computed in the $ZY$ plane, we compute a projection of the point $V$ into
-that plane, forming a triangle in the $ZY$ plane.  Call this point $I_z$, the intersection
+Since this angle is computed in the $YZ$ plane, we compute a projection of the point $V$ into
+that plane, forming a triangle in the $YZ$ plane.  Call this point $I_z$, the intersection
 of the apex line with the $Z$-axis. Let $h$ be the height of the
 intersection of the $y$-axis with the $AB$ cone.
+
+Then $\gamma$, the amount we need to rotate, is the angle need
+to rotate the plane so that it intersects the $z$ axis at $I_z$.
+By basic geometry of similar triangles,
+this is computed from the right triangle of the origin, $h$, and $I_z$.
 
 \begin{align}
   I_z &= \frac{U_x V_z}{U_x - V_x} \\
