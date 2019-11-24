@@ -86,7 +86,7 @@ line (see Figure \ref{fig:fixed}.)  We place the circle $C_1$ with radius $r_1$ 
 assume that it rests on a shelf or plane on the $x$-axis.
 Assume the $C_2$ circle whose radius if $r_2$ is on the $x = 1$ line.
 
-Let $A$ the intersection of the tangent line supported
+Let $A$ be the intersection of the tangent line supported
 by the inflatable circles with the $x$-axis. Call the distance of $A$
 on the $x$-axis $x$. Let $\psi$ be the angle formed by the
 circle centers with the $x$ axis (measured counterclockwise).
@@ -202,7 +202,7 @@ Then we can use the cosine law to compute the angle $\angle ABC = \theta$:
 
 \begin{align}
   \theta  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}} \\
-  \theta  &= \arccos{\frac{(r_2+r_3)^2 + (r_1+r_3)^2 - (r_1+r_2)^2}{2(r_2+r_3)(r_1+r_3)}} \\
+  \theta  &= \arccos{\frac{(r_2+r_3)^2 + (r_1+r_3)^2 - (r_1+r_2)^2}{2(r_1+r_3)(r_1+r_2)}} \\
 \end{align}
 
 It is clear that once $\theta$ has been calculated:
@@ -298,11 +298,12 @@ the $A$ sphere in a circle on the surface of the $A$ perpendicular to and center
 A vector of length $r_A$ that begins pointing in the $X$ direction and is rotated counterclockwise
 about the $Z$-axis by $\pi/2 - \alpha$.
 
-However, we must rotate this vector about the $X$ axis by an unknown amount $\theta$ in order
-to bring capture the tilt which is not purely a rotation about the $Z$ axis.
-Since this angle is computed in the $ZY$ plane, we compute a projection of the point $V$ into
-that plane, forming a triangle in the $ZY$ plane.  Call this point $I_z$, the intersection
-of the apex line with the $Z$-axis.
+However, we must rotate this vector $N$ about the $X$ axis by an unknown amount, $\gamma$, in order
+to orient the vector to line up properly with the desired tilt of the tangent plane despite not being a pure rotation about the $Z$ axis. Since this angle is computed in the $YZ$ plane, we compute a projection of the point $V$ into
+that plane, forming a triangle in the $YZ$ plane.  Call this point $I_z$, the intersection
+of the apex line with the $Z$-axis. Let $h$ be the height of the intersection of the y-axis with the $AB$ cone.
+Then $\gamma$ is the angle we need to rotate the plane by so that it intersects with the $Z$-axis at a point, referred to as $I_z$. By basic geometry of simialr triangles, this is computed from the right triangle of the origin with $h$ and $I_z$.
+Having computed $\theta_{ab}$ and $\gamma$, these two degrees of rotation give us the plane tangent to all three spheres, and its corresponding tilt for our desired soft Stewart Platform.
 
 \begin{align}
   \overrightarrow{AB} &= \overrightarrow{A} - \overrightarrow{B} \\
@@ -320,10 +321,9 @@ of the apex line with the $Z$-axis.
 \end{align}
 
 \begin{align}
- \phi &= \arcsin{\frac{r_c}{I_z}}\\
-\theta &= \frac{\pi}{2} - (\frac{\pi}{2} - \phi)\\
-\theta &= \phi\\
-I_z &= U_x(\frac{V_z}{(U_x - V_x})
+ \gamma &= \arcsin{\frac{h}{I_z}}\\
+h &= U_x\tan{\theta_{ab}}\\
+I_z &= \frac{U_xV_z}{U_x - V_x}
 \end{align}
 
 
