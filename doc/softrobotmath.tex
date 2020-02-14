@@ -26,7 +26,7 @@
 \SetWatermarkScale{6}
 \SetWatermarkLightness{0.95}
 
-\title{Three Inflatable Spheres as a Theoretical Basis for a Soft Design for a Stewart Platform and Soft Tentacles}
+\title{Three Inflatable Spheres as a Theoretical Basis for a Soft Stewart Platform}
 
 \author{Robert L. Read
   \thanks{read.robert@gmail.com}
@@ -41,135 +41,30 @@ Megan Cadena
 
 \maketitle
 \begin{abstract}
+  A Stewart Platform\cite{wiki:stewart} is a fundamental mechanism for varying the angle
+  between two objects.
+  A soft Stewart Platform can be made of two discs and
+  three inflatable spheres.
+  Stacking such devices might make a soft tentacle.
+  Soft robots are meant to deform under force, but it is useful to have
+  an analytic description of a plane in contact with three spheres
+  before deforming force is applied.
   In 1881, the problem of computing the plane tangent to three spheres was
-  set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881}.
+  set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881},
+  but not solved.
   We have solved this problem in JavaScript, producing an interactive,
   browser-based web page that dynamically solves the problem\cite{softrobotcalc}.
   All of the code is released under the GNU Public License.
-  We propose constructing a ``soft'' Stewart platform using this theory which
-  allows us to control the inclination of two planes with a very simple
-  mechanism powered only by phase change of a liquid to a gas or by pneumatics.
-  Future work includes computing the Jacobian of a ``tentacle'' formed
-  by stringing together many such Stewart Platforms, thus providing a
-  theoretical model for a simple, inexpensive, ``soft'' tentacle.
-  Such a tentacle can be scaled down nicely for {\em in vivo} medical
-  applications such as endoscopy and arterial catheterization.
 \end{abstract}
 
 
 \section{Introduction}
-This is a study of the basic math of inflatable spheres as a tool for soft robotics.
-We begin with a study in two dimension to simplify the problem.
-Our final goal is to analyze three dimensional soft robots composed of inflatable
-spheres.
-
-\begin{figure}
-     \centering
-     \includegraphics[width=0.80\textwidth]{figures/FixedAxisCircles.png}
-     \caption{Problem I: Fixed Circles Centers}
-  \label{fig:fixed}
-\end{figure}
-
-\section{Problem I: Circles in Fixed Postions}
-
-A very simplified version of the problem is to imagine that a two-dimensional
-plane.  Instead of spheres, we will assume we have circles of changable radius.
-This is in fact realistic of a soft robot constrained to a plane.
 
 
+\section{Prelude: Three Touching Circles}
 
-
-Eventually we hope to have circles pressing against each other, or tangent
-or ``kissing''. However, the problem is a bit simpler if we assume we have
-two circles, each of which is constrained to have its center on the a vertical
-line (see Figure \ref{fig:fixed}.)  We place the circle $C_1$ with radius $r_1$ on the $x = -1$ line, and
-assume that it rests on a shelf or plane on the $x$-axis.
-Assume the $C_2$ circle whose radius if $r_2$ is on the $x = 1$ line.
-
-Let $A$ the intersection of the tangent line supported
-by the inflatable circles with the $x$-axis. Call the distance of $A$
-on the $x$-axis $x$. Let $\psi$ be the angle formed by the
-circle centers with the $x$ axis (measured counterclockwise).
-
-If the radii are less than $1$ so that no issues of intersection
-of the circles arise, we have:
-
-\begin{align}
-  \tan{\psi} &= \frac{r_1}{x-1} = \frac{r_2}{x+1}  \\
-  r_2(x - 1) &= r_1(x+1) \\
-  r_2x - r_2 &= r_1x + r_1 \\
-  r_2x - r_1x &= r_1 + r_2 \\
-  x(r_2 - r_1) &= r_1 + r_2 \\
-  x &= \frac{r_1+r_2}{r_2 - r_1} \\
-  \tan{\psi} &= \frac{r_1}{x - 1} \\
-  \psi &= \arctan{\frac{r_1}{x - 1}} \\
-  N &=  \begin{bmatrix} -\sin{\psi} \\ \cos{\psi}  \end{bmatrix} \\
-\end{align}
-
-
-
-
-
-\section{Problem II: Tangent Circles}
-
-
-
-\begin{figure}
-     \centering
-     \includegraphics[width=0.80\textwidth]{figures/TangentCirclesGeneral.png}
-     \caption{Problem II: Tangent Circles}
-  \label{fig:Tangent}
-\end{figure}
-
-\begin{align}
-\frac{r_2}{||(C2 - A)||} &= \frac{r_1}{||(C_1-A)||} \\
-||C2 - A|| &= r_2+2r_1+z \\
-||C1 - A|| &= r_1 + z \\
-\frac{r_2}{r_2+2r_1+z} &= \frac{r_1}{r_1+z} \\
-z &= -\frac{2 r_1^2}{r_1 - r_2} \text{ and } r_1 \neq r_2 \text{ and } r_1 r_2 (r_1 + r_2) \neq 0 \\
-\sin{\psi} &= \frac{r_1}{z + r_1} \\
-\sin{\psi} &= \frac{r_1}{z + r_1} \\
-\theta &=2 \arcsin{\frac{r_1}{z+r_1}} \\
-N_x &= -\sin{\pi/2 + \theta} \\
-N_y &= -\cos{\pi/2 + \theta} \\
-\end{align}
-
-We would like to know the coordinates of $T_1$ and $T_2$.
-
-\begin{align}
-  d_1 &= \sqrt{(z+r_1)^2 - r_1^2} \\
-  d_2 &= \sqrt{(z+r_2+2r_1)^2 - r_2^2} \\
-  T_{1y} &= d_1\sin{\theta} \\
-  T_{2y} &= d_2\sin{\theta} \\
-  A_x &= (z + 2r_1)\cos{\psi} \\
-  f  &= \sqrt{d_1^2 - T_{1y}^2} \\
-  T_{1x} &= A_x - f \\
-  T_{2x} &=  \sqrt{d_2^2 - T_{2y}^2} - A_x \\
-\end{align}
-
-
-The slope of the vector $\overrightarrow{T_1T_2}$ is $\tan{\theta}$.
-  \begin{align}
-    \overrightarrow{T_1T_2}_x &= \cos{\theta} \\
-    \overrightarrow{T_1T_2}_y &= \sin{\theta}
-    \end{align}
-
-  \section{Problem III: Support points of Two tangent spheres }
-
-  In attempting to solve a latter problem, we identified the following problem as useful.
-
-  Suppose that you have two spheres which are tangent. The centers of these spheres are
-  in the $XY$-plane, in arbitrary positions.   Find the three-dimensional coordinates
-  of the ``support points'', which are the points upon which a flat plane would rest
-  if lowered onto the spheres. If the spheres are different sizes, these will not quite
-  be the tops of the spheres.  Assume the plane is symmetric about the support line; that
-  is, not tilted to one side.
-
-
-
-\section{Problem: Three Touching Circles}
-
-Our goal is to be able to determine the orientation of plane resting on top of three spheres of different radii which are touching each
+Our goal is to be able to determine the orientation of plane resting
+on top of three spheres of different radii which are touching each
 other.
 Because there is a plane through any three points and we have three spheres, we can construct the plane through
 the center of these points.
@@ -368,7 +263,8 @@ about the $X$-axis, as depicted in Figure \ref{fig:rotation}.
   \psi &= \arccos{\hat{\overrightarrow{CA}}_z } \text{(angle of CA against the z axis)} \\
   L &= \| A - CA_{apex} \| \\
   Z' &= L \cos{\psi} \frac{U_x}{U_x-V_x} \\
-  \gamma &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}};
+  \gamma &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}}\\
+  \gamma &= \arcsin{\frac{r_a}{Z'}};
 \end{align}
 
 \section{Thing to Research}

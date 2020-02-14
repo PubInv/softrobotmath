@@ -147,22 +147,22 @@ function isRigidTransformation(R) {
 }
 
 // This returns 3 Vecto2 obects, A, B, C in our convention.
-function Compute3TouchingCirclesX(ra,rb,rc) {
-  const A = new THREE.Vector2(-ra,0);
-  const B = new THREE.Vector2(rb,0);
-  const a  = rb + rc;
-  const b  = ra + rc;
-  const c  = ra + rb;
-  const theta = Math.acos((a**2 + c**2 - b**2)/(2*a*c));
-  const cy = a * Math.sin(theta);
-  const cx = B.x - a * Math.cos(theta)
-//  const cx = A.x - Math.sqrt(b**2 - cy**2);
-  const C = new THREE.Vector2(cx,cy);
-  console.assert(near(A.distanceTo(B),ra+rb));
-  console.assert(near(B.distanceTo(C),rb+rc));
-  console.assert(near(A.distanceTo(C),ra+rc));
-  return [A,B,C];
-}
+// function Compute3TouchingCirclesX(ra,rb,rc) {
+//   const A = new THREE.Vector2(-ra,0);
+//   const B = new THREE.Vector2(rb,0);
+//   const a  = rb + rc;
+//   const b  = ra + rc;
+//   const c  = ra + rb;
+//   const theta = Math.acos((a**2 + c**2 - b**2)/(2*a*c));
+//   const cy = a * Math.sin(theta);
+//   const cx = B.x - a * Math.cos(theta)
+// //  const cx = A.x - Math.sqrt(b**2 - cy**2);
+//   const C = new THREE.Vector2(cx,cy);
+//   console.assert(near(A.distanceTo(B),ra+rb));
+//   console.assert(near(B.distanceTo(C),rb+rc));
+//   console.assert(near(A.distanceTo(C),ra+rc));
+//   return [A,B,C];
+// }
 function Compute3TouchingCircles(ra,rb,rc) {
   const A = new THREE.Vector2(0,0);
   const B = new THREE.Vector2(ra+rb,0);
@@ -179,12 +179,18 @@ function Compute3TouchingCircles(ra,rb,rc) {
   console.assert(near(A.distanceTo(C),ra+rc));
   return [A,B,C];
 }
+// Need to figure out what part of this is incorrect if
+// rb > ra.
 
 function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
+  if (ra == rb == rc) {
+    return [0,0,null];
+  }
+
   const A3 = new THREE.Vector3().subVectors(C,A);
   const A3unit = A3.clone().clampLength(1.0,1.0);
 
-  const theta1 = ComputeAxisAngleOfCone(ra,rb);
+  var theta1 = ComputeAxisAngleOfCone(ra,rb);
 
   // Experimental...
   // Assume A > B, and A and B are on the z axis (z = 0)
@@ -205,13 +211,27 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
 
   var zprime = cA3.z * (cA1.x) / ((cA1.x) - (cA3.x));
 //  console.assert(near(zprimep,zprime));
+  // in this case we have to do something a little different...
+  if (ra == rb) {
+    zprime = cA3.z;
+    console.log("SPECIAL",zprime);
+    return [0,Math.asin(ra/zprime),zprime];
+  }
+  console.log("theta1",theta1);
+  if (ra < rb) theta1 = -theta1;
 
+  // h is a height tilted about x-axis; length of plane to origin.
   var h = Math.tan(theta1) * cA1.x;
 
   //  var gamma = Math.asin(ra/zprime);
+  // Zprime cannot be computed if all are equal.
+  console.log("h,zprime",h,zprime);
+
   var gamma = Math.asin(h/zprime);
-  console.log("theta",gamma * 180 / Math.PI);
-  return [-theta1,gamma,zprime];
+
+  console.log("gamma",gamma * 180 / Math.PI);
+    return [-theta1,gamma,zprime];
+
 }
 
 function testCircle(ra,rb,rc) {
@@ -293,19 +313,29 @@ function ComputeAxisAngleOfCone(r1,r2) {
   console.assert(near((r2-r1)/(r2+r1),r1/ (z + r1)));
   let psi = Math.asin((r2-r1)/(r2+r1));
 
-  console.log("r1,r2,z,psi",r1,r2,z,psi *180/Math.PI);
+//  console.log("r1,r2,z,psi",r1,r2,z,psi *180/Math.PI);
   console.assert(near((z+r1)**2,r1**2 + (Math.cos(psi)*(z+r1))**2));
   return psi;
 }
 
 // TODO: This is not a good enough test!!! Need to fix.
 function testComputeAxisAngleOfCone() {
-  let r1 = 3;
-  let r2 = 1;
-  let c1 = new THREE.Vector3(0,0,0);
-  let c2 = new THREE.Vector3(10,0,0);
-  let psi = ComputeAxisAngleOfCone(r1,r2);
-  console.log("computed psi",psi * 180 / Math.PI);
+  {
+    let r1 = 3;
+    let r2 = 1;
+    let c1 = new THREE.Vector3(0,0,0);
+    let c2 = new THREE.Vector3(10,0,0);
+    let psi = ComputeAxisAngleOfCone(r1,r2);
+    console.log("computed psi",psi * 180 / Math.PI);
+  }
+  {
+    let r1 = 2;
+    let r2 = 2;
+    let c1 = new THREE.Vector3(0,0,0);
+    let c2 = new THREE.Vector3(10,0,0);
+    let psi = ComputeAxisAngleOfCone(r1,r2);
+    console.log("computed psi",psi * 180 / Math.PI);
+  }
 }
 
 function runUnitTests() {
