@@ -594,118 +594,34 @@ function clearAm() {
   am.helix_params = [];
 }
 
-function getLegalTauValues(solid) {
-  var taus = [];
-  switch(solid) {
-  case "TETRAHEDRON":
-    taus = [-(Math.PI * 2) / 3, 0, (Math.PI * 2) / 3];
-    break;
-  case "CUBE":
-    taus = [-(Math.PI * 2) / 4, 0, (Math.PI * 2) / 4];
-    break;
-  case "OCTAHEDRON":
-    taus = [-(Math.PI * 2) / 3, 0, (Math.PI * 2) / 3];
-    break;
-  case "DODECAHEDRON":
-    taus = [- 2 * (Math.PI * 2) / 5, -(Math.PI * 2) / 5, 0, (Math.PI * 2) / 5, 2 * (Math.PI * 2) / 5];
-    break;
-  case "ICOSAHEDRON":
-    // DANGER!!! This works, but I have no explanation...it is undoubtedly
-    // dependent on the face that we choose. At present, I only allow
-    // one face to be chosen, but this means that the legal values are probably
-    // dependent on that face.
-    const fudge_factor = 75 * Math.PI / 180;
-    taus = [(-(Math.PI * 2) / 3) + fudge_factor, fudge_factor, ((Math.PI * 2) / 3) + fudge_factor];
-    break;
-  }
-  return taus;
-}
 
-function getLegalTauValuesX(solid,face) {
-  var taus = [];
-  const n = numFaces(solid);
-  [numrots,base,delta] = twistBaseIncrement(solid,face);
-  const values = [numrots];
-  for(var i = 0; i < numrots; i++) {
-    const degrees = base + ((i - (Math.floor(numrots/2))))*delta;
-    values[i] = degrees * Math.PI / 180;
-  }
-  return values;
-}
-
-function updateLegalTauValues(solid,face) {
-  var taus = getLegalTauValuesX(solid,face).map(r => r*180/Math.PI);
-  if (taus.length == 3) {
-    $("#radio-t0-l").html("N/A");
-    $("#radio-t1-l").html(format_num(taus[0],0));
-    $("#radio-t2-l").html(format_num(taus[1],0));
-    $("#radio-t3-l").html(format_num(taus[2],0));
-    $("#radio-t4-l").html("N/A");
-
-    $("#radio-t4-l").hide();
-    $("#radio-t0-l").hide();
-  } else if (taus.length == 4) {
-    $("#radio-t0-l").html(format_num(taus[0],0));
-    $("#radio-t1-l").html(format_num(taus[1],0));
-    $("#radio-t2-l").html(format_num(taus[2],0));
-    $("#radio-t3-l").html(format_num(taus[3],0));
-    $("#radio-t4-l").html("N/A");
-    $("#radio-t4-l").hide();
-  } else {
-    $("#radio-t0-l").html(format_num(taus[0],0));
-    $("#radio-t1-l").html(format_num(taus[1],0));
-    $("#radio-t2-l").html(format_num(taus[2],0));
-    $("#radio-t3-l").html(format_num(taus[3],0));
-    $("#radio-t4-l").html(format_num(taus[4],0));
-
-    $("#radio-t4-l").show();
-    $("#radio-t0-l").show();
-  }
-  return taus;
-}
-
-
-function getSelectedTaus(taus) {
-  var modex = $("input:radio[name=radio-2]:checked").attr('id');
-  if (!modex) {
-    modex = "0";
-  }
-  let n = modex.substr(-1);
-  var v;
-  if (taus.length == 3) {
-    if (n == 0)
-      n++;
-    if (n == 4)
-      n--;
-    n = n - 1;
-  }
-  return taus[n];
-}
-function setSelectedTau(tau_radians) {
-
-  var f = format_num(tau_radians * 180/ Math.PI,0);
-  for(var i = 0; i < 5; i++) {
-    var id = "#radio-t"+i+"-l";
-    var html = $(id).html();
-    if (f == html) {
-      $(id).prop("checked", true).change();
-    }
-  }
-
-}
 // construct a cone that is sort of around sphere at c
 // with apex at point apex of half-angle angle
-function positionConeOnSphere(apex,c,angle) {
+function positionConeOnSphere(apex,c,angle,color) {
   var len = apex.distanceTo(c);
   var r = len * Math.tan(angle);
   var geometry = new THREE.ConeGeometry( r, len, 32, false );
-  var material = new THREE.MeshPhongMaterial( {color: 0x0000ff, opacity: 0.5, transparent: true} );
+  var material = new THREE.MeshPhongMaterial( {color: color, opacity: 0.3, transparent: true} );
   var cone = new THREE.Mesh( geometry, material );
   cone.castShadow = true;
   cone.receiveShadow = true;
   cone.debugObject = true;
-  return cone;
+  const TM0 = new THREE.Matrix4().makeTranslation(0,(len/2),0);
+  cone.applyMatrix(TM0);
 
+  const Y = new THREE.Vector3(0,1,0);
+  const apex_dir = apex.clone();
+  apex_dir.sub(c);
+  apex_dir.normalize();
+  let qzn = new THREE.Quaternion();
+  qzn.setFromUnitVectors(Y,apex_dir);
+  const RM1 = new THREE.Matrix4().makeRotationFromQuaternion(qzn);
+  cone.applyMatrix(RM1);
+
+  const TM1 = new THREE.Matrix4().makeTranslation(c.x,c.y,c.z);
+  cone.applyMatrix(TM1);
+
+  return cone;
 }
 // This is done only for the rendering...
 function render_tentacle() {
@@ -854,6 +770,16 @@ function onComputeParams() {
   am.scene.add(mbp);
   am.scene.add(mcp);
 
+
+  // Add Cones
+  var coneab = positionConeOnSphere(cA1,A,ComputeAxisAngleOfCone(ra,rb),0xff00);
+  am.scene.add(coneab);
+  var coneac = positionConeOnSphere(cA3,A,ComputeAxisAngleOfCone(ra,rc),0x0000ff);
+  am.scene.add(coneac);
+  var conebc = positionConeOnSphere(cA2,B,ComputeAxisAngleOfCone(rb,rc),0x00ff00);
+  am.scene.add(conebc);
+
+
   var gamma;
   var theta;
   var zprime;
@@ -899,7 +825,7 @@ function onComputeParams() {
   var origin = new THREE.Vector3( 0, 0, 0 );
 
   var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
-  var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
+  var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.1, side: THREE.DoubleSide} );
   var plane = new THREE.Mesh( geometry, pmaterial );
   plane.debugObject = true;
   let qz = new THREE.Quaternion();

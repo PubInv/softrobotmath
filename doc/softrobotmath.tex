@@ -112,19 +112,10 @@ Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean the
 \end{align}
 
 
-\subsection{Axis Angle of Cone Enveloping Two Spheres}
 
-The apex angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
-circles of radii $r,s$, is:
-
-\begin{align}
- \psi &= \arcsin{\frac{r s - r^2}{2 r^2 - r s + s^2}} \\
-\end{align}
-where $r < s$ without loss of generality.
 
 \section{Three Touching Spheres}
 
-Note: This problem is mentioned in an advanaced textbook on solid geometry from 1881\cite{payne1881}.
 
 Our fundamental goal now is to describe three touching spheres. As robotocists,
 our interest is in the slope of the plane of the tops of these spheres
@@ -136,26 +127,40 @@ is the best-known example.
 
 The fundamental action of a parallel manipulator is to tilt a plane or platform in a desired direction based
 on changes in the radii of the spheres.
+
+The problem finding the planes tangent to three touching spheres
+is given as an exercise in an advanaced textbook on solid geometry from 1881\cite{payne1881}. It does not give a solution, but it gives a hint: to consider the cones enveloping
+three spheres taken two at a time.
+
 Choosing the coordinate system of the $XZ$ plane through the center of the spheres greatly
 simplifies the derivations, because the center of the spheres always form tangent circles
-in this plane. The position of $A$ is fixed, $B$ is constrained to the $x$-axis, and
+in this plane. Call this plane the {\em center plane.} The position of $A$ is fixed, $B$ is constrained to the $x$-axis, and
 $C$ is contrained to the $xz$-plane. The center of these circles in the $xz$ plane can be
 calculated from the radii independent of the tilt they induce.
 In this coordinate system, the $y$-coordinate of the center of all spheres is $0$.
 Furthermore, a cone tangent to two spheres has its axis and apex in the $xz$-plane.
 The projection of all three spheres into this plane produces three touching circles.
 We seek an expression for the normal of the plane of the tops of these spheres as a function
-purely of the three radii. Call this plane the {\em top} plane.
+purely of the three radii. Call this plane the {\em top plane}.
+We can imagine the spheres resting on a fixed surface called the {\em bottom plane}.
+The tilt of the top and bottom plane relative to the center of the spheres
+is alway a mirror image of each other across the coordinate $XZ$-plane.
 
-As the top plane tilts, the points tangent to this plane move away from the highest points on each of
-the three spheres, making the problem more difficult.
+If the tilt of the top plane relative to the coordinate plane is given by a rotation about the $z$ axis of $\theta$ and
+then a rotation about $x$ axis of $\gamma$, the tilt of the top plane relative
+to the bottom plane is given by the $zx$ extrinsic Euler angles $(2\theta, 2\gamma)$.
 
-This problem can clearly be solved quickly using numerical methods, because by guessing
-a candidate normal to the top plane, it is relatively easy to compute an error function based
-on the distance between the closest point on each sphere to the top plane and the top plane.
-We would expect an iterative approach to converge very quickly.
+\subsection{Physical Embodiment}
 
-Nonetheless we seek an analytic solution.
+To embody this system precisely, the sphere $A$ could be pinned to
+the origin of the bottom plane.
+The contact point of the sphere $B$ with the bottom plane could be placed on a
+linear slider on the $x$-axis. The conact point $C$ could be constrained to
+rest on the botom plane by gravity or some elastic cables. As the spheres
+change change, the origin of the center plane will experience minor translation
+relative to the bottom plane, but will not experience rotation about the $y$-axis.
+If needed the coordinates of the spheres in the bottom plane can be easily
+calculates from the radii and the computed Euler angles $\theta$ and $\gamma$.
 
 \begin{figure}
      \centering
@@ -176,9 +181,30 @@ Following computer graphics convention, we think of the $Y$ dimension as vertica
 Taking any two spheres defines a cone whose apex is in the $XZ$ plane.
 Call the apex of the $AB$ cone $U$, the $AC$ cone $V$, and the $BC$ cone $W$.
 
+It is a beautiful fact that the th apices $U,V$ and $W$ are colinear
+on a line we call the {\em apex line}, depicted in both Figure \ref{fig:fixed}
+or Figure \ref{fig:rotation}.
+Further, by your choice of coordinates,
+this line is in the $XZ$ plane. Finally, the top and bottom planes
+intersect at this line, because those planes are tangent to the three cones.
+
 We assert that these three points form a line, which we call the {\em apex line}, in the $XZ$ plane and that this
 line is the intersection of the {\em tangent plane} touching all three spheres at a single point
 with the $XZ$ plane. We will use points $U$ and $V$ in our calculation.
+
+\subsection{Axis Angle of Cone Enveloping Two Spheres}
+
+In order to compute the apex line, it is helpful
+to note that the apex angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
+spheres of radii $r,s$, is:
+
+\begin{align}
+ \psi &= \arcsin{\frac{r s - r^2}{2 r^2 - r s + s^2}} \\
+\end{align}
+where $r < s$ without loss of generality. Note that when $r = s$
+there is a special case,
+the cone tangent to both is degenerate (that is, a cylinder, or a cone of
+$\psi = 0$ apex angle.)
 
 \subsection{Strategy}
 
@@ -230,9 +256,9 @@ onto the $xz$-plane. This allows $\gamma$ to be computed as a pure rotation
 about the $x$-axis.
 
 \begin{align}
-h_y &= U_x\tan{\theta_{ab}}\\
+H_y &= U_x\tan{\theta_{ab}}\\
 z' &= \frac{U_xV_z}{U_x - V_x} \\
-\gamma &= \arcsin{\frac{h}{z'}}
+\gamma &= \arcsin{\frac{H_y}{z'}}
 \end{align}
 
 
