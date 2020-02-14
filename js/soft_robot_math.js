@@ -179,9 +179,8 @@ function Compute3TouchingCircles(ra,rb,rc) {
   console.assert(near(A.distanceTo(C),ra+rc));
   return [A,B,C];
 }
-// Need to figure out what part of this is incorrect if
-// rb > ra.
 
+// cA2 is not needed but included for symmetry.
 function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   if (ra == rb == rc) {
     return [0,0,null];
@@ -207,10 +206,9 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   var psi = Math.acos(A3unit.z);
   console.log("psi",psi * 180/Math.PI);
   console.assert(near(psi,psi_old));
-//  var zprime = AClen * Math.cos(psi) * (cA1.x) / ((cA1.x) - (cA3.x));
 
-  var zprime = cA3.z * (cA1.x) / ((cA1.x) - (cA3.x));
-//  console.assert(near(zprimep,zprime));
+  var zprime = cA3.z * cA1.x / ((cA1.x) - (cA3.x));
+
   // in this case we have to do something a little different...
   if (ra == rb) {
     zprime = cA3.z;
@@ -220,7 +218,7 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   console.log("theta1",theta1);
   if (ra < rb) theta1 = -theta1;
 
-  // h is a height tilted about x-axis; length of plane to origin.
+  // h is a height tilted about x-axis; distance of the plane to origin.
   var h = Math.tan(theta1) * cA1.x;
 
   //  var gamma = Math.asin(ra/zprime);
