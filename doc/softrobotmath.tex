@@ -73,7 +73,7 @@ Knowing the position of these circles is a valuable prelude to solving the three
 
 \begin{figure}
      \centering
-     \includegraphics[width=0.80\textwidth]{figures/ThreeTouchingCircles.png}
+     \includegraphics[width=0.5\textwidth]{figures/ThreeTouchingCircles.png}
      \caption{Three Touching Circles}
   \label{fig:Tangent}
 \end{figure}
@@ -103,27 +103,24 @@ Then we can use the cosine law to compute the angle $\angle ABC = \theta$:
 It is clear that once $\theta$ has been calculated:
 
 \begin{align}
- C_y  &= a\sin{\theta}
+ C_z  &= a\sin{\theta}
 \end{align}
 Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean theorem:
 \begin{align}
-  b^2  &= C_y^2 + (r_1-C_x)^2 \\
-  b^2 - C_y^2  &= (r_1-C_x)^2  \\
-  \sqrt{b^2 - C_y^2}  &= r_1-C_x  \\
-  C_x &= r_1 -  \sqrt{b^2 - C_y^2}
+  b^2  &= C_z^2 + C_x^2 \\
+  C_x   &= \sqrt{b^2 - C_z^2}  \\
 \end{align}
 
-\section{A Progression of Problems}
 
-Because we now believe we can model the main problem as the rotation of a plane tangent to a cone about the cone,
-there are a number of easier problems which may lead us to a solution:
-\begin{enumerate}
-\item In 2D, rotate a tangently line to a circle until it is coincient on an outside point.  That is, given the
-  center of a circle $C$, a radius $r$, another point $p$, what angular rotation (measured against $x$-axis) gives
-  the rotation that makes a line tangent to $C$ touch $p$?
-\item Given two spheres, what is the equation for the cone tangent to both?
-  \item Is the problem better thought of as the intersection of several spheres?
-  \end{enumerate}
+\subsection{Axis Angle of Cone Enveloping Two Spheres}
+
+The apex angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
+circles of radii $r,s$, is:
+
+\begin{align}
+ \psi &= \arcsin{\frac{r s - r^2}{2 r^2 - r s + s^2}} \\
+\end{align}
+where $r < s$ without loss of generality.
 
 \section{Three Touching Spheres}
 
@@ -137,11 +134,15 @@ Such a device is sometimes called a parallel manipulator, of which a
 Stewart Platform\cite{wiki:stewart} (\url{https://en.wikipedia.org/w/index.php?title=Stewart_platform&oldid=898429010})
 is the best-known example.
 
-The fundamental action of a parallel manipulator is to tilt a plane or platform in a desired direction.
-Having developed the math for the three touching circles in the previous section, we now use it
-to find the normal of the a plane resting on the top of three spheres by choosing our
-coordinate system to the plane defined by the center points of the three spheres.
-In this coordinate system, the $z$-coordinate of the center of all spheres is $0$.
+The fundamental action of a parallel manipulator is to tilt a plane or platform in a desired direction based
+on changes in the radii of the spheres.
+Choosing the coordinate system of the $XZ$ plane through the center of the spheres greatly
+simplifies the derivations, because the center of the spheres always form tangent circles
+in this plane. The position of $A$ is fixed, $B$ is constrained to the $x$-axis, and
+$C$ is contrained to the $xz$-plane. The center of these circles in the $xz$ plane can be
+calculated from the radii independent of the tilt they induce.
+In this coordinate system, the $y$-coordinate of the center of all spheres is $0$.
+Furthermore, a cone tangent to two spheres has its axis and apex in the $xz$-plane.
 The projection of all three spheres into this plane produces three touching circles.
 We seek an expression for the normal of the plane of the tops of these spheres as a function
 purely of the three radii. Call this plane the {\em top} plane.
@@ -158,7 +159,7 @@ Nonetheless we seek an analytic solution.
 
 \begin{figure}
      \centering
-     \includegraphics[width=0.80\textwidth]{figures/StandardThreeSphereDiagram.png}
+     \includegraphics[width=0.99\textwidth]{figures/StandardThreeSphereDiagram.png}
      \caption{Three Touching Spheres}
   \label{fig:fixed}
 \end{figure}
@@ -178,10 +179,6 @@ Call the apex of the $AB$ cone $U$, the $AC$ cone $V$, and the $BC$ cone $W$.
 We assert that these three points form a line, which we call the {\em apex line}, in the $XZ$ plane and that this
 line is the intersection of the {\em tangent plane} touching all three spheres at a single point
 with the $XZ$ plane. We will use points $U$ and $V$ in our calculation.
-Let $\alpha$ be the half-angle of the $AB$ cone.
-
-It behooves us to name the intersection of the apex line with the $Z$ axis, $I_z$, so
-that we can use it in calculations.
 
 \subsection{Strategy}
 
@@ -190,8 +187,24 @@ Observe that this plane is tangent to all three cones.
 Observe that the $AB$ cone intersects
 the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
 
-A vector of length $r_A$ that begins pointing in the $X$ direction and is rotated counterclockwise
-about the $Z$-axis by $\pi/2 - \alpha$.
+The half-angle of a cone tangent to two tangent spheres is computed from the radii directly:
+\begin{align}
+  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \\
+  \theta_{bc} &= \arcsin{\frac{r_b - r_c}{r_b + r_c}}
+\end{align}
+
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.5\textwidth]{figures/RotationMath.png}
+     \caption{Rotation Math}
+  \label{fig:rotation}
+\end{figure}
+
+A vector of length $r_A$ that is always rotated about the origin is always a point on the sphere.
+The first operation is move this vector perpendicular to the $AB$ cone.
+A vector $N$ in the $Y$ direction and rotated counterclockwise
+about the $Z$-axis by $\theta_{ab}$ is perpendicular to the $AB$ cone.
 
 However, we must rotate this vector $N$ about the $X$ axis by an unknown amount, $\gamma$, in order
 to orient the vector to line up properly with the desired tilt of the tangent plane despite not being a pure rotation about the $Z$ axis. Since this angle is computed in the $YZ$ plane, we compute a projection of the point $V$ into
@@ -199,76 +212,49 @@ that plane, forming a triangle in the $YZ$ plane.  Call this point $I_z$, the in
 of the apex line with the $Z$-axis. Let $h$ be the height of the intersection of the y-axis with the $AB$ cone.
 Then $\gamma$ is the angle we need to rotate the plane by so that it intersects with the $Z$-axis at a point, referred to as $I_z$. By basic geometry of simialr triangles, this is computed from the right triangle of the origin with $h$ and $I_z$.
 Having computed $\theta_{ab}$ and $\gamma$, these two degrees of rotation give us the plane tangent to all three spheres, and its corresponding tilt for our desired soft Stewart Platform.
-Note: we will change the symbol notation to U, V, and W
 
-\begin{align}
-  \overrightarrow{AB} &= \overrightarrow{A} - \overrightarrow{B} \\
-  \overrightarrow{BC} &= \overrightarrow{B} - \overrightarrow{C} \\
-  \overrightarrow{CA} &= \overrightarrow{C} - \overrightarrow{A} \\
-  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \\
-  \theta_{bc} &= \arcsin{\frac{r_b - r_c}{r_b + r_c}} \\
-  \theta_{ca} &= \arcsin{\frac{r_a - r_c}{r_a + r_c}} \\
-  \overrightarrow{AB_{apex}} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{r_a}{\sin{\theta_{ab}}} \\
-  \overrightarrow{BC_{apex}} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{r_b}{\sin{\theta_{bc}}} \\
-  \overrightarrow{CA_{apex}} &= \overrightarrow{C} + \hat{\overrightarrow{CA}} \frac{r_c}{\sin{\theta_{ca}}} \\
-  \overrightarrow{U} &= \overrightarrow{AB_{apex}} \\
-  \overrightarrow{V} &= \overrightarrow{CA_{apex}} \\
-  \overrightarrow{W} &= \overrightarrow{BC_{apex}}
-\end{align}
-
-\begin{align}
- \gamma &= \arcsin{\frac{h}{I_z}}\\
-h &= U_x\tan{\theta_{ab}}\\
-I_z &= \frac{U_xV_z}{U_x - V_x}
-\end{align}
-
-
-\subsection{Axis Angle of Cone Enveloping Two Spheres}
-
-The apex angle of a cone which envlopes (by being tangent to) two tangent
-circles of radii $r_x,r_y$, is:
-
-\begin{align}
- z &= -2 \frac{r_x^2}{r_x - r_y}\\
- \psi &= 2 \arcsin{\frac{r_x}{z + r_y}} \\
- \psi &= 2 \arcsin{\frac{r_y - r_x}{r_x + r_y}}
-\end{align}
-where $r1 < r2$ without loss of generality.
-
-\subsection{Computation of $\gamma$ and $\theta$ }
-
-Compute these by considering the three cones that envelope the three spheres
-taken in a pair-wise fashion. Let $\theta_{xy}$ be the half-angle of the
-aperture of the cone that envelopes sphere $x$ and sphere $y$.
-
-Compute the apices of the three cones, naming the apex of the cone that
-envelopes sphere $X$ and sphere $Y$ $\overrightarrow{XY_{apex}}$. It is interesting
-to note that the three apices lie on a line, which is where the normal plane
-intersects the $XZ$-plane where the center of all the spheres lie.
-
-Let $Z'$ be the $z$ value of the intersection of this line with $z$-axis.
-
-Let the normal of the plane tangent to the three spheres be generated
-by a (negative) rotation $\theta_{AB}$ of the $[0,1,0]$ vector about the $Z$-axis followed by a rotation $\gamma$
-about the $X$-axis, as depicted in Figure \ref{fig:rotation}.
-
-\begin{figure}
-     \centering
-     \includegraphics[width=0.80\textwidth]{figures/RotationMath.png}
-     \caption{Rotation Math}
-  \label{fig:rotation}
-\end{figure}
+Vectors $\overrightarrow{U}, \overrightarrow{V}, $ and $  \overrightarrow{W}$ represent the vectors from the center of the spheres $A$, $B$, and $C$ to
+the apices of the cones tangent to $A$ and $B$, $B$ and $C$, and $C$ and $A$ respectively.
 
 
 \begin{align}
-  \psi &= \arccos{\hat{\overrightarrow{CA}}_z } \text{(angle of CA against the z axis)} \\
-  L &= \| A - CA_{apex} \| \\
-  Z' &= L \cos{\psi} \frac{U_x}{U_x-V_x} \\
-  \gamma &= \frac{\pi}{2} - \arccos{\frac{r_a}{Z'}}\\
-  \gamma &= \arcsin{\frac{r_a}{Z'}};
+  \overrightarrow{U} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{r_a}{\sin{\theta_{ab}}} \\
+  \overrightarrow{V} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{r_b}{\sin{\theta_{bc}}} \\
 \end{align}
 
-\section{Thing to Research}
+The point $H$ is the intesection of the $AB$ cone with the $y$ axis.
+This is right triangle of the origin with the points $U$ and $H$. (The hypotenuse
+of this triangle is $\overrightarrow{HU}$, and side adjacent to $\theta_{AB}$ is $\overrightarrow{OU}$.)
+It is computed by projecting the contact point of the top plane in the $xy$-plane
+onto the $xz$-plane. This allows $\gamma$ to be computed as a pure rotation
+about the $x$-axis.
+
+\begin{align}
+h_y &= U_x\tan{\theta_{ab}}\\
+z' &= \frac{U_xV_z}{U_x - V_x} \\
+\gamma &= \arcsin{\frac{h}{z'}}
+\end{align}
+
+
+
+
+
+
+
+
+
+\bibliographystyle{acm}
+
+\bibliography{softrobotmath}
+
+
+\end{document}
+
+
+  In 1881, the problem of computing the plane tangent to three spheres was set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881}. We have solved this problem in JavaScript, producing an interactive, browser-based web page that dynamically solves the problem. All of the code is released under the GNU Public License. We propose constructing a ``soft'' Stewart platform using this theory which  allows us to control the inclination of two planes with a very simple  mechanism powered only by phase change of a liquid to a gas or by pneumatics. Future work includes computing the Jacobian of a ``tentacle'' formed  by stringing together many such Stewart Platforms, thus providing a  theoretical model for a simple, inexpensive, ``soft'' tentacle.  Such a tentacle can be scaled down nicely for {\em in vivo} medical  applications such as endoscopy and arterial catheterization.
+
+
+  \section{Thing to Research}
 
 Idea: It may be possible to solve for the support points as the intersection of cones\cite{shene1994lower}.
 
@@ -283,14 +269,10 @@ https://math.stackexchange.com/questions/2101056/how-to-compute-the-formula-of-c
 https://math.stackexchange.com/questions/1129402/solving-a-common-tangent-problem-using-matrices
 
 
-
-
-\bibliographystyle{acm}
-
-\bibliography{softrobotmath}
-
-
-\end{document}
-
-
-  In 1881, the problem of computing the plane tangent to three spheres was set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881}. We have solved this problem in JavaScript, producing an interactive, browser-based web page that dynamically solves the problem. All of the code is released under the GNU Public License. We propose constructing a ``soft'' Stewart platform using this theory which  allows us to control the inclination of two planes with a very simple  mechanism powered only by phase change of a liquid to a gas or by pneumatics. Future work includes computing the Jacobian of a ``tentacle'' formed  by stringing together many such Stewart Platforms, thus providing a  theoretical model for a simple, inexpensive, ``soft'' tentacle.  Such a tentacle can be scaled down nicely for {\em in vivo} medical  applications such as endoscopy and arterial catheterization.
+We used this derivation with Wolfram Alpha:
+\begin{align}
+ z &= -2 \frac{r_x^2}{r_x - r_y}\\
+ \psi &= 2 \arcsin{\frac{r_x}{z + r_y}} \\
+ \psi &= 2 \arcsin{\frac{r_x}{-2 \frac{r_x^2}{r_x - r_y} + r_y}} \\
+ \psi &= \arcsin{\frac{r_x r_y - r_x^2}{2 r_x^2 - r_x r_y + r_y^2}} \\
+\end{align}
