@@ -856,6 +856,9 @@ function onComputeParams() {
   zc.debugObject = true;
   am.scene.add(zc);
 
+  // Now we want to set theta and gamma in the sliders so the user can see it.
+  setThetaGammaValues(theta,gamma);
+
 }
 
 function main() {
@@ -1145,6 +1148,9 @@ var RADIUS_A = 1;
 var RADIUS_B = 1;
 var RADIUS_C = 1;
 
+var THETA_D = 0;
+var GAMMA_D = 0;
+
 {
 
   function setNBValues(Nb) {
@@ -1162,6 +1168,18 @@ var RADIUS_C = 1;
     $( "#radius_c_slider" ).slider( "value", RADIUS_C );
     $( "#r_c" ).val( format_num(RADIUS_C,3) );
     $( "#radius_c" ).val( format_num(RADIUS_C,3) );
+  }
+
+  function setThetaGammaValues(theta,gamma) {
+    THETA_D = theta * 180 / Math.PI;
+    GAMMA_D = gamma * 180 / Math.PI;
+    $( "#theta_slider" ).slider( "value", THETA_D );
+    $( "#d_theta" ).val( format_num(THETA_D,3) );
+    $( "#theta" ).val( format_num(THETA_D,3) );
+
+    $( "#gamma_slider" ).slider( "value", GAMMA_D );
+    $( "#d_gamma" ).val( format_num(GAMMA_D,3) );
+    $( "#gamma" ).val( format_num(GAMMA_D,3) );
   }
   $(function() {
     $( "#radius_a_slider" ).slider({
@@ -1216,6 +1234,42 @@ var RADIUS_C = 1;
     });
     $( "#r_c" ).val( $( "#radius_c_slider" ).slider( "value" ) );
   });
+
+  $(function() {
+    $( "#theta_slider" ).slider({
+      range: "max",
+      min: -45,
+      max: 45,
+      value: THETA_D,
+      step: 1,
+      slide: function( event, ui ) {
+	$( "#d_theta" ).val( ui.value );
+	$( "#theta_slider" ).val( ui.value );
+	THETA_D = ui.value;
+        console.log(THETA_D);
+        onComputeParams();
+      }
+    });
+    $( "#theta" ).val( $( "#theta_slider" ).slider( "value" ) );
+  });
+
+  $(function() {
+    $( "#gamma_slider" ).slider({
+      range: "max",
+      min: -45,
+      max: 45,
+      value: GAMMA_D,
+      step: 1,
+      slide: function( event, ui ) {
+	$( "#d_gamma" ).val( ui.value );
+	$( "#gamma_slider" ).val( ui.value );
+	GAMMA_D = ui.value;
+        console.log(GAMMA_D);
+        onComputeParams();
+      }
+    });
+    $( "#gamma" ).val( $( "#gamma_slider" ).slider( "value" ) );
+  });
 }
 
 function setup_input_molecule(slider,ro,txt,x,set)
@@ -1236,111 +1290,6 @@ function setup_input_molecule(slider,ro,txt,x,set)
   });
 }
 
-
-function hideClassNum(solid,cnum,visibility) {
-  var table = document.getElementById("platonichelices");
-  var cnt = 0;
-  for (var i = 0, row; row = table.rows[i]; i++) {
-    //iterate through rows
-    //rows would be accessed using the "row" variable assigned in the for loop
-    var class_num = row.getAttribute("class_num");
-    var solid_name = row.getAttribute("solid_name");
-
-    if ((solid == solid_name) && (class_num == cnum)) {
-      if (cnt != 0) {
-        row.style.display = visibility;
-      }
-      cnt++;
-    }
-  }
-}
-
-
-function countClass(measures,solid,cnum) {
-  var cnt = 0;
-  for(var i = 0; i < measures.length; i++) {
-    if ((measures[i][8] == cnum) && (measures[i][0] == solid))  {
-      cnt++;
-    }
-  }
-  return cnt;
-}
-
-function addMeasures(measures,s,cnt,f,tau,r,theta,d,phi) {
-  var class_num = -1;
-  var max_class = -1;
-  for(var i = 0; i < measures.length; i++) {
-    if ((s == measures[i][0]) &&
-        (near(r,measures[i][4])) &&
-        (near(theta,measures[i][5])) &&
-        (near(Math.abs(d),Math.abs(measures[i][6])))
-       ) {
-      class_num = measures[i][8];
-    }
-    if ((measures[i][8] > max_class)) max_class = measures[i][8];
-  }
-  measures.push([s,cnt,f,tau,r,theta,d,phi,(class_num >= 0) ? class_num : max_class + 1 ]);
-}
-// Our goal here is to create a list of the classe, which
-// elements belongs to which, how many are in which, and wether they contain both chiralities
-// (I think they will have to.
-function analyzeClasses(mAndC) {
-  let analysis = [];
-  const len = mAndC.length;
-  for(var i = 0; i < len; i++) {
-    const c = mAndC[i][8];
-    const s = Math.sign(mAndC[i][6]);
-    if (analysis[c] != null) {
-      const v = analysis[c];
-      const h = (v[2] != s) ? "B" : s;
-      analysis[c] = [v[0]+1,[...v[1],i],h];
-    } else {
-      analysis[c] = [1,[i],s];
-    }
-  }
-  return analysis;
-}
-
-
-// This is subtle and needs to be renamed.
-// Using the "centroid" as the "up" vector works well
-// except in some configurations when it is zero (that is,
-// the face are perfectly opposed and parallel.
-// In that case we need to choose the center of a DIFFERENT face.
-
-function findCentroid(geo) {
-  var sum = new THREE.Vector3(0,0,0);
-  var n = 0;
-  geo.vertices.forEach(v => { sum.add(v); n++; });
-  var cent = sum.multiplyScalar(1/n);
-  if (vnear(cent,new THREE.Vector3(0,0,0))) {
-    return new THREE.Vector3(0,1,0);
-  } else {
-    return cent;
-  }
-}
-
-function findFaceCentroid(geo,face) {
-  var sum = new THREE.Vector3(0,0,0);
-  var n = 0;
-  sum.add(geo.vertices[face.a]);
-  sum.add(geo.vertices[face.b]);
-  sum.add(geo.vertices[face.c]);
-  var cent = sum.multiplyScalar(1/3);
-  return cent;
-}
-function averageVectors(vs) {
-  var sum = new THREE.Vector3(0,0,0);
-  const n = vs.length;
-  for(var i = 0; i < n; i++) {
-    sum.add(vs[i]);
-  }
-  var avg = sum.multiplyScalar(1/n);
-  return avg;
-
-}
-
-
 $( document ).ready(function() {
   runUnitTests();
 
@@ -1350,6 +1299,12 @@ $( document ).ready(function() {
                        "#r_b",RADIUS_B,(v => RADIUS_B = v));
   setup_input_molecule("#radius_c_slider","#radius_c",
                        "#r_c",RADIUS_C,(v => RADIUS_C = v));
+
+  setup_input_molecule("#theta_slider","#theta",
+                       "#d_theta",THETA_D,(v => THETA_D = v));
+
+  setup_input_molecule("#gamma_slider","#gamma",
+                       "#d_gamma",GAMMA_D,(v => GAMMA_D = v));
 
 
 

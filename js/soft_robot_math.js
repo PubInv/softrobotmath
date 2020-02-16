@@ -186,9 +186,6 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
     return [0,0,null];
   }
 
-  const A3 = new THREE.Vector3().subVectors(C,A);
-  const A3unit = A3.clone().clampLength(1.0,1.0);
-
   var theta1 = ComputeAxisAngleOfCone(ra,rb);
 
   // Experimental...
@@ -198,14 +195,6 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   // Assume their contact point is at the origin,
   // so that A.x == -ra;
   console.assert(A.x == 0);
-  // let AC len = the distance from A to C
-  const AClen = A.distanceTo(cA3);
-  console.log("AClen",AClen);
-  var psi_old = new THREE.Vector3(0,0,1).angleTo(A3unit);
-
-  var psi = Math.acos(A3unit.z);
-  console.log("psi",psi * 180/Math.PI);
-  console.assert(near(psi,psi_old));
 
   var zprime = cA3.z * cA1.x / ((cA1.x) - (cA3.x));
 
