@@ -263,6 +263,43 @@ z' &= \frac{U_xV_z}{U_x - V_x} \\
 
 
 
+\section{The Inverse Problem}
+
+To be able to predict the Euler angles of $\theta_{ab}$ and $\gamma$ from the radii allows trial-and-error
+discovery of radii need to a particular tilt.  However, it would be better to be able to do this
+anlytically.
+
+To do so, remove one of the dimensions by defining the ratio:
+\begin{align}
+d = \frac{r_a}{r_b}
+\end{align}
+
+Then we can rewrite out equation as:
+\begin{align}
+  \theta_{ab} &= \arcsin{\frac{d r_b - r_b}{d r_b + r_b}} \\
+  \theta_{ab} &= \arcsin{\frac{d - 1}{d + 1}} \\
+  \sin{\theta_{ab}} &= \frac{d - 1}{d + 1} \\
+  d &= \frac{\sin{\theta} + 1}{1 - \sin{\theta}}
+\end{align}
+
+By then asserting:
+\begin{align}
+r_a + r_b &= 2
+\end{align}
+we obtain the very simple:
+
+\begin{align}
+  r_a &= 1 + \sin{\theta}  \\
+  r_b &= 1 - \sin{\theta}
+\end{align}
+
+
+
+
+
+
+
+
 
 
 
