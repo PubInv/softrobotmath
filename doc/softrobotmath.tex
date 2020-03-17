@@ -279,7 +279,7 @@ Then we can rewrite out equation as:
   \theta_{ab} &= \arcsin{\frac{d r_b - r_b}{d r_b + r_b}} \\
   \theta_{ab} &= \arcsin{\frac{d - 1}{d + 1}} \\
   \sin{\theta_{ab}} &= \frac{d - 1}{d + 1} \\
-  d &= \frac{\sin{\theta} + 1}{1 - \sin{\theta}}
+  d &= \frac{\sin{\theta_{ab} + 1}}{1 - \sin{\theta_{ab}}}
 \end{align}
 
 By then asserting:
@@ -289,9 +289,54 @@ r_a + r_b &= 2
 we obtain the very simple:
 
 \begin{align}
-  r_a &= 1 + \sin{\theta}  \\
-  r_b &= 1 - \sin{\theta}
+  r_a &= 1 + \sin{\theta_{ab}}  \\
+  r_b &= 1 - \sin{\theta_{ab}}
 \end{align}
+
+\subsection{Computing Gamma}
+
+We can then substitute these into our previous expression, in particular
+seeking $U$ and $V$. By definition, we have made $B_x = 2$.
+In our three touching circls (the XZ plane) we further have:
+\begin{align}
+  c &= 2 \\
+  b &= r_a + r_c \\
+  a &= r_b + r_c \\
+  C_z &= a \sin{\arccos{\frac{a^2 + b^2 - c^2}{2bc}}} \\
+  C_z &= a \sqrt{1 - \frac{a^2 + b^2 - 4}{16b^2}} \\
+  C_x &= a \sqrt{1 - \frac{a^2 + b^2 - 4}{16b^2}} \\
+  C_z &= \sqrt{b^2 - a^2 (1 - \frac{(a^2 + b^2 - 4)^2}{16 b^2})}
+\end{align}
+
+From this we have:
+\begin{align}
+  U_x = \frac{r_a}{\sin{\theta_{AB}}} \\
+  U_x = \frac{r_a}{\frac{r_a - r_b}{r_a + r_b}} \\
+  U_x = \frac{2 r_a}{r_a - r_b} \\
+  V_x = B_x + (C_x - B_x) r_b / \sin{\theta_{bc}} \\
+  V_z = B_z + (C_z - B_z) r_b / \sin{\theta_{bc}} \\
+  V_x =   \frac{(2 + (C_x - 2) r_b) r_b + r_c}{r_b - r_c} \\
+  V_z =  \frac{C_z r_b (r_b - r_c)}{r_b + r_c} \\
+\end{align}
+
+We can seek $\gamma$:
+\begin{align}
+  \gamma &= \arcsin{\frac{(U_x - V_x)U_x\tan{\theta_{ab}}}{U_xV_z}} \\
+  \gamma &= \arcsin{\frac{(U_x - V_x)\tan{\theta_{ab}}}{V_z}} \\
+  \gamma &= \arcsin{\frac{(U_x - V_x)\tan{\theta_{ab}}}{\frac{C_z r_b (r_b - r_c)}{r_b + r_c}}} \\
+  \gamma &= \arcsin{\frac{(r_b + r_c)(U_x - V_x)\tan{\theta_{ab}}}{C_z r_b (r_b - r_c)}} \\
+  \gamma &= \arcsin{\frac{(r_b + r_c)(\frac{2 r_a}{r_a - r_b} - \frac{(2 + (C_x - 2) r_b) r_b + r_c}{r_b - r_c})\tan{\theta_{ab}}}{C_z r_b (r_b - r_c)}} \\
+\end{align}
+
+
+
+
+
+
+
+
+
+
 
 
 
