@@ -3,7 +3,7 @@ A experimental repo for holding math about soft robotics based on spherical infl
 
 ## Introduction
 
-This is an experimental repo to house very similar math around the idea of buliding something like a "Stewart Platform" based mainly on inflatable spheres.
+This is an experimental repo to house very similar math around the idea of building something like a "Stewart Platform" based mainly on inflatable spheres.
 
 ## 2D function
 
