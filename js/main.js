@@ -702,42 +702,23 @@ function onComputeParams() {
   console.assert(near(A.distanceTo(C),ra+rc));
 
   // Cone Axes
-  const A1 = new THREE.Vector3().subVectors(A,B);
-  const A2 = new THREE.Vector3().subVectors(B,C);
-  const A3 = new THREE.Vector3().subVectors(C,A);
+  // const A1 = new THREE.Vector3().subVectors(A,B);
+  // const A2 = new THREE.Vector3().subVectors(B,C);
+  // const A3 = new THREE.Vector3().subVectors(C,A);
 
-  const A1unit = A1.clone().clampLength(1.0,1.0);
-  const A2unit = A2.clone().clampLength(1.0,1.0);
-  const A3unit = A3.clone().clampLength(1.0,1.0);
+  // const A1unit = A1.clone().clampLength(1.0,1.0);
+  // const A2unit = A2.clone().clampLength(1.0,1.0);
+  // const A3unit = A3.clone().clampLength(1.0,1.0);
 
 
   const theta1 = ComputeAxisAngleOfCone(ra,rb);
   const theta2 = ComputeAxisAngleOfCone(rb,rc);
   const theta3 = ComputeAxisAngleOfCone(rc,ra);
-
-  // Cone Apexes - TODO -- put this is soft_robot_math.js
-  var cA1 = A.clone();
-  if (theta1 != 0) {
-    var sgn = (rb > ra) ? 1 : -1;
-    cA1.add(A1unit.clone().multiplyScalar( sgn * ra / Math.sin(theta1)));
-  }
-  var cA2 = B.clone();
-  if (theta2 != 0) {
-    var sgn = (rc > rb) ? 1 : -1;
-    cA2.add(A2unit.clone().multiplyScalar( sgn * rb / Math.sin(theta2)));
-  }
-  var cA3 = C.clone();
-  if (theta3 != 0) {
-    var sgn = (ra > rc) ? 1 : -1;
-    cA3.add(A3unit.clone().multiplyScalar( sgn * rc / Math.sin(theta3)));
-
-  }
+  let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
 
   console.log("theta1",theta1 * 180 / Math.PI);
   console.log("theta2",theta2 * 180 / Math.PI);
   console.log("theta3",theta3 * 180 / Math.PI);
-
-  console.log("A3.length",A3.length());
 
   var ma = createSphere(ra,A,colors[0].hex());
   var mb = createSphere(rb,B,colors[1].hex());
@@ -787,6 +768,18 @@ function onComputeParams() {
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
 
   console.log("theta",theta * 180 / Math.PI);
+
+  // Check... This is the sphere at y intersection on the plane
+  var m_ab_y =  cA1.length() * Math.tan(Math.abs(theta));
+  var check_s = createSphere(0.05,
+                             new THREE.Vector3(0,m_ab_y,0),0x00ff88);
+
+  check_s.castShadow = false;
+  check_s.receiveShadow = false;
+  check_s.debugObject = true;
+  am.scene.add(check_s);
+
+  console.log("m_ab_y",m_ab_y);
 
   const Z = new THREE.Vector3(0,0,1);
   const Y = new THREE.Vector3(0,1,0);
@@ -858,6 +851,8 @@ function onComputeParams() {
 
   // Now we want to set theta and gamma in the sliders so the user can see it.
   setThetaGammaValues(theta,gamma);
+
+  // HACKING: Now attempting to check my math by recomputing ra,rb,rc from gamma and theta
 
 }
 
@@ -1144,9 +1139,9 @@ function addDebugSphere(am,pos,color) {
   mesh.debugObject = true;
   am.scene.add(mesh);
 }
-var RADIUS_A = 1;
-var RADIUS_B = 1;
-var RADIUS_C = 1;
+var RADIUS_A = 1.2;
+var RADIUS_B = 0.9;
+var RADIUS_C = 0.5;
 
 var THETA_D = 0;
 var GAMMA_D = 0;

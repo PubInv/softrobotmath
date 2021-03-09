@@ -214,10 +214,37 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   // Zprime cannot be computed if all are equal.
   console.log("h,zprime",h,zprime);
 
+  // I am not sure this is really correct!!!
   var gamma = Math.asin(h/zprime);
 
   console.log("gamma",gamma * 180 / Math.PI);
     return [-theta1,gamma,zprime];
+
+}
+
+// Return [ra,rb,rc0,rc1] This math assumes ra+rb=2.0
+function computeRadiiFromAngles(theta,gamma) {
+  // theta is negative in our typical case...
+  // I'm not sure what that means, but something is wrong with
+  // my math below...
+  // I'm going to fudge it...
+  const st = Math.sin(Math.abs(theta))
+  ra = 1.0 + st;
+  rb = 1.0 - st;
+  Ux = ra / st;
+
+  // I now am not sure this is right.
+  Hy = Ux * Math.tan(Math.abs(theta));
+
+  // This computation of d is not correct, thought I know not why.
+//  const d = ra * Hy / Math.sqrt(Hy*Hy - ra*ra);
+  // const d = ra *(ra + rc)/ (ra - rc);
+
+  // const psi = Math.asin(ra/d);
+  // console.log("psi = ",psi * 180.0/Math.PI);
+  // const rc = (ra - ra * Math.sin(psi))/(1+Math.sin(psi));
+
+  // return [ra,rb,rc];
 
 }
 
@@ -325,12 +352,72 @@ function testComputeAxisAngleOfCone() {
   }
 }
 
+function GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3) {
+  const A1 = new THREE.Vector3().subVectors(A,B);
+  const A2 = new THREE.Vector3().subVectors(B,C);
+  const A3 = new THREE.Vector3().subVectors(C,A);
+
+  const A1unit = A1.clone().clampLength(1.0,1.0);
+  const A2unit = A2.clone().clampLength(1.0,1.0);
+  const A3unit = A3.clone().clampLength(1.0,1.0);
+
+    // Cone Apexes - TODO -- put this is soft_robot_math.js
+  var cA1 = A.clone();
+  if (theta1 != 0) {
+    var sgn = (rb > ra) ? 1 : -1;
+    cA1.add(A1unit.clone().multiplyScalar( sgn * ra / Math.sin(theta1)));
+  }
+  var cA2 = B.clone();
+  if (theta2 != 0) {
+    var sgn = (rc > rb) ? 1 : -1;
+    cA2.add(A2unit.clone().multiplyScalar( sgn * rb / Math.sin(theta2)));
+  }
+  var cA3 = C.clone();
+  if (theta3 != 0) {
+    var sgn = (ra > rc) ? 1 : -1;
+    cA3.add(A3unit.clone().multiplyScalar( sgn * rc / Math.sin(theta3)));
+
+  }
+  return [cA1,cA2,cA3];
+}
+function testInverseProblem() {
+  const ra = 1.2;
+  const rb = 0.8;
+  const rc = 0.5;
+  const vs = Compute3TouchingCircles(ra,rb,rc);
+
+  const A2d = vs[0];
+  const B2d = vs[1];
+  const C2d = vs[2];
+  const A = new THREE.Vector3(A2d.x,0,A2d.y);
+  const B = new THREE.Vector3(B2d.x,0,B2d.y);
+  const C = new THREE.Vector3(C2d.x,0,C2d.y);
+
+  const theta1 = ComputeAxisAngleOfCone(ra,rb);
+  const theta2 = ComputeAxisAngleOfCone(rb,rc);
+  const theta3 = ComputeAxisAngleOfCone(rc,ra);
+
+  console.log("theta3",theta3 * 180 / Math.PI);
+
+  let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
+  console.log("cA3",cA3);
+  var gamma;
+  var theta;
+  var zprime;
+  [theta,gamma,zprime] =
+    ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
+
+  computeRadiiFromAngles(theta,gamma);
+}
+
 function runUnitTests() {
 
   testCompute3TouchingCirclesSimple();
   testCompute3TouchingCircles();
 
   testComputeAxisAngleOfCone();
+
+  testInverseProblem();
 
  // testClosestPoint();
   // testComputeRotation();

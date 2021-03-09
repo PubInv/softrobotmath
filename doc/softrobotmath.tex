@@ -1,4 +1,4 @@
- %% Copyright (C) 2019 by
+ %% Copyright (C) 2021 by
  %%   Robert L. Read <read.robert@gmail.com>, Megan Cadena <megancad@gmail.com>
 
  %% This program is free software: you can redistribute it and/or modify
@@ -73,7 +73,7 @@ Knowing the position of these circles is a valuable prelude to solving the three
 
 \begin{figure}
      \centering
-     \includegraphics[width=0.5\textwidth]{figures/ThreeTouchingCircles.png}
+     \includegraphics[width=0.8\textwidth]{figures/ThreeTouchingCircles.png}
      \caption{Three Touching Circles}
   \label{fig:Tangent}
 \end{figure}
@@ -199,7 +199,7 @@ to note that the apex angle $\psi$ of a cone which envelopes (by being tangent t
 spheres of radii $r,s$, is:
 
 \begin{align}
- \psi &= \arcsin{\frac{r s - r^2}{2 r^2 - r s + s^2}} \\
+ \psi &= \arcsin{\frac{s - r}{s + r}} \\
 \end{align}
 where $r < s$ without loss of generality. Note that when $r = s$
 there is a special case,
@@ -222,7 +222,7 @@ The half-angle of a cone tangent to two tangent spheres is computed from the rad
 
 \begin{figure}
      \centering
-     \includegraphics[width=0.5\textwidth]{figures/RotationMath.png}
+     \includegraphics[width=0.9\textwidth]{figures/RotationMath.png}
      \caption{Rotation Math}
   \label{fig:rotation}
 \end{figure}
@@ -265,6 +265,29 @@ z' &= \frac{U_xV_z}{U_x - V_x} \\
 
 \section{The Inverse Problem}
 
+Note: I am not sure anything beneath this is reasonable.
+I worked a full day on the inverse problem and have not
+been able to find a solution. I now believe the point V
+or the point C must be brought in, and the three touching
+circles constraints must be joined with other constraints
+to solve it.
+
+Second Note: I now believe the following strategy will work.
+\begin{itemize}
+\item Construct the plane in contact with all three spheres
+  by
+  moving up the origin $r_a$.
+\item We will set up a system of equation with 3 distances
+  and two variables.
+\item The varialbes will be $r_c$, $C_x$ and $C_z$.
+\item The distance from the $C$ to the tilted plane equals $r_c$.
+\item The distance from $O$ to $C$ equals $r_a + r_c$.
+  \item The distance from $B$ to $C$ equals $r_b+r_c$.
+\end{itemize}
+
+Hopefully that is a system of quadratic equations we
+can hope to solve.
+
 To be able to predict the Euler angles of $\theta_{ab}$ and $\gamma$ from the radii allows trial-and-error
 discovery of radii need to a particular tilt.  However, it would be better to be able to do this
 anlytically.
@@ -277,9 +300,14 @@ d = \frac{r_a}{r_b}
 Then we can rewrite out equation as:
 \begin{align}
   \theta_{ab} &= \arcsin{\frac{d r_b - r_b}{d r_b + r_b}} \\
+  \theta_{ab} &= \arcsin{\frac{r_b (d  - 1)}{r_b (d  + 1)}} \\
   \theta_{ab} &= \arcsin{\frac{d - 1}{d + 1}} \\
   \sin{\theta_{ab}} &= \frac{d - 1}{d + 1} \\
-  d &= \frac{\sin{\theta_{ab} + 1}}{1 - \sin{\theta_{ab}}}
+  d\sin{\theta_{ab}} + \sin{\theta_{ab}} &= d-1 \\
+  d\sin{\theta_{ab}} -d +  &= -1 -\sin{\theta_{ab}} \\
+  d(\sin{\theta_{ab}} -1)  &= -1 -\sin{\theta_{ab}} \\
+  d &= \frac{-1 -\sin{\theta_{ab}}}{\sin{\theta_{ab}} -1} \\
+  d &= \frac{\sin{\theta_{ab}} + 1}{1 - \sin{\theta_{ab}}}
 \end{align}
 
 By then asserting:
@@ -289,11 +317,22 @@ r_a + r_b &= 2
 we obtain the very simple:
 
 \begin{align}
-  r_a &= 1 + \sin{\theta_{ab}}  \\
-  r_b &= 1 - \sin{\theta_{ab}}
+  \frac{2-r_b}{r_b} &=  \frac{\sin{\theta_{ab}} + 1}{1 - \sin{\theta_{ab}}} \\
+  (2-r_b)(1 - \sin{\theta_{ab}}) &= r_b(\sin{\theta_{ab}} + 1) \\
+  2(1 - \sin{\theta_{ab}}) -r_b(1 - \sin{\theta_{ab}}) &= r_b\sin{\theta_{ab}} + r_b \\
+  2 - 2\sin{\theta_{ab}}) -r_b + r_b\sin{\theta_{ab}} &= r_b\sin{\theta_{ab}} + r_b \\
+  2 - 2\sin{\theta_{ab}})  &=  2 r_b \\
+  r_b &= 1 - \sin{\theta_{ab}} \\
+  r_a &= 1 + \sin{\theta_{ab}}
 \end{align}
 
+\subsection{Computing $r_c$}
+
+We have thus compute $r_a$ and $r_b$ from the angle $\theta_{ab}$ (with a suitable assumption that $r_a+r_b=2$).
+
+
 \subsection{Computing Gamma}
+
 
 We can then substitute these into our previous expression, in particular
 seeking $U$ and $V$. By definition, we have made $B_x = 2$.
