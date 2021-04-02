@@ -215,7 +215,7 @@ the $A$ sphere in a circle on the surface of the $A$ perpendicular to and center
 
 The half-angle of a cone tangent to two tangent spheres is computed from the radii directly:
 \begin{align}
-  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \\
+  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \label{eq:theta}\\
   \theta_{bc} &= \arcsin{\frac{r_b - r_c}{r_b + r_c}}
 \end{align}
 
@@ -258,19 +258,141 @@ about the $x$-axis.
 \begin{align}
 H_y &= U_x\tan{\theta_{ab}}\\
 z' &= \frac{U_xV_z}{U_x - V_x} \\
-\gamma &= \arcsin{\frac{H_y}{z'}}
+\gamma &= \arcsin{\frac{H_y}{z'}} \label{eq:gamma}
 \end{align}
 
+Equations \ref{eq:theta} and \ref{eq:gamma} give the Euler angles
+$\theta_{ab}$ and $\gamma$
+for the tilt of the
+tangent plane as a function of the three radii $r_a,r_b,r_c$.
 
 
 \section{The Inverse Problem}
 
-Note: I am not sure anything beneath this is reasonable.
-I worked a full day on the inverse problem and have not
-been able to find a solution. I now believe the point V
-or the point C must be brought in, and the three touching
-circles constraints must be joined with other constraints
-to solve it.
+To build a useful robotic platform in by controlling the radii of the
+spheres by inflating and deflating them, we wish to solve the inverse
+problem. That is, given $\theta_{ab}$ and $\gamma$ as desired Euler
+angles, we want to compute $r_a,r_b,r_c$ which acheive these angles.
+
+Since these are smooth functions, the problem could be solved
+easily by a Newton-Raphson style solver based on \ref{eq:theta} and \ref{eq:gamma}. However, an analytic solution is always superior.
+
+
+Without loss of generality, assert:
+\begin{align}
+r_a + r_b &= 2
+\end{align}
+we obtain the very simple:
+
+\begin{align}
+  \frac{2-r_b}{r_b} &=  \frac{\sin{\theta_{ab}} + 1}{1 - \sin{\theta_{ab}}} \\
+  (2-r_b)(1 - \sin{\theta_{ab}}) &= r_b(\sin{\theta_{ab}} + 1) \\
+  2(1 - \sin{\theta_{ab}}) -r_b(1 - \sin{\theta_{ab}}) &= r_b\sin{\theta_{ab}} + r_b \\
+  2 - 2\sin{\theta_{ab}}) -r_b + r_b\sin{\theta_{ab}} &= r_b\sin{\theta_{ab}} + r_b \\
+  2 - 2\sin{\theta_{ab}})  &=  2 r_b \\
+  r_b &= 1 - \sin{\theta_{ab}} \\
+  r_a &= 1 + \sin{\theta_{ab}}
+\end{align}
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.8\textwidth]{figures/UnprocessedInverseMath.png}
+     \caption{Unvetted inverse math notes that I will add when I have time.}
+  \label{fig:Unprocessed}
+\end{figure}
+
+\newcommand{\abs}[1]{ \left\lvert#1\right\rvert}
+
+In \ref{fig:Unprocessed}, let $d$ be the distance in the $XZ$ plane from
+the point $C$ to line $\overline{UW}$.
+Let $\iota$ be the angle of the tilted plane perpendicular to $\overline{UW}$.
+Let $V$ be the intersection of the line $\overline{AC}$ with $\overline{UW}$,
+which are perpendicular.
+In other words, let $\iota$ by the angle $\angle{H_yVA}$.
+Then:
+\begin{align}
+d &= \frac{r_c}{\sin{\iota}} \label{eq:iotacd}
+\end{align}
+The angle $\iota$ is a fact a known quantity:
+\begin{align}
+\overrightarrow{n_1} &= \begin{bmatrix}
+    0 \\
+    1 \\
+    0
+\end{bmatrix} \\
+\overrightarrow{n_2} &= \overrightarrow{U - W}  \times \overrightarrow{A - W} \\
+\iota &= \arccos{\abs{\frac{\overrightarrow{n_1} \cdot \overrightarrow{n_2}}
+  {\abs{\overrightarrow{n_1}} \abs{\overrightarrow{n_2}}}}} \\
+\end{align}
+
+Our knowns are thus $r_c$, $C_x$, $C_z$.
+
+By the Pythagorean Theorem and algebra, it can be shown that:
+\begin{align}
+C_x^2 =& r_a^2 + 2r_c(r_b - r_a) \label{eq:quad}
+\end{align}
+where $r_a$ and $r_b$ are functions of $\theta_{ab}$.
+
+
+
+\begin{align}
+  \alpha =& \arctan{\frac{W_z}{U_x}} \\
+  C_x =& -\frac{U_x}{W_z}C_z + U_x - \frac{d}{\sin{\alpha}} \\
+\end{align}
+However, this can be further simplified because $\sin{\arctan{x}} = \frac{x}{\sqrt{x^2+1}}$,
+\begin{align}
+  Q =& \frac{W_z}{U_x} \\
+  C_x =& -\frac{C_z}{Q} + U_x - \frac{d}{\frac{Q}{\sqrt{Q^2+1}}} \\
+  C_x =& -\frac{C_z}{Q} + U_x - \frac{d \sqrt{Q^2+1}}{Q} \label{eq:final}
+\end{align}
+
+So, take \ref{eq:iotacd}, \ref{eq:quad}, and \ref{eq:final}, we have three equations
+in the four unknowns $C_x$, $C_z$, $r_c$, and $d$, one of which is quadratic.
+
+Subsitution \ref{eq:iotacd} in \ref{eq:final} gives:
+\begin{align}
+  C_x =& -\frac{C_z}{Q} + U_x - \frac{r_c \sqrt{Q^2+1}}{Q\sin{\iota}} \label{eq:final}
+\end{align}
+
+Flash! Can this be true? Yes, becaause these lines are perpendicular!
+\begin{align}
+  \frac{C_x}{C_z} =& -\frac{W_z}{U_x} \\
+  Q =& \frac{W_z}{U_x}
+\end{align}
+So, although I have not gotten Wolfram Alpha to solve it, we have three equations
+with three unknowns.
+
+It is convenient to substitute for $1+Q^2$:
+\begin{align}
+  S =& 1 + Q^2
+\end{align}
+
+I think we can obtain that basically solvable equation below
+by a subsitution inot our current equations.
+\begin{align}
+  \frac{(a+c)^2}{S} =& 2bc + c^2
+  \end{align}
+
+   \[\left\{\left\{c\to \frac{b-\frac{a}{S}-\frac{\sqrt{a^2-2 a b+b^2 \
+S}}{\sqrt{S}}}{-1+\frac{1}{S}}\right\},\left\{c\to \
+\frac{b-\frac{a}{S}+\frac{\sqrt{a^2-2
+      a b+b^2 S}}{\sqrt{S}}}{-1+\frac{1}{S}}\right\}\right\}\]
+
+
+
+So these results are in fact easiy enough to code that I could
+check this in JavaScript. This is not a ridiculously complicated result!
+
+
+
+
+\section{THIS IS OBSOLETE}
+
+
+To be able to predict the Euler angles of $\theta_{ab}$ and $\gamma$ from the radii allows trial-and-error
+discovery of radii need to a particular tilt.  However, it would be better to be able to do this
+anlytically.
+
 
 Second Note: I now believe the following strategy will work.
 \begin{itemize}
@@ -298,17 +420,8 @@ Hopefully that is a system of quadratic equations we
 can hope to solve.
 
 
-\begin{figure}
-     \centering
-     \includegraphics[width=0.8\textwidth]{figures/UnprocessedInverseMath.png}
-     \caption{Unvetted inverse math notes that I will add when I have time.}
-  \label{fig:Unprocessed}
-\end{figure}
 
 
-To be able to predict the Euler angles of $\theta_{ab}$ and $\gamma$ from the radii allows trial-and-error
-discovery of radii need to a particular tilt.  However, it would be better to be able to do this
-anlytically.
 
 To do so, remove one of the dimensions by defining the ratio:
 \begin{align}
@@ -328,21 +441,10 @@ Then we can rewrite out equation as:
   d &= \frac{\sin{\theta_{ab}} + 1}{1 - \sin{\theta_{ab}}}
 \end{align}
 
-By then asserting:
-\begin{align}
-r_a + r_b &= 2
-\end{align}
-we obtain the very simple:
 
-\begin{align}
-  \frac{2-r_b}{r_b} &=  \frac{\sin{\theta_{ab}} + 1}{1 - \sin{\theta_{ab}}} \\
-  (2-r_b)(1 - \sin{\theta_{ab}}) &= r_b(\sin{\theta_{ab}} + 1) \\
-  2(1 - \sin{\theta_{ab}}) -r_b(1 - \sin{\theta_{ab}}) &= r_b\sin{\theta_{ab}} + r_b \\
-  2 - 2\sin{\theta_{ab}}) -r_b + r_b\sin{\theta_{ab}} &= r_b\sin{\theta_{ab}} + r_b \\
-  2 - 2\sin{\theta_{ab}})  &=  2 r_b \\
-  r_b &= 1 - \sin{\theta_{ab}} \\
-  r_a &= 1 + \sin{\theta_{ab}}
-\end{align}
+
+
+
 
 \subsection{Computing $r_c$}
 
@@ -376,14 +478,6 @@ From this we have:
   V_z =  \frac{C_z r_b (r_b - r_c)}{r_b + r_c} \\
 \end{align}
 
-We can seek $\gamma$:
-\begin{align}
-  \gamma &= \arcsin{\frac{(U_x - V_x)U_x\tan{\theta_{ab}}}{U_xV_z}} \\
-  \gamma &= \arcsin{\frac{(U_x - V_x)\tan{\theta_{ab}}}{V_z}} \\
-  \gamma &= \arcsin{\frac{(U_x - V_x)\tan{\theta_{ab}}}{\frac{C_z r_b (r_b - r_c)}{r_b + r_c}}} \\
-  \gamma &= \arcsin{\frac{(r_b + r_c)(U_x - V_x)\tan{\theta_{ab}}}{C_z r_b (r_b - r_c)}} \\
-  \gamma &= \arcsin{\frac{(r_b + r_c)(\frac{2 r_a}{r_a - r_b} - \frac{(2 + (C_x - 2) r_b) r_b + r_c}{r_b - r_c})\tan{\theta_{ab}}}{C_z r_b (r_b - r_c)}} \\
-\end{align}
 
 \bibliographystyle{acm}
 
