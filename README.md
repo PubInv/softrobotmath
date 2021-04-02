@@ -1,6 +1,8 @@
 # softrobotmath
 A experimental repo for holding math about soft robotics based on spherical inflated components
 
+A live demo is available by pointing a JavaScript enabled browser here: [https://pubinv.github.io/softrobotmath/](https://pubinv.github.io/softrobotmath/)
+
 ## Introduction
 
 This is an experimental repo to house very similar math around the idea of buliding something like a "Stewart Platform" based mainly on inflatable spheres.
