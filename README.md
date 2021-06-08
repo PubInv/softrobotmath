@@ -5,7 +5,7 @@ A live demo is available by pointing a JavaScript enabled browser here: [https:/
 
 ## Introduction
 
-This is an experimental repo to house very similar math around the idea of buliding something like a "Stewart Platform" based mainly on inflatable spheres.
+This is an experimental repo to house very similar math around the idea of building something like a "Stewart Platform" based mainly on inflatable spheres.
 
 ## 2D function
 
