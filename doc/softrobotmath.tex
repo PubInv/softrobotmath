@@ -83,7 +83,7 @@ Knowing the position of these circles is a valuable prelude to solving the three
 
 \begin{figure}
      \centering
-     \includegraphics[width=0.8\textwidth]{figures/ThreeTouchingCircles.png}
+     \includegraphics[width=0.8\textwidth]{figures/ThreeTouchingPlanarCircles.png}
      \caption{Three Touching Circles}
   \label{fig:Tangent}
 \end{figure}
@@ -93,21 +93,20 @@ on the positive $x$-axis, with the circles intersecting at the origin.
 The third circle is place in the positive $y$ direction. It's center will not be on the $y$-axis itself unless the
 radii of the first two circles are equal.
 
-We seek a formula for the coordinates of the third circle in terms of three input radii $r_1,r_2,r_3$.
+We seek a formula for the coordinates of the third circle in terms of three input radii $a,b,c$.
 
-Because the distance between adjacent circles is the sum of their radii, define:
+Because the distance between adjacent circles is the sum of their radii, define:\footnote{This is a confusing use of the variables $a$, $b$, and $c$.}
 \begin{align}
-a  &= r_2 + r_3 \\
-b  &= r_1 + r_3 \\
-c  &= r_1 + r_2
+  d  &= a + b \\
+  e  &= a + c \\
+  f  &= b + c \\
 \end{align}
 
 Then we can use the cosine law to compute the angle $\angle ABC = \theta$:
 
-
 \begin{align}
   \theta  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}} \\
-  \theta  &= \arccos{\frac{(r_2+r_3)^2 + (r_1+r_3)^2 - (r_1+r_2)^2}{2(r_1+r_3)(r_1+r_2)}} \\
+  \theta  &= \arccos{\frac{(b+c)^2 + (a+c)^2 - (a+b)^2}{2(a+c)(a+b)}} \\
 \end{align}
 
 It is clear that once $\theta$ has been calculated:
@@ -158,15 +157,21 @@ is alway a mirror image of each other across the coordinate $XZ$-plane.
 
 If the tilt of the top plane relative to the coordinate plane is given by a rotation about the $z$ axis of $\theta$ and
 then a rotation about $x$ axis of $\gamma$, the tilt of the top plane relative
-to the bottom plane is given by the $zx$ extrinsic Euler angles $(2\theta, 2\gamma)$.
+to the bottom plane is given by the $zx$ extrinsic Euler angles $(2\theta, 2\gamma)$.\footnote{Is this really true?}
 
 \subsection{Physical Embodiment}
 
 To embody this system precisely, the sphere $A$ could be pinned to
 the origin of the bottom plane.
-The contact point of the sphere $B$ with the bottom plane could be placed on a
-linear slider on the $x$-axis. The conact point $C$ could be constrained to
-rest on the botom plane by gravity or some elastic cables. As the spheres
+The contact point of the sphere $B$ with the bottom plane
+could be placed on a
+linear slider on the $x$-axis.
+The conact point $C$ could be constrained to
+rest on the botom plane by gravity or some elastic cables.
+Choose the convention that the $C$ object is to the right hand
+(clockwise)
+side of the $AB$ line.
+As the spheres
 change change, the origin of the center plane will experience minor translation
 relative to the bottom plane, but will not experience rotation about the $y$-axis.
 If needed the coordinates of the spheres in the bottom plane can be easily
@@ -182,10 +187,10 @@ calculates from the radii and the computed Euler angles $\theta$ and $\gamma$.
 \subsection{Variable definitions}
 
 We assume that the spheres centered at points $A,B,$ and $C$
-of radii $r_A,r_b,$ and $r_c$. We setup our coordinate system as a right-
+of radii $a,b,$ and $c$. We setup our coordinate system as a right-
 handed coordinate system with $XZ$ plane contaning the center of all spheres.
 The $A$ sphere is placed at the origin, so that $O = A$, and the $B$ sphere
-is place on the positive $X$ axis. Without loss of generality assume $r_a \geq r_b \geq r_c$.
+is place on the positive $X$ axis. Without loss of generality assume $a \geq b \geq c$.
 Following computer graphics convention, we think of the $Y$ dimension as vertical.
 
 Taking any two spheres defines a cone whose apex is in the $XZ$ plane.
@@ -225,8 +230,8 @@ the $A$ sphere in a circle on the surface of the $A$ perpendicular to and center
 
 The half-angle of a cone tangent to two tangent spheres is computed from the radii directly:
 \begin{align}
-  \theta_{ab} &= \arcsin{\frac{r_a - r_b}{r_a + r_b}} \label{eq:theta}\\
-  \theta_{bc} &= \arcsin{\frac{r_b - r_c}{r_b + r_c}}
+  \theta_{ab} &= \arcsin{\frac{a - b}{a + b}} \label{eq:theta}\\
+  \theta_{bc} &= \arcsin{\frac{b - c}{b + c}}
 \end{align}
 
 
@@ -237,7 +242,7 @@ The half-angle of a cone tangent to two tangent spheres is computed from the rad
   \label{fig:rotation}
 \end{figure}
 
-A vector of length $r_A$ that is always rotated about the origin is always a point on the sphere.
+A vector of length $a$ that is always rotated about the origin is always a point on the sphere.
 The first operation is move this vector perpendicular to the $AB$ cone.
 A vector $N$ in the $Y$ direction and rotated counterclockwise
 about the $Z$-axis by $\theta_{ab}$ is perpendicular to the $AB$ cone.
@@ -254,8 +259,8 @@ the apices of the cones tangent to $A$ and $B$, $B$ and $C$, and $C$ and $A$ res
 
 
 \begin{align}
-  \overrightarrow{U} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{r_a}{\sin{\theta_{ab}}} \\
-  \overrightarrow{V} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{r_b}{\sin{\theta_{bc}}} \\
+  \overrightarrow{U} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{a}{\sin{\theta_{ab}}} \\
+  \overrightarrow{V} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{b}{\sin{\theta_{bc}}} \\
 \end{align}
 
 The point $H$ is the intesection of the $AB$ cone with the $y$ axis.
@@ -269,7 +274,7 @@ about the $x$-axis.
 Equations \ref{eq:theta} and \ref{eq:gamma} give the Euler angles
 $\theta_{ab}$ and $\gamma$
 for the tilt of the
-tangent plane as a function of the three radii $r_a,r_b,r_c$.
+tangent plane as a function of the three radii $a,b,c$.
 
 
 \section{The Inverse Problem}
@@ -277,69 +282,92 @@ tangent plane as a function of the three radii $r_a,r_b,r_c$.
 To build a useful robotic platform in by controlling the radii of the
 spheres by inflating and deflating them, we wish to solve the inverse
 problem. That is, given $\theta_{ab}$ and $\gamma$ as desired Euler
-angles, we want to compute $r_a,r_b,r_c$ which acheive these angles.
+angles, we want to compute $a,b,c$ which acheive these angles.
 
 Since these are smooth functions, the problem could be solved
 easily by a Newton-Raphson style solver based on \ref{eq:theta} and \ref{eq:gamma}. However, an analytic solution is always superior.
 
 
 
-My precursor strategy now is to conpute $r_b$ direction from $\theta_{ab}$:
+
+The radius $b$ can be computed directly from $\theta_{ab}$
+because of our choice of coordinates:
 \begin{align}
-  U_x &= r_a/\sin{\theta_{ab}} \\
-  H_y = U_x \tan{\theta_{ab}} \\
-  r_b &= \frac{(U_x - r_a)\sin{\theta_{ab}}}{\sin{\theta_{ab}}+1}
-  Z' = \frac{H_y}{\sin{\gamma}}
+  U_x &= \frac{a}{\sin{\theta_{ab}}} \\
+  b &= \frac{(U_x - a)\sin{\theta_{ab}}}{\sin{\theta_{ab}}+1}
 \end{align}
-
-
-\section{Idea as of Sept. 12th}
 
 \newcommand{\abs}[1]{ \left\lvert#1\right\rvert}
 
-After failing with a different idea, I now imagine the following
-strategy.
-
-Having computed the top plane, we new the point $C$ has
-a perpendicular distanct of $c$ to this plane.
-All such points form a line parallel to the line $UZ$.
-We will first compute the equation of this line.
+Given the plane defined by a known radius $a$, $\theta_{ab}$ and $\gamma$, the point $C$ is constrained by asserting that the perpendicular
+distance to this plane of $C$ is $c$.
+Additionally, in the central plane we have two other constraints,
+that $C$ is placed so that it touches the circle centered on $A$ and
+the circle centered on $B$.
 
 Then we know that the point $C$ but have distance $a+c$ from
 the point $A$ (the origin) and distance $b+c$ from the known
-point $B$. This gives us three equations, which
+point $B$. These two constraints can be exprssed:
+\begin{align}
+a + c &= \sqrt{x^2 + z ^2} \label{eq:a_constraint}\\
+b + c &= \sqrt{(a+b-x)^2 + z^2} \label{eq:b_constraint} \\
+\end{align}
+
+If we were to plot the point $C$ as $c$ increases, we
+would find a gentle curve moving away from the intersection
+of the circle $A$ and $B$. An additional constraint will
+allow us to select a point on this curve.
+
+This gives us three equations, which
 should be more than enough to solve for the point $C$.
 
-Let $H = [0, H_y,0]$.
-Let $\iota$ be the angle of the tilted plane perpendicular to $\overline{UZ'}$.
-The angle $\iota$ is a fact a known quantity:
 \begin{align}
-\overrightarrow{n_1} &= \begin{bmatrix}
-    0 \\
-    1 \\
-    0
-\end{bmatrix} \\
+  H_y &= U_x \tan{\theta_{ab}} \\
+  Z' &= \frac{H_y}{\sin{\gamma}} \\
+  \gamma &= \arcsin{\frac{Z'}{H_y}} \label{eq:gamma} \\
+\end{align}
+
+Let $H = [0, H_y,0]$.
+
+Let $N$ be the normal to the plane (pointing up in our diagram
+when $ a >= b >= c $.)
+
+\begin{align}
 \overrightarrow{N} &= \overrightarrow{Z' - U}  \times \overrightarrow{Z' - H} \\
-\iota &= \arccos{\abs{\frac{\overrightarrow{n_1} \cdot \overrightarrow{N}}
-  {\abs{\overrightarrow{n_1}} \abs{\overrightarrow{N}}}}} \\
 \end{align}
 
 Since we have the normal of the plane three points ($U,Z,H_y$) in the plane,
 computing the distance from the point $C$ to the plane has a simple
 formula. We'll use the point $H = [0, H_y, 0]$ as our main point.
-The equation of our plane is $ \overrightarrow{N} \cdot \overrightarrow{X} = k$
+The equation of our plane is
+$ \overrightarrow{N} \cdot \overrightarrow{X} = k$.
 \begin{align}
-  k &= \frac{N \cdot U}{N_y}
+k &= \frac{N \cdot U}{N_y} \\
 c &= \frac{\abs{N \cdot P - k}}{\abs{N}} \\
-c &= \frac{\abs{C_x * N_x  + C_z * N_z - k}}{1} \\
+c &= \frac{\abs{C_x  N_x  + C_z  N_z - k}}{1} \label{eq:c_constraint}\\
 \end{align}
 
-This much has been tested in code. This last equation
-is a convenient line forming a system of equations with
-the curve generated by a circle touching both $A$ and $B$.
-Solving this system of equations to find the intersection
-of the line and the curve should give us the coordinates
-of $C$, and therefore complete our computation.
+By substituting \ref{eq:c_constraint} into equations
+\ref{eq:a_constraint} and \ref{eq:b_constraint},
+we obtain:
+\begin{align}
+a +  -(x N_x + z N_z - k) &= \sqrt{x^2 + z ^2} \\
+b +  -(x N_x + z N_z - k) &= \sqrt{(a+b-x)^2 + z^2} \\
+\end{align}
+
+This is a system of two nonlinear equations with unkowns $x$ and $z$.
+Solving this system is beyond the capacities of the authors,
+but not Mathematica, although the answer that Mathematica produces
+in its raw form has dozens of terms.
+Furthermore, there are actually two solutions, corresponding
+to the two sides of the $AB$ line which the circle $C$ could be
+on and satsify these constratints.
+We have selected the solution that place $C$ in the positive $Z$
+direction, as constrained.
+
+However, by introducing new variables to represent repeated
+portions of this long expression, the expressions be
+made tractable and easily programmed.
 
 \begin{align*}
   J &= (a-b N_x+b+k) \\
@@ -353,14 +381,39 @@ of $C$, and therefore complete our computation.
   R &=   -2 a^2 b k N_z^2 + a^3b(-1 + N_x) N_z^2 - b(-1 + N_x)M  \\
     S &= a (2 b^2 k N_z^2 - b^3(-1 + N_x)N_z^2 + (1 +N_x) M )
      \\
-    z &= \frac{2 (R + S)}{N_z (a-b) D}\\
-    c' &= x^2 + z^2 -a \\
+     z &= \frac{2 (R + S)}{N_z (a-b) D}\\
 \end{align*}
 
-This math has been checked in Javascript and it appearts to be correct in computing c,
-though it is sometimes off in the second digit, which I assume is a numerical problem
+The variable $c$ can be compute from $x$ and $z$ as:
+\begin{align*}
+    c &= x^2 + z^2 -a \\
+\end{align*}
+
+This math has been checked in Javascript and it appears to
+be correct in computing $c$,
+though it is sometimes off in the third or even second digit,
+which I assume is a numerical problem
 rather than a problem in the formal math.
 
+\section{Usage}
+
+These equations can be used to compute the radii $b$ and $c$
+from a given radius $a$ and either a desired normal or euler
+angles. When implemented as a soft robot, it must be understand
+that the center plane is conceptual. The roboticists probably
+want to think of moving the top plane relative to the bottom plane,
+which can be implemented as a simple rigid disc.
+The angles and normals between the top and bottom and will be
+twice the angles\footnote{Megan, is this really true? Can we simply double the angles? I think so, but that might not be true.} measured against the center plane.
+
+Furthermore, an implementation based on soft inflatable spheres
+will not be really acheive perfect spheres at any pressure.
+Nonetheless, because these equations are trivial to implement
+in a micro-controller, they make a good basis for a control
+algorithm. A Stewart platform implemented in this would
+be expected to be have ``softly'' in response to pressure,
+and yet have a predictable shape in the absence of external
+forces.
 
 \printbibliography
 
