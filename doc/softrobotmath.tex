@@ -20,6 +20,16 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{draftwatermark}
+\usepackage{listings}
+
+\usepackage{flexisym}
+\usepackage{breqn}
+\breqnsetup{breakdepth={1}}
+
+\usepackage[backend=biber]{biblatex}
+\addbibresource{softrobotmath.bib}
+
+
 
 
 \SetWatermarkText{DRAFT}
@@ -255,11 +265,6 @@ It is computed by projecting the contact point of the top plane in the $xy$-plan
 onto the $xz$-plane. This allows $\gamma$ to be computed as a pure rotation
 about the $x$-axis.
 
-\begin{align}
-H_y &= U_x\tan{\theta_{ab}}\\
-z' &= \frac{U_xV_z}{U_x - V_x} \\
-\gamma &= \arcsin{\frac{H_y}{z'}} \label{eq:gamma}
-\end{align}
 
 Equations \ref{eq:theta} and \ref{eq:gamma} give the Euler angles
 $\theta_{ab}$ and $\gamma$
@@ -278,41 +283,35 @@ Since these are smooth functions, the problem could be solved
 easily by a Newton-Raphson style solver based on \ref{eq:theta} and \ref{eq:gamma}. However, an analytic solution is always superior.
 
 
-Without loss of generality, assert:
-\begin{align}
-r_a + r_b &= 2
-\end{align}
-we obtain the very simple:
 
+My precursor strategy now is to conpute $r_b$ direction from $\theta_{ab}$:
 \begin{align}
-  \frac{2-r_b}{r_b} &=  \frac{\sin{\theta_{ab}} + 1}{1 - \sin{\theta_{ab}}} \\
-  (2-r_b)(1 - \sin{\theta_{ab}}) &= r_b(\sin{\theta_{ab}} + 1) \\
-  2(1 - \sin{\theta_{ab}}) -r_b(1 - \sin{\theta_{ab}}) &= r_b\sin{\theta_{ab}} + r_b \\
-  2 - 2\sin{\theta_{ab}}) -r_b + r_b\sin{\theta_{ab}} &= r_b\sin{\theta_{ab}} + r_b \\
-  2 - 2\sin{\theta_{ab}})  &=  2 r_b \\
-  r_b &= 1 - \sin{\theta_{ab}} \\
-  r_a &= 1 + \sin{\theta_{ab}}
+  U_x &= r_a/\sin{\theta_{ab}} \\
+  H_y = U_x \tan{\theta_{ab}} \\
+  r_b &= \frac{(U_x - r_a)\sin{\theta_{ab}}}{\sin{\theta_{ab}}+1}
+  Z' = \frac{H_y}{\sin{\gamma}}
 \end{align}
 
-\begin{figure}
-     \centering
-     \includegraphics[width=0.8\textwidth]{figures/UnprocessedInverseMath.png}
-     \caption{Unvetted inverse math notes that I will add when I have time.}
-  \label{fig:Unprocessed}
-\end{figure}
+
+\section{Idea as of Sept. 12th}
 
 \newcommand{\abs}[1]{ \left\lvert#1\right\rvert}
 
-In \ref{fig:Unprocessed}, let $d$ be the distance in the $XZ$ plane from
-the point $C$ to line $\overline{UW}$.
-Let $\iota$ be the angle of the tilted plane perpendicular to $\overline{UW}$.
-Let $V$ be the intersection of the line $\overline{AC}$ with $\overline{UW}$,
-which are perpendicular.
-In other words, let $\iota$ by the angle $\angle{H_yVA}$.
-Then:
-\begin{align}
-d &= \frac{r_c}{\sin{\iota}} \label{eq:iotacd}
-\end{align}
+After failing with a different idea, I now imagine the following
+strategy.
+
+Having computed the top plane, we new the point $C$ has
+a perpendicular distanct of $c$ to this plane.
+All such points form a line parallel to the line $UZ$.
+We will first compute the equation of this line.
+
+Then we know that the point $C$ but have distance $a+c$ from
+the point $A$ (the origin) and distance $b+c$ from the known
+point $B$. This gives us three equations, which
+should be more than enough to solve for the point $C$.
+
+Let $H = [0, H_y,0]$.
+Let $\iota$ be the angle of the tilted plane perpendicular to $\overline{UZ'}$.
 The angle $\iota$ is a fact a known quantity:
 \begin{align}
 \overrightarrow{n_1} &= \begin{bmatrix}
@@ -320,168 +319,50 @@ The angle $\iota$ is a fact a known quantity:
     1 \\
     0
 \end{bmatrix} \\
-\overrightarrow{n_2} &= \overrightarrow{U - W}  \times \overrightarrow{A - W} \\
-\iota &= \arccos{\abs{\frac{\overrightarrow{n_1} \cdot \overrightarrow{n_2}}
-  {\abs{\overrightarrow{n_1}} \abs{\overrightarrow{n_2}}}}} \\
+\overrightarrow{N} &= \overrightarrow{Z' - U}  \times \overrightarrow{Z' - H} \\
+\iota &= \arccos{\abs{\frac{\overrightarrow{n_1} \cdot \overrightarrow{N}}
+  {\abs{\overrightarrow{n_1}} \abs{\overrightarrow{N}}}}} \\
 \end{align}
 
-Our knowns are thus $r_c$, $C_x$, $C_z$.
-
-By the Pythagorean Theorem and algebra, it can be shown that:
+Since we have the normal of the plane three points ($U,Z,H_y$) in the plane,
+computing the distance from the point $C$ to the plane has a simple
+formula. We'll use the point $H = [0, H_y, 0]$ as our main point.
+The equation of our plane is $ \overrightarrow{N} \cdot \overrightarrow{X} = k$
 \begin{align}
-C_x^2 =& r_a^2 + 2r_c(r_b - r_a) \label{eq:quad}
-\end{align}
-where $r_a$ and $r_b$ are functions of $\theta_{ab}$.
-
-
-
-\begin{align}
-  \alpha =& \arctan{\frac{W_z}{U_x}} \\
-  C_x =& -\frac{U_x}{W_z}C_z + U_x - \frac{d}{\sin{\alpha}} \\
-\end{align}
-However, this can be further simplified because $\sin{\arctan{x}} = \frac{x}{\sqrt{x^2+1}}$,
-\begin{align}
-  Q =& \frac{W_z}{U_x} \\
-  C_x =& -\frac{C_z}{Q} + U_x - \frac{d}{\frac{Q}{\sqrt{Q^2+1}}} \\
-  C_x =& -\frac{C_z}{Q} + U_x - \frac{d \sqrt{Q^2+1}}{Q} \label{eq:final}
+  k &= \frac{N \cdot U}{N_y}
+c &= \frac{\abs{N \cdot P - k}}{\abs{N}} \\
+c &= \frac{\abs{C_x * N_x  + C_z * N_z - k}}{1} \\
 \end{align}
 
-So, take \ref{eq:iotacd}, \ref{eq:quad}, and \ref{eq:final}, we have three equations
-in the four unknowns $C_x$, $C_z$, $r_c$, and $d$, one of which is quadratic.
+This much has been tested in code. This last equation
+is a convenient line forming a system of equations with
+the curve generated by a circle touching both $A$ and $B$.
+Solving this system of equations to find the intersection
+of the line and the curve should give us the coordinates
+of $C$, and therefore complete our computation.
 
-Subsitution \ref{eq:iotacd} in \ref{eq:final} gives:
-\begin{align}
-  C_x =& -\frac{C_z}{Q} + U_x - \frac{r_c \sqrt{Q^2+1}}{Q\sin{\iota}} \label{eq:final}
-\end{align}
+\begin{align*}
+  J &= (a-b N_x+b+k) \\
+  L &= a b N_z^2 (a-b)^2  \\
+  M &= \sqrt{L  \left((k - a  N_x) J +a b
+    N_z^2\right)}\\
+  D &= (a N_x+a-b N_x+b)^2-4 a b N_z^2 \\
+  x &= \frac{\left(a^2+a (b+k)-b
+    k\right)
+    (a N_x+a-b N_x+b) - 2 M -2 a b N_z^2 (a+b)}{D} \\
+  R &=   -2 a^2 b k N_z^2 + a^3b(-1 + N_x) N_z^2 - b(-1 + N_x)M  \\
+    S &= a (2 b^2 k N_z^2 - b^3(-1 + N_x)N_z^2 + (1 +N_x) M )
+     \\
+    z &= \frac{2 (R + S)}{N_z (a-b) D}\\
+    c' &= x^2 + z^2 -a \\
+\end{align*}
 
-Flash! Can this be true? Yes, becaause these lines are perpendicular!
-\begin{align}
-  \frac{C_x}{C_z} =& -\frac{W_z}{U_x} \\
-  Q =& \frac{W_z}{U_x}
-\end{align}
-So, although I have not gotten Wolfram Alpha to solve it, we have three equations
-with three unknowns.
-
-It is convenient to substitute for $1+Q^2$:
-\begin{align}
-  S =& 1 + Q^2
-\end{align}
-
-I think we can obtain that basically solvable equation below
-by a subsitution inot our current equations.
-\begin{align}
-  \frac{(a+c)^2}{S} =& 2bc + c^2
-  \end{align}
-
-   \[\left\{\left\{c\to \frac{b-\frac{a}{S}-\frac{\sqrt{a^2-2 a b+b^2 \
-S}}{\sqrt{S}}}{-1+\frac{1}{S}}\right\},\left\{c\to \
-\frac{b-\frac{a}{S}+\frac{\sqrt{a^2-2
-      a b+b^2 S}}{\sqrt{S}}}{-1+\frac{1}{S}}\right\}\right\}\]
+This math has been checked in Javascript and it appearts to be correct in computing c,
+though it is sometimes off in the second digit, which I assume is a numerical problem
+rather than a problem in the formal math.
 
 
-
-So these results are in fact easiy enough to code that I could
-check this in JavaScript. This is not a ridiculously complicated result!
-
-
-
-
-\section{THIS IS OBSOLETE}
-
-
-To be able to predict the Euler angles of $\theta_{ab}$ and $\gamma$ from the radii allows trial-and-error
-discovery of radii need to a particular tilt.  However, it would be better to be able to do this
-anlytically.
-
-
-Second Note: I now believe the following strategy will work.
-\begin{itemize}
-\item Construct the plane in contact with all three spheres
-  by
-  moving up the origin $r_a$.
-\item We will set up a system of equation with 3 distances
-  and two variables.
-\item The varialbes will be $r_c$, $C_x$ and $C_z$.
-\item The distance from the $C$ to the tilted plane equals $r_c$.
-\item The distance from $O$ to $C$ equals $r_a + r_c$.
-  \item The distance from $B$ to $C$ equals $r_b+r_c$.
-\end{itemize}
-
-Note that the we can construct a line in the $XZ$ plane which is
-precisely $r_c$ perpendicularly distant from from the tilted plane.
-If we were acting graphically, the point $C$ would be the intersection
-of a circle drawn about $O$ with a radius of $r_a+r_c$,
-a circle drawn about $B$ with a radius of $r_b+r_c$, and this line.
-Setting up the system of equations to represent this should be
-fairly easy and analytically solvable, but I have not yet done so.
-
-
-Hopefully that is a system of quadratic equations we
-can hope to solve.
-
-
-
-
-
-To do so, remove one of the dimensions by defining the ratio:
-\begin{align}
-d = \frac{r_a}{r_b}
-\end{align}
-
-Then we can rewrite out equation as:
-\begin{align}
-  \theta_{ab} &= \arcsin{\frac{d r_b - r_b}{d r_b + r_b}} \\
-  \theta_{ab} &= \arcsin{\frac{r_b (d  - 1)}{r_b (d  + 1)}} \\
-  \theta_{ab} &= \arcsin{\frac{d - 1}{d + 1}} \\
-  \sin{\theta_{ab}} &= \frac{d - 1}{d + 1} \\
-  d\sin{\theta_{ab}} + \sin{\theta_{ab}} &= d-1 \\
-  d\sin{\theta_{ab}} -d +  &= -1 -\sin{\theta_{ab}} \\
-  d(\sin{\theta_{ab}} -1)  &= -1 -\sin{\theta_{ab}} \\
-  d &= \frac{-1 -\sin{\theta_{ab}}}{\sin{\theta_{ab}} -1} \\
-  d &= \frac{\sin{\theta_{ab}} + 1}{1 - \sin{\theta_{ab}}}
-\end{align}
-
-
-
-
-
-
-\subsection{Computing $r_c$}
-
-We have thus compute $r_a$ and $r_b$ from the angle $\theta_{ab}$ (with a suitable assumption that $r_a+r_b=2$).
-
-
-\subsection{Computing Gamma}
-
-
-We can then substitute these into our previous expression, in particular
-seeking $U$ and $V$. By definition, we have made $B_x = 2$.
-In our three touching circls (the XZ plane) we further have:
-\begin{align}
-  c &= 2 \\
-  b &= r_a + r_c \\
-  a &= r_b + r_c \\
-  C_z &= a \sin{\arccos{\frac{a^2 + b^2 - c^2}{2bc}}} \\
-  C_z &= a \sqrt{1 - \frac{a^2 + b^2 - 4}{16b^2}} \\
-  C_x &= a \sqrt{1 - \frac{a^2 + b^2 - 4}{16b^2}} \\
-  C_z &= \sqrt{b^2 - a^2 (1 - \frac{(a^2 + b^2 - 4)^2}{16 b^2})}
-\end{align}
-
-From this we have:
-\begin{align}
-  U_x = \frac{r_a}{\sin{\theta_{AB}}} \\
-  U_x = \frac{r_a}{\frac{r_a - r_b}{r_a + r_b}} \\
-  U_x = \frac{2 r_a}{r_a - r_b} \\
-  V_x = B_x + (C_x - B_x) r_b / \sin{\theta_{bc}} \\
-  V_z = B_z + (C_z - B_z) r_b / \sin{\theta_{bc}} \\
-  V_x =   \frac{(2 + (C_x - 2) r_b) r_b + r_c}{r_b - r_c} \\
-  V_z =  \frac{C_z r_b (r_b - r_c)}{r_b + r_c} \\
-\end{align}
-
-
-\bibliographystyle{acm}
-
-\bibliography{softrobotmath}
+\printbibliography
 
 
 \end{document}
@@ -512,3 +393,80 @@ We used this derivation with Wolfram Alpha:
  \psi &= 2 \arcsin{\frac{r_x}{-2 \frac{r_x^2}{r_x - r_y} + r_y}} \\
  \psi &= \arcsin{\frac{r_x r_y - r_x^2}{2 r_x^2 - r_x r_y + r_y^2}} \\
 \end{align}
+
+
+Mathematica set up:
+
+So this is 4 equations in 4 unknowns, can Mathematic solve it?
+
+Solve[{x == -u*z/w + u,
+    Tan[i] = y/(Sqrt[x^2 + z^2],
+    Sin[i] = c /(Sqrt[x^2 + z^2] - (a + c)),
+    Sin[i] == (a - c)/(a + c)},c]
+
+
+Reduce[{x > 0, z> 0, u> 0, w > 0, a > c,x == -u*z/w + u, Tan[q] == y/Sqrt[x^2 + z^2],
+  Sin[q] == c/(Sqrt[x^2 + z^2] - (a + c)), Sin[q] == (a - c)/(a + c)},
+  c]
+
+
+
+Reduce[{q > 0, q < Pi/2, x > 0, z > 0, u > 0, w > 0, a > c,a >0, c > 0,
+  x == -u*z/w + u, Tan[q] == y/Sqrt[x^2 + z^2],
+  Sin[q] == c/(Sqrt[x^2 + z^2] - (a + c)), Sin[q] == (a - c)/(a + c),
+  Sin[q] == a/Sqrt[x^2 + z^2] },
+  c]
+
+
+
+Reduce[{q > 0, q < Pi/2,  a > c, a >0, c > 0, L > (a + c),
+  Sin[q] == c/(L - (a + c)),
+  Sin[q] == (a - c)/(a + c),
+  Sin[q] == a/L },
+  c]
+
+Reduce[{ a > c, a >0, c > 0, L > (a + c),
+  a/L == c/(L - (a + c)),
+  a/L == (a - c)/(a + c)
+ },
+  c]
+
+
+New thought:
+
+Let s = Sin[delta]
+
+
+Unknowns: c,x,z
+Knowns: a,b,s,w,u,M
+
+x^2 + z^2 == (a + c)^2
+(c+b)^2 == (a + b - x)^2 + z^2
+M == w/u
+x == M*z + u + c * Sqrt[M^2 + 1] / s
+
+4 equations, 3 unkowns (3 independent equations).
+
+
+Solve[{a+b== 2, a >0, c > 0, a > c, w >0 , u > 0, x>0, z> 0, s> 0, s < 1,
+x^2 + z^2 == (a + c)^2,
+(c+b)^2 == (a + b - x)^2 + z^2,
+x == (w/u)*z + u + c * Sqrt[(w/u)^2 + 1] / s},{c,x,z}]
+
+
+
+x^2 + z^2 == (a + c)^2,
+z^2 == a^2 + 2 * a * c + c^2 - x^2
+
+(c+b)^2 == (a + b - x)^2 + z^2,
+
+z^2 = (c+b)^2 - (a + b - x)^2
+
+
+
+(c+b)^2 - (a + b - x)^2 == a^2 + 2 * a * c + c^2 - x^2
+
+Reduce[{a+b== 2, a >0, c > 0, a > c, w >0 , u > 0, x>0, z> 0, s> 0, s < 1,
+    c == -((a + b) (a - x))/(a - b),
+    x^2 + z^2 == (a + c)^2,
+x == (w/u)*z + u + c * Sqrt[(w/u)^2 + 1]},{c},Reals]

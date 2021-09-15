@@ -667,6 +667,256 @@ function render_tentacle() {
 }
 const RENDER_TENTACLE = false;
 
+// This routine will be constantly evolving
+// This is my attempt to use the interface to check my inversion math as I develop it.
+// I have had a lot of trouble with this; I have to go carefully and check every step.
+function checkInversion(normal,H_y,plane_const,a,theta,gamma,A,B,C) {
+  var t = Math.abs(theta);
+  var g = Math.abs(gamma);
+  var U_x = ra / Math.sin(t);
+  var r_b = (U_x - ra) * Math.sin(t)/ (Math.sin(t) + 1);
+  const b = r_b;
+  var Z_z = H_y / Math.sin(g);
+  $( "#U_x" ).val( format_num(U_x,3) );
+  $( "#H_y" ).val( format_num(H_y,3) );
+  $( "#r_b_inv" ).val( format_num(r_b,3) );
+  $( "#Z_z" ).val( format_num(Z_z,3) );
+  const Y = new THREE.Vector3(0,1,0).normalize();
+  // const N = normal.normalize();
+  const N = normal.clone();
+  // These vectors are normalized
+  const f = normal.dot(Y);
+  var iota = Math.acos(f);
+  //  var j = Math.sin(iota);
+  // sin(acos(x)) = sqrt(1 - x^2)
+  var j = Math.sqrt(1 - f**2);
+  $( "#iota" ).val( format_num(iota*180/Math.PI,3) );
+  $( "#jiota" ).val( format_num(j,3) );
+  const CC = new THREE.Vector3(C.x,0,C.z);
+  const H = new THREE.Vector3(0,H_y,0);
+  const Z = new THREE.Vector3(0,0,Z_z);
+  const U = new THREE.Vector3(U_x,0,0);
+//  const Atouch = N.clampLength(ra,ra);
+  const d = Math.abs(N.dot(CC) - plane_const);
+//  console.log(N.length());
+//  console.log(N,C,plane_const);
+//  console.log("This should be equal to c:");
+//  console.log(d);
+//  console.log("This also should be equal to c:");
+//  console.log(C.x*N.x+ C.z*N.z - plane_const);
+//  console.log("plane_const (k)",plane_const);
+  const k = plane_const;
+  const J = a - b * N.x + b + k;
+  const L = a * b * (N.z**2) *(a -b)**2;
+  const M = Math.sqrt(L *((k - a*N.x)*J + a*b*N.z**2));
+  const D =(a * N.x + a - b*N.x + b)**2 - 4*a*b*(N.z**2);
+  const E = (a**2 + a*(b+k) -b*k)*(a*N.x + a - b*N.x + b);
+  const F = -2*M - 2*a*b*(N.z**2)*(a+b);
+  const x = (E+F)/D;
+
+  const R = -2 * a**2 * b * k * N.z**2 + a**3 * b * (-1 + N.x) * N.z**2 - b * (-1 + N.x) * M;
+  const S = a *( 2 * b**2 * k * N.z**2 - b**3*(-1 + N.x)* N.z**2 + (1 + N.x)*M);
+//  console.log("Numerator:", 2*(R-S));
+//  console.log("D:",N.z * (a-b) * D);
+  const z = 2*(R+S)/(N.z *(a-b) * D);
+  const c = Math.sqrt(x**2 + z**2)-a;
+ // console.log("J,L,M");
+//  console.log(J,L,M);
+//  console.log("R,S");
+//  console.log(R,S);
+
+//  console.log("x,z,c",x,z,c);
+  $( "#c_inv" ).val( format_num(c,3) );
+/* Mathematica equation entry:
+x/z == r/s
+eqn1 = %
+x^2 + z^2 == (a + c) ^2
+eqn2 = %
+v == -u*w/q + u
+eqn3 = %
+r == -u*s/q + u
+eqn4 = %
+b/(Sqrt[(a + b - v)^2 + w^2]) == c / (Sqrt[(a + b - v)^2 + w^2] - (b + c))
+// Or ..
+b/(Sqrt[(a + b - v)^2 + w^2]) == c / (Sqrt[(x - v)^2 + (z-w)^2])
+eqn5 = %
+a/(Sqrt[r^2 + s^2]) == c / (Sqrt[r^2 + s^2] - (a + c))
+// or
+a/(Sqrt[r^2 + s^2]) == c / (Sqrt[(r -x)^2 + (s - z)^2])
+eqn6 = %
+z^2 + (a + b - x)^2 == (b + c)^2
+ eqn7 = %
+// Up until now, we are asymmetric, becasue we have eqn1, but
+// not similar equation for the point W = (u,v). We must
+// insist that W = (u,v), C = (x,z), and B = (a+b,0) are colinear.
+// This does this via the distance formula
+Sqrt((u - (a+b))^2 + v^2)  = Sqrt((u-x)^2+(w-z)^2) + b + c
+// However, Heron's formula may be better:
+// W = (u,v), C = (x,z), and B = (a+b,0)
+// 0 = u * (z - 0) + x * ( 0 - v) + (a+b)*(v - z)
+0 == uz + -vx + (a+b)*(v-z)
+eqn8 = %
+// We could do this for the point A = (0,0), C = (x,z) and V = (r,s) as well:
+// 0 = 0 + x * (s - 0) + r * (0 - z)
+// xs = rz
+// So---this amounts to the same equation we alread have!
+*/
+
+/* Mathematica, attempt at another approach.
+
+Let q = Zz, Let u = Ux. Let iota = perpendicular plane angle
+Let k = Cu, the x intercept of the line through C parallel to
+the plane intersection. Let n = sin(alpha), a known.
+
+
+
+
+eqn2 = %
+// n == c / i (u - k)
+c == - i * n/(k -u)
+eqn3 = %
+
+// Could this work? k, x, z are unknowns.
+ Sqrt[x^2 + z ^2] - a == -i *n/(k - u)
+0 == - u*z/q + -x +  k
+
+
+We could try adding in :https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+
+Based on c/d = sin iota, where d is the distance (a function of u,z) in this case.
+Let j = sin(iota)
+
+This seems to produce a correct-looking plot of z and x:
+Sqrt[x^2 + z ^2] -a == Sqrt[(a+b-x)^2 + z^2] - b
+And this can be solved for x in terms of z
+
+Then:
+
+c == Abs[-u/q*z + -1*x + u]/Sqrt[(-u/q)^2 + (-1)^2] * j
+
+Sqrt[x^2 + z ^2] -a ==  Abs[-u/q*z + -1*x + u]/Sqrt[(-u/q)^2 + (-1)^2] * j
+
+This seems to work:
+Solve[eqn2, {x}]
+
+Although we have iota, and more direct approach is to use
+the normal to compute the distance from the point to the plane
+and set it equal to q:
+
+c == | n dot v |, where v = U - C, for instance.
+
+This may not be any better, but it should be simpler!
+
+Let N be the normal to the plane and k be the constant
+so that the equation of the plane is N\cdot X = k.
+
+This is three equations in 3 unkowns, so may be solvable.
+Let nx = N_x and nz = N_z:
+a + c == Sqrt[x^2 + z ^2]
+eqn0 = %
+b + c == Sqrt[(a+b-x)^2 + z^2]
+eqn1 = %
+c == Abs[nx * x + nz * z - k]
+eqn3 = %
+
+
+
+
+a + Abs[nx * x + nz * z - k] == Sqrt[x^2 + z ^2]
+eqn0 = %
+b + Abs[nx * x + nz * z - k] == Sqrt[(a+b-x)^2 + z^2]
+eqn1 = %
+
+Note: This returns a large polynomial as a result,
+which I have not tested, but should be testable.
+I feel that I am getting closer!!
+Tomorrow I can test with with values for a,b,nx, and nz!
+Solve[eqn0 && eqn1, {x, z}]
+
+Test:
+a = 1.2
+b = 0.9
+nx = 0.1428571428571428
+nz = 0.4593496414986631
+k = 1.2
+Clear[a]
+Clear[b]
+Clear[c]
+Clear[nx]
+Clear[nz]
+Clear[k]
+
+
+Amazingly, This worked in Mathematica! Let's see
+if we can clean it up...
+
+To clean this, we need to remove the Abs sign..
+Note:
+This is negative as we've defined it in our scheme:
+nx * x + nz * z - k
+
+a + -(nx * x + nz * z - k) == Sqrt[x^2 + z ^2]
+eqn0 = %
+b + -(nx * x + nz * z - k) == Sqrt[(a+b-x)^2 + z^2]
+eqn1 = %
+
+Now Solve[eqn0,x] provides a relative comprehensible
+formula, but it requires a +- split
+
+FullSimplify[Solve[eqn0 && eqn1, {x, z}]]
+
+Gives something almost tractable:
+
+{{x -> ((a^2 - b k + a (b + k)) (a + b + a nx - b nx) -
+      2 a b (a + b) nz^2 -
+      2 Sqrt[-a (a - b)^2 b nz^2 ((-k + a nx) (a + b + k - b nx) -
+          a b nz^2)])/((a + b + a nx - b nx)^2 - 4 a b nz^2),
+  z -> (2 (-2 a^2 b k nz^2 + a^3 b (-1 + nx) nz^2 -
+        b (-1 + nx) Sqrt[
+         a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
+            a b nz^2)] +
+        a (2 b^2 k nz^2 -
+           b^3 (-1 + nx) nz^2 + (1 + nx) Sqrt[
+            a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
+               a b nz^2)])))/((a - b) nz ((a + b + a nx - b nx)^2 -
+        4 a b nz^2))},
+{x -> ((a^2 - b k + a (b + k)) (a + b + a nx -
+         b nx) - 2 a b (a + b) nz^2 +
+      2 Sqrt[-a (a - b)^2 b nz^2 ((-k + a nx) (a + b + k - b nx) -
+          a b nz^2)])/((a + b + a nx - b nx)^2 - 4 a b nz^2),
+  z -> (2 (-2 a^2 b k nz^2 + a^3 b (-1 + nx) nz^2 +
+        b (-1 + nx) Sqrt[
+         a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
+            a b nz^2)] -
+        a (-2 b^2 k nz^2 +
+           b^3 (-1 + nx) nz^2 + (1 + nx) Sqrt[
+            a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
+               a b nz^2)])))/((a - b) nz ((a + b + a nx - b nx)^2 -
+        4 a b nz^2))}}
+
+There are in fact two physical solutions, but
+by our coordinate system we prefer the one with positive z value.
+This the second solution:
+
+x == ((a^2 - b k + a (b + k)) (a + b + a nx - b nx) -
+     2 a b (a + b) nz^2 +
+     2 Sqrt[-a (a - b)^2 b nz^2 ((-k + a nx) (a + b + k - b nx) -
+         a b nz^2)])/((a + b + a nx - b nx)^2 - 4 a b nz^2),
+ z == (2 (-2 a^2 b k nz^2 + a^3 b (-1 + nx) nz^2 +
+       b (-1 + nx) Sqrt[
+        a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
+           a b nz^2)] -
+       a (-2 b^2 k nz^2 +
+          b^3 (-1 + nx) nz^2 + (1 + nx) Sqrt[
+           a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
+              a b nz^2)])))/((a - b) nz ((a + b + a nx - b nx)^2 -
+       4 a b nz^2))
+
+Now, let me try to find substitutions that simply
+
+*/
+}
+
 // This is the main recomputation
 function onComputeParams() {
 
@@ -769,17 +1019,6 @@ function onComputeParams() {
 
   console.log("theta",theta * 180 / Math.PI);
 
-  // Check... This is the sphere at y intersection on the plane
-  var m_ab_y =  cA1.length() * Math.tan(Math.abs(theta));
-  var check_s = createSphere(0.05,
-                             new THREE.Vector3(0,m_ab_y,0),0x00ff88);
-
-  check_s.castShadow = false;
-  check_s.receiveShadow = false;
-  check_s.debugObject = true;
-  am.scene.add(check_s);
-
-  console.log("m_ab_y",m_ab_y);
 
   const Z = new THREE.Vector3(0,0,1);
   const Y = new THREE.Vector3(0,1,0);
@@ -797,7 +1036,7 @@ function onComputeParams() {
 
   Pp.applyAxisAngle(X,gamma);
 
-  console.log("pp, pp1",Pp,Pp1);
+  console.log(" After Rotation pp, pp1",Pp,Pp1);
   Pp2.applyAxisAngle(X,gamma);
 
   // var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
@@ -812,10 +1051,43 @@ function onComputeParams() {
   ppHelper2.debugObject = true;
   am.scene.add( ppHelper2 );
 
-  N = Pp.clone();
+  var N = Pp.clone();
   N.clampLength(1,1);
+  // is this the normal? YES
   console.log("N",N);
-  var origin = new THREE.Vector3( 0, 0, 0 );
+
+  // Now I want the equation of the plane...
+    const U = new THREE.Vector3(cA1.length(),0,0);
+  const plane_const = N.dot(U);
+    // Now I want to create
+    // Check... This is the sphere at y intersection on the plane
+  var H_y =  plane_const/N.y;
+  var check_s = createSphere(0.05,
+                             new THREE.Vector3(0,H_y,0),0x00ff88);
+
+  check_s.castShadow = false;
+  check_s.receiveShadow = false;
+  check_s.debugObject = true;
+  am.scene.add(check_s);
+
+  console.log("cA1.length",cA1.length());
+  console.log("H_y",H_y);
+  const H = new THREE.Vector3(0,H_y,0);
+  console.log("distance should be zero");
+  console.log(N.dot(H)-plane_const);
+
+  console.log("distance should be r_a");
+  const Origin = new THREE.Vector3(0,0,0);
+  console.log(N.dot(Origin)-plane_const);
+
+
+  console.log("distance should be r_b");
+  console.log(N.dot(B)-plane_const);
+
+  console.log("distance should be r_c");
+  console.log(N.dot(C)-plane_const);
+
+  console.log(N,C,plane_const);
 
   var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
   var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.1, side: THREE.DoubleSide} );
@@ -849,10 +1121,14 @@ function onComputeParams() {
   zc.debugObject = true;
   am.scene.add(zc);
 
+
+  // HACKING: Now attempting to check my math by recomputing ra,rb,rc from gamma and theta
   // Now we want to set theta and gamma in the sliders so the user can see it.
   setThetaGammaValues(theta,gamma);
 
-  // HACKING: Now attempting to check my math by recomputing ra,rb,rc from gamma and theta
+
+  console.log(N,C,plane_const);
+  checkInversion(N,H_y,plane_const,ra,theta,gamma,A,B,C);
 
 }
 

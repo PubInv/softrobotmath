@@ -232,20 +232,17 @@ function computeRadiiFromAngles(theta,gamma) {
   ra = 1.0 + st;
   rb = 1.0 - st;
   Ux = ra / st;
-
-  // I now am not sure this is right.
-  Hy = Ux * Math.tan(Math.abs(theta));
-
-  // This computation of d is not correct, thought I know not why.
-//  const d = ra * Hy / Math.sqrt(Hy*Hy - ra*ra);
-  // const d = ra *(ra + rc)/ (ra - rc);
-
-  // const psi = Math.asin(ra/d);
-  // console.log("psi = ",psi * 180.0/Math.PI);
-  // const rc = (ra - ra * Math.sin(psi))/(1+Math.sin(psi));
-
-  // return [ra,rb,rc];
-
+  Hy = Ux * Math.tan(theta);
+  Wz = Hy / Math.sin(gamma);
+  M = Wz / Ux;
+  Q = 1.0 + M*M;
+  P = ra*ra - 2*ra*rb + rb*rb*Q;
+  P_or_M = Math.sqrt(P/Q);
+  rc_raw = rb - ra/Q;
+  denom = (-1 + 1/Q);
+  rc_m = (rc_raw - P_or_M)/denom;
+  rc_p = (rc_raw + P_or_M)/denom;
+  return [ra,rb,rc_m];
 }
 
 function testCircle(ra,rb,rc) {
@@ -407,7 +404,10 @@ function testInverseProblem() {
   [theta,gamma,zprime] =
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
 
-  computeRadiiFromAngles(theta,gamma);
+  theta = Math.abs(theta);
+  [a,b,c] = computeRadiiFromAngles(theta,gamma);
+  console.log(" input",ra,rb,rc);
+  console.log("output",a,b,b,c);
 }
 
 function runUnitTests() {
