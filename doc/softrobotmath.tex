@@ -398,6 +398,42 @@ though it is sometimes off in the third or even second digit,
 which I assume is a numerical problem
 rather than a problem in the formal math.
 
+\subsection{Special when $\gamma = 0$}
+
+In the above math when $\gamma$ is $0$, then $N_z$ is zero,
+creating a division by zero.
+In this case we can use the proportionality of similar
+triangles to assert:
+\begin{align*}
+  a &= c + \frac{a x}{U_x}
+\end{align*}
+Combined with our previous equations in the plane
+relating $x$ and $z$ to $c$:
+\begin{align*}
+  a + c &= \sqrt{x^2 + z^2} \\
+  b + c &= \sqrt{(a+b-x)^2 + z^2} \\
+\end{align*}
+we obtain the following equation:
+\begin{align*}
+c & = \frac{a (a + b) (a - U_x)}{a^2 - a b + a U_x + b U_x} \\
+\end{align*}
+
+
+\subsection{Special when $\theta = 0$}
+
+When $\theta = 0$, the point $U$ is at infinity or
+cannot be found. In thise case $b = a$.
+We use the simple fact that:
+\begin{align*}
+  z &= \frac{a}{\sin{\gamma}} \\
+  \end{align*}
+to obtain:
+\begin{align*}
+  c &= \sqrt{d^2 + x^2}-a \\
+  \end{align*}
+
+When both $\theta = 0$ and $\gamma = 0$, then $c = b = a$.
+
 \section{Usage}
 
 These equations can be used to compute the radii $b$ and $c$
