@@ -17,6 +17,8 @@
 // var tm = UGLY_GLOBAL_SINCE_I_CANT_GET_MY_MODULE_INTO_THE_BROWSER;
 // var OPERATION = "normal"; // "normal" or "helices"
 
+"use strict";
+
 var WINDOW_HEIGHT_FACTOR = 0.68;
 
 // Detects webgl
@@ -367,16 +369,17 @@ function initGraphics() {
   am.renderer.setSize(window.innerWidth, window.innerHeight * am.window_height_factor);
   am.SCREEN_WIDTH = am.renderer.getSize().width;
   am.SCREEN_HEIGHT = am.renderer.getSize().height;
-  am.camera.radius = (am.SCREEN_WIDTH + am.SCREEN_HEIGHT) / this.CAMERA_RADIUS_FACTOR;
+  am.CAMERA_RADIUS_FACTOR = 1;
+  am.camera.radius = (am.SCREEN_WIDTH + am.SCREEN_HEIGHT) / am.CAMERA_RADIUS_FACTOR;
 
 
   am.cameraOrtho = new THREE.OrthographicCamera(0, am.SCREEN_WIDTH, am.SCREEN_HEIGHT, 0, - 10, 10);
 
-  hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
+  var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
   am.scene.add(hemiLight);
 
   var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position = new THREE.Vector3(100, 5, 0);
+//  directionalLight.position = new THREE.Vector3(100, 5, 0);
   am.scene.add(directionalLight);
 
   var ambientLight = new THREE.AmbientLight(0x404040);
@@ -463,6 +466,7 @@ function onWindowResize() {
   am.camera.updateProjectionMatrix();
   am.SCREEN_WIDTH = am.renderer.getSize().width;
   am.SCREEN_HEIGHT = am.renderer.getSize().height;
+  this.CAMERA_RADIUS_FACTOR = 1;
   am.camera.radius = (am.SCREEN_WIDTH + am.SCREEN_HEIGHT) / this.CAMERA_RADIUS_FACTOR;
 
   am.cameraOrtho = new THREE.OrthographicCamera(0, am.SCREEN_WIDTH, am.SCREEN_HEIGHT, 0, - 10, 10);
@@ -667,37 +671,79 @@ function render_tentacle() {
 }
 const RENDER_TENTACLE = false;
 
+function computeNormalFromExtrinsicEuler(theta,gamma) {
+  var Pp = new THREE.Vector3(0,1,0);
+  const Z = new THREE.Vector3(0,0,1);
+  const X = new THREE.Vector3(1,0,0);
+  Pp.applyAxisAngle(Z,theta);
+  Pp.applyAxisAngle(X,gamma);
+  return Pp;
+}
+
 // This routine will be constantly evolving
 // This is my attempt to use the interface to check my inversion math as I develop it.
 // I have had a lot of trouble with this; I have to go carefully and check every step.
-function checkInversion(normal,H_y,plane_const,a,theta,gamma,A,B,C) {
+function computeInversion_fromUI() {
+  computeInversion(RADIUS_A,THETA_D*Math.PI/180,GAMMA_D*Math.PI/180);
+}
+function computeInversion(a,theta,gamma) {
+  if (isNaN(gamma)) debugger;
   var t = Math.abs(theta);
   var g = Math.abs(gamma);
-  var U_x = ra / Math.sin(t);
-  var r_b = (U_x - ra) * Math.sin(t)/ (Math.sin(t) + 1);
-  const b = r_b;
-  var Z_z = H_y / Math.sin(g);
+  const N = computeNormalFromExtrinsicEuler(theta,gamma);
+  var U_x;
+  var b;
+  var U;
+  var plane_const;
+  var Z_z;
+  var Z;
+  var H_y;
+  if (theta != 0) {
+    U_x = a / Math.sin(t);
+    b = (U_x - a) * Math.sin(t)/ (Math.sin(t) + 1);
+    U = new THREE.Vector3(U_x,0,0);
+    plane_const = N.dot(U);
+    H_y =  plane_const/N.y;
+    Z_z = H_y / Math.sin(g);
+    Z = new THREE.Vector3(0,0,Z_z);
+  } else {
+    U_x = null;
+    b = a;
+    Z_z = a / Math.sin(g);
+    U = null;
+    Z = new THREE.Vector3(0,0,Z_z);
+    plane_const = N.dot(Z);
+    H_y = a;
+    // By summetray, x = a.
+    // We compute by using proportionality from gamma
+    // d^2 + x^2 == (c + a)^2, solve for c, then
+    // the positive solution is c = sqrt(d^2 + x^2) -a
+    var xx = a;
+    var d = a / Math.sin(gamma);
+    const c = Math.sqrt(d**2 + xx**2)-a;
+    return [a,b,c];
+  }
+
   $( "#U_x" ).val( format_num(U_x,3) );
   $( "#H_y" ).val( format_num(H_y,3) );
-  $( "#r_b_inv" ).val( format_num(r_b,3) );
+  $( "#r_b_inv" ).val( format_num(b,3) );
   $( "#Z_z" ).val( format_num(Z_z,3) );
   const Y = new THREE.Vector3(0,1,0).normalize();
   // const N = normal.normalize();
-  const N = normal.clone();
+//  const N = normal.clone();
   // These vectors are normalized
-  const f = normal.dot(Y);
+  const f = N.dot(Y);
   var iota = Math.acos(f);
   //  var j = Math.sin(iota);
   // sin(acos(x)) = sqrt(1 - x^2)
   var j = Math.sqrt(1 - f**2);
   $( "#iota" ).val( format_num(iota*180/Math.PI,3) );
   $( "#jiota" ).val( format_num(j,3) );
-  const CC = new THREE.Vector3(C.x,0,C.z);
+//  const CC = new THREE.Vector3(C.x,0,C.z);
   const H = new THREE.Vector3(0,H_y,0);
-  const Z = new THREE.Vector3(0,0,Z_z);
-  const U = new THREE.Vector3(U_x,0,0);
+//  const U = new THREE.Vector3(U_x,0,0);
 //  const Atouch = N.clampLength(ra,ra);
-  const d = Math.abs(N.dot(CC) - plane_const);
+//  const d = Math.abs(N.dot(CC) - plane_const);
 //  console.log(N.length());
 //  console.log(N,C,plane_const);
 //  console.log("This should be equal to c:");
@@ -717,7 +763,21 @@ function checkInversion(normal,H_y,plane_const,a,theta,gamma,A,B,C) {
   const R = -2 * a**2 * b * k * N.z**2 + a**3 * b * (-1 + N.x) * N.z**2 - b * (-1 + N.x) * M;
   const S = a *( 2 * b**2 * k * N.z**2 - b**3*(-1 + N.x)* N.z**2 + (1 + N.x)*M);
 //  console.log("Numerator:", 2*(R-S));
-//  console.log("D:",N.z * (a-b) * D);
+  //  console.log("D:",N.z * (a-b) * D);
+
+  // This does not work when a == b!!!
+  // Also, when N.z is zero, this does not work;
+  // c must be computed in a different way
+  if (N.z == 0) {
+    // how we we comute c so that the top plane
+    // touches all three spheres? It will be
+    // some value between a and b, close to (a+b)/2
+
+    var u = U_x;
+    // This equation found by Mathematic....
+    var mc = -((a *(a + b) * (a - u))/(a**2 - a*b + a*u + b*u));
+    return [a,b,mc];
+  }
   const z = 2*(R+S)/(N.z *(a-b) * D);
   const c = Math.sqrt(x**2 + z**2)-a;
  // console.log("J,L,M");
@@ -725,8 +785,13 @@ function checkInversion(normal,H_y,plane_const,a,theta,gamma,A,B,C) {
 //  console.log("R,S");
 //  console.log(R,S);
 
-//  console.log("x,z,c",x,z,c);
+  console.log("x,z,c",x,z,c);
   $( "#c_inv" ).val( format_num(c,3) );
+  if (isNaN(c)) {
+    debugger;
+  }
+  return [a,b,c];
+
 /* Mathematica equation entry:
 x/z == r/s
 eqn1 = %
@@ -914,7 +979,44 @@ x == ((a^2 - b k + a (b + k)) (a + b + a nx - b nx) -
 
 Now, let me try to find substitutions that simply
 
+
+Now, sadly, When gamma = 0 we have to do something different.
+Let s = Sin[theta]
+a + c == Sqrt[x^2 + z^2]
+eqn0 = %
+b + c == Sqrt[(a+b-x)^2 + z^2]
+eqn1 = %
+c ==(u-x) a / u
+eqn2 = %
+
+a + (u-x) a / u == Sqrt[x^2 + z]
+eqn0 = %
+b + (u-x) a / u == Sqrt[(a+b-x)^2 + z^2]
+eqn1 = %
+
+a/u == c / ( u -x) == b/(u - (a + b))
+
+My own algebra:
+(a + b -x)^2 - x^2 = (b + s(u-x))^2 - (a + s(u-x))^2
+
+Yields:
+{{x -> (a^2 + a b + a s u - b s u)/(a + b + a s - b s)}}
+
 */
+}
+function setThetaGammaValues(theta,gamma) {
+  if (isNaN(gamma)) debugger;
+  if (isNaN(theta)) debugger;
+  THETA_D = theta * 180 / Math.PI;
+  GAMMA_D = gamma * 180 / Math.PI;
+  $( "#theta_slider" ).slider( "value", THETA_D );
+  $( "#d_theta" ).val( format_num(THETA_D,3) );
+  $( "#theta" ).val( format_num(THETA_D,3) );
+
+  $( "#gamma_slider" ).slider( "value", GAMMA_D );
+  $( "#d_gamma" ).val( format_num(GAMMA_D,3) );
+  $( "#gamma" ).val( format_num(GAMMA_D,3) );
+
 }
 
 // This is the main recomputation
@@ -962,8 +1064,18 @@ function onComputeParams() {
 
 
   const theta1 = ComputeAxisAngleOfCone(ra,rb);
+  if (isNaN(theta1)) {
+    debugger;
+  }
   const theta2 = ComputeAxisAngleOfCone(rb,rc);
+  if (isNaN(theta2)) {
+    debugger;
+  }
   const theta3 = ComputeAxisAngleOfCone(rc,ra);
+  if (isNaN(theta3)) {
+    debugger;
+  }
+
   let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
 
   console.log("theta1",theta1 * 180 / Math.PI);
@@ -1016,6 +1128,7 @@ function onComputeParams() {
   var zprime;
   [theta,gamma,zprime] =
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
+  if (isNaN(gamma)) debugger;
 
   console.log("theta",theta * 180 / Math.PI);
 
@@ -1056,12 +1169,21 @@ function onComputeParams() {
   // is this the normal? YES
   console.log("N",N);
 
+  // Note: This will fail when ra == rb
+
+
   // Now I want the equation of the plane...
+  var H_y;
+  if (ra == rb) {
     const U = new THREE.Vector3(cA1.length(),0,0);
-  const plane_const = N.dot(U);
+    const plane_const = N.dot(U);
     // Now I want to create
     // Check... This is the sphere at y intersection on the plane
-  var H_y =  plane_const/N.y;
+    var H_y =  plane_const/N.y;
+  } else {
+    H_y = ra;
+  }
+
   var check_s = createSphere(0.05,
                              new THREE.Vector3(0,H_y,0),0x00ff88);
 
@@ -1073,21 +1195,22 @@ function onComputeParams() {
   console.log("cA1.length",cA1.length());
   console.log("H_y",H_y);
   const H = new THREE.Vector3(0,H_y,0);
-  console.log("distance should be zero");
-  console.log(N.dot(H)-plane_const);
+//  console.log("distance should be zero");
+//  console.log(N.dot(H)-plane_const);
 
-  console.log("distance should be r_a");
+//  console.log("distance should be r_a");
+
   const Origin = new THREE.Vector3(0,0,0);
-  console.log(N.dot(Origin)-plane_const);
+  // console.log(N.dot(Origin)-plane_const);
 
 
-  console.log("distance should be r_b");
-  console.log(N.dot(B)-plane_const);
+  // console.log("distance should be r_b");
+  // console.log(N.dot(B)-plane_const);
 
-  console.log("distance should be r_c");
-  console.log(N.dot(C)-plane_const);
+  // console.log("distance should be r_c");
+  // console.log(N.dot(C)-plane_const);
 
-  console.log(N,C,plane_const);
+  // console.log(N,C,plane_const);
 
   var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
   var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.1, side: THREE.DoubleSide} );
@@ -1121,19 +1244,16 @@ function onComputeParams() {
   zc.debugObject = true;
   am.scene.add(zc);
 
-
   // HACKING: Now attempting to check my math by recomputing ra,rb,rc from gamma and theta
   // Now we want to set theta and gamma in the sliders so the user can see it.
-  setThetaGammaValues(theta,gamma);
-
-
-  console.log(N,C,plane_const);
-  checkInversion(N,H_y,plane_const,ra,theta,gamma,A,B,C);
-
+  // Note: this causes a problem when we called this by setting these values anyway!
+//  setThetaGammaValues(theta,gamma);
+  return [theta,gamma];
 }
 
 function main() {
-   onComputeParams();
+  const [theta,gamma] = onComputeParams();
+  setThetaGammaValues(theta,gamma);
 }
 
 
@@ -1421,13 +1541,15 @@ var RADIUS_C = 0.5;
 
 var THETA_D = 0;
 var GAMMA_D = 0;
-
-{
-
-  function setNBValues(Nb) {
-    RADIUS_A =  Nb.x;
-    RADIUS_B =  Nb.y;
-    RADIUS_C =  Nb.z;
+  // Note: C may be null, meaning we have an unspecified value
+  function setRadiusValues(a,b,c) {
+    if (c == null) {
+      console.log("c is null");
+      debugger;
+    }
+    RADIUS_A =  a;
+    RADIUS_B =  b;
+    RADIUS_C =  c;
     $( "#radius_a_slider" ).slider( "value", RADIUS_A );
     $( "#r_a" ).val( format_num(RADIUS_A,3) );
     $( "#radius_a" ).val( format_num(RADIUS_A,3) );
@@ -1439,19 +1561,15 @@ var GAMMA_D = 0;
     $( "#radius_c_slider" ).slider( "value", RADIUS_C );
     $( "#r_c" ).val( format_num(RADIUS_C,3) );
     $( "#radius_c" ).val( format_num(RADIUS_C,3) );
+//    onComputeParams();
+    const [theta,gamma] = onComputeParams();
+//    setThetaGammaValues(theta,gamma);
+
   }
 
-  function setThetaGammaValues(theta,gamma) {
-    THETA_D = theta * 180 / Math.PI;
-    GAMMA_D = gamma * 180 / Math.PI;
-    $( "#theta_slider" ).slider( "value", THETA_D );
-    $( "#d_theta" ).val( format_num(THETA_D,3) );
-    $( "#theta" ).val( format_num(THETA_D,3) );
+{
 
-    $( "#gamma_slider" ).slider( "value", GAMMA_D );
-    $( "#d_gamma" ).val( format_num(GAMMA_D,3) );
-    $( "#gamma" ).val( format_num(GAMMA_D,3) );
-  }
+
   $(function() {
     $( "#radius_a_slider" ).slider({
       range: "max",
@@ -1464,7 +1582,9 @@ var GAMMA_D = 0;
 	$( "#radius_a" ).val( ui.value );
 	RADIUS_A = ui.value;
         console.log(RADIUS_A);
-        onComputeParams();
+//        onComputeParams();
+        const [theta,gamma] = onComputeParams();
+        setThetaGammaValues(theta,gamma);
       }
     });
     $( "#r_a" ).val( $( "#radius_a_slider" ).slider( "value" ) );
@@ -1482,7 +1602,9 @@ var GAMMA_D = 0;
 	$( "#radius_b" ).val( ui.value );
 	RADIUS_B = ui.value;
         console.log(RADIUS_B);
-        onComputeParams();
+//        onComputeParams();
+        const [theta,gamma] = onComputeParams();
+        setThetaGammaValues(theta,gamma);
       }
     });
     $( "#r_b" ).val( $( "#radius_b_slider" ).slider( "value" ) );
@@ -1500,7 +1622,9 @@ var GAMMA_D = 0;
 	$( "#radius_c" ).val( ui.value );
 	RADIUS_C = ui.value;
         console.log(RADIUS_C);
-        onComputeParams();
+//        onComputeParams();
+        const [theta,gamma] = onComputeParams();
+        setThetaGammaValues(theta,gamma);
       }
     });
     $( "#r_c" ).val( $( "#radius_c_slider" ).slider( "value" ) );
@@ -1518,7 +1642,8 @@ var GAMMA_D = 0;
 	$( "#theta_slider" ).val( ui.value );
 	THETA_D = ui.value;
         console.log(THETA_D);
-        onComputeParams();
+        const [a,b,c] = computeInversion(RADIUS_A,THETA_D*Math.PI/180,GAMMA_D*Math.PI/180);
+        setRadiusValues(a,b,c);
       }
     });
     $( "#theta" ).val( $( "#theta_slider" ).slider( "value" ) );
@@ -1536,14 +1661,15 @@ var GAMMA_D = 0;
 	$( "#gamma_slider" ).val( ui.value );
 	GAMMA_D = ui.value;
         console.log(GAMMA_D);
-        onComputeParams();
+        const [a,b,c] = computeInversion(RADIUS_A,THETA_D*Math.PI/180,GAMMA_D*Math.PI/180);
+        setRadiusValues(a,b,c);
       }
     });
     $( "#gamma" ).val( $( "#gamma_slider" ).slider( "value" ) );
   });
 }
 
-function setup_input_molecule(slider,ro,txt,x,set)
+function setup_input_molecule(slider,ro,txt,x,set,f)
 {
   $( slider ).slider( "value",x );
   $( ro ).val( x );
@@ -1554,9 +1680,12 @@ function setup_input_molecule(slider,ro,txt,x,set)
       // Does this change the value or the parameter?
       x = event.currentTarget.value;
       set(x);
+      console.log("x=",x);
       $( slider ).slider( "value",x );
       $( ro ).val( x );
-      onComputeParams();
+      $( txt ).val( x );
+
+      f();
     }
   });
 }
@@ -1565,17 +1694,37 @@ $( document ).ready(function() {
   runUnitTests();
 
   setup_input_molecule("#radius_a_slider","#radius_a",
-                       "#r_a",RADIUS_A,(v => RADIUS_A = v));
+                       "#r_a",RADIUS_A,(v => RADIUS_A = v),(() => {
+                                                                    const [theta,gamma] = onComputeParams();
+                                                                    setThetaGammaValues(theta,gamma);
+                                                                  }
+                                                           ));
   setup_input_molecule("#radius_b_slider","#radius_b",
-                       "#r_b",RADIUS_B,(v => RADIUS_B = v));
+                       "#r_b",RADIUS_B,(v => RADIUS_B = v),(() => {
+                                                                    const [theta,gamma] = onComputeParams();
+                                                                    setThetaGammaValues(theta,gamma);
+                                                                  }
+                                                           ));
   setup_input_molecule("#radius_c_slider","#radius_c",
-                       "#r_c",RADIUS_C,(v => RADIUS_C = v));
+                       "#r_c",RADIUS_C,(v => RADIUS_C = v),(() => {
+                                                                    const [theta,gamma] = onComputeParams();
+                                                                    setThetaGammaValues(theta,gamma);
+                                                                  }
+                                                           ));
 
   setup_input_molecule("#theta_slider","#theta",
-                       "#d_theta",THETA_D,(v => THETA_D = v));
+                       "#d_theta",THETA_D,(v => THETA_D = v),( () => {
+                         const [a,b,c ] = computeInversion(RADIUS_A,THETA_D*Math.PI/180,GAMMA_D*Math.PI/180);
+                         setRadiusValues(a,b,c);
+                         onComputeParams();
+                       }));
 
   setup_input_molecule("#gamma_slider","#gamma",
-                       "#d_gamma",GAMMA_D,(v => GAMMA_D = v));
+                       "#d_gamma",GAMMA_D,(v => GAMMA_D = v),( () => {
+                         const [a,b,c ] = computeInversion(RADIUS_A,THETA_D*Math.PI/180,GAMMA_D*Math.PI/180);
+                         setRadiusValues(a,b,c);
+                         onComputeParams();
+                       }));
 
 
 

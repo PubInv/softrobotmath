@@ -175,7 +175,7 @@ As the spheres
 change change, the origin of the center plane will experience minor translation
 relative to the bottom plane, but will not experience rotation about the $y$-axis.
 If needed the coordinates of the spheres in the bottom plane can be easily
-calculates from the radii and the computed Euler angles $\theta$ and $\gamma$.
+calculates from the radii and the computed extrinsic Euler angles $\theta$ and $\gamma$.
 
 \begin{figure}
      \centering
@@ -278,6 +278,9 @@ tangent plane as a function of the three radii $a,b,c$.
 
 
 \section{The Inverse Problem}
+
+Note: The math presented here fails when $c >= b$. We need
+to find an elegant way to deal with this.
 
 To build a useful robotic platform in by controlling the radii of the
 spheres by inflating and deflating them, we wish to solve the inverse
