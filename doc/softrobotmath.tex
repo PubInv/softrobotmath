@@ -62,14 +62,22 @@ Megan Cadena
   In 1881, the problem of computing the plane tangent to three spheres was
   set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881},
   but not solved.
-  We have solved this problem in JavaScript, producing an interactive,
+  We have solved the problem of computing the plane in contact with
+  three adjacent spheres from known radii via close-form expressions and
+  in JavaScript, producing an interactive,
   browser-based web page that dynamically solves the problem\cite{softrobotcalc}.
+  More importantly, we have solved the inverse problem, of computing the
+  sphere radii which orient a plane in contact with all three spheres, in
+  both closed-form solutions and on the web page.
+  This would allow a soft Stewart Platform or a tentacle to be positioned
+  in basis by choosing the expansion of inflatable spheres.
+  The closed-form expressions allow derivatives and Jacobians to be computed
+  symbolically.
   All of the code is released under the GNU Public License.
 \end{abstract}
 
 
 \section{Introduction}
-
 
 \section{Prelude: Three Touching Circles}
 
@@ -119,8 +127,6 @@ Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean the
   b^2  &= C_z^2 + C_x^2 \\
   C_x   &= \sqrt{b^2 - C_z^2}  \\
 \end{align}
-
-
 
 
 \section{Three Touching Spheres}
@@ -260,7 +266,7 @@ the apices of the cones tangent to $A$ and $B$, $B$ and $C$, and $C$ and $A$ res
 
 \begin{align}
   \overrightarrow{U} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{a}{\sin{\theta_{ab}}} \\
-  \overrightarrow{V} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{b}{\sin{\theta_{bc}}} \\
+  \overrightarrow{V} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{b}{\sin{\theta_{bc}}}
 \end{align}
 
 The point $H$ is the intesection of the $AB$ cone with the $y$ axis.
@@ -270,6 +276,11 @@ It is computed by projecting the contact point of the top plane in the $xy$-plan
 onto the $xz$-plane. This allows $\gamma$ to be computed as a pure rotation
 about the $x$-axis.
 
+\begin{align}
+  H_y &= U_x \tan{\theta_{ab}} \\
+  Z' &= \frac{H_y}{\sin{\gamma}} \label{eq:zprime} \\
+  \gamma &= \arcsin{\frac{Z'}{H_y}} \label{eq:gamma}
+\end{align}
 
 Equations \ref{eq:theta} and \ref{eq:gamma} give the Euler angles
 $\theta_{ab}$ and $\gamma$
@@ -288,13 +299,15 @@ problem. That is, given $\theta_{ab}$ and $\gamma$ as desired Euler
 angles, we want to compute $a,b,c$ which acheive these angles.
 
 Since these are smooth functions, the problem could be solved
-easily by a Newton-Raphson style solver based on \ref{eq:theta} and \ref{eq:gamma}. However, an analytic solution is always superior.
-
-
-
+easily by a Newton-Raphson style solver based on \ref{eq:theta} and \ref{eq:gamma}.
+However, a closed-form solution is always superior, and allows derivatives,
+and hence Jacobians, to be expressed symbolically as closed-form solutions.
 
 The radius $b$ can be computed directly from $\theta_{ab}$
-because of our choice of coordinates:
+because of our choice of coordinates.
+By considering to proportionality of the similar triangles formed
+by the contacts points of sphere $A$ and $B$ and their centers with $U_x$ in the $XY$ plane,
+we obtain:
 \begin{align}
   U_x &= \frac{a}{\sin{\theta_{ab}}} \\
   b &= \frac{(U_x - a)\sin{\theta_{ab}}}{\sin{\theta_{ab}}+1}
@@ -302,7 +315,8 @@ because of our choice of coordinates:
 
 \newcommand{\abs}[1]{ \left\lvert#1\right\rvert}
 
-Given the plane defined by a known radius $a$, $\theta_{ab}$ and $\gamma$, the point $C$ is constrained by asserting that the perpendicular
+Given the plane defined by a known radius $a$, $\theta_{ab}$ and $\gamma$,
+the point $C$ is constrained by asserting that the perpendicular
 distance to this plane of $C$ is $c$.
 Additionally, in the central plane we have two other constraints,
 that $C$ is placed so that it touches the circle centered on $A$ and
@@ -310,10 +324,10 @@ the circle centered on $B$.
 
 Then we know that the point $C$ but have distance $a+c$ from
 the point $A$ (the origin) and distance $b+c$ from the known
-point $B$. These two constraints can be exprssed:
+point $B$. These two constraints can be generated from the Pythagorean Theorem and can be expressed:
 \begin{align}
-a + c &= \sqrt{x^2 + z ^2} \label{eq:a_constraint}\\
-b + c &= \sqrt{(a+b-x)^2 + z^2} \label{eq:b_constraint} \\
+a + c &= \sqrt{C_x^2 + C_z ^2} \label{eq:a_constraint}\\
+b + c &= \sqrt{(a+b-C_x)^2 + C_z^2} \label{eq:b_constraint}
 \end{align}
 
 If we were to plot the point $C$ as $c$ increases, we
@@ -324,41 +338,35 @@ allow us to select a point on this curve.
 This gives us three equations, which
 should be more than enough to solve for the point $C$.
 
-\begin{align}
-  H_y &= U_x \tan{\theta_{ab}} \\
-  Z' &= \frac{H_y}{\sin{\gamma}} \\
-  \gamma &= \arcsin{\frac{Z'}{H_y}} \label{eq:gamma} \\
-\end{align}
-
 Let $H = [0, H_y,0]$.
 
 Let $N$ be the normal to the plane (pointing up in our diagram
 when $ a >= b >= c $.)
 
 \begin{align}
-\overrightarrow{N} &= \overrightarrow{Z' - U}  \times \overrightarrow{Z' - H} \\
+\overrightarrow{N} &= \overrightarrow{Z' - U}  \times \overrightarrow{Z' - H}
 \end{align}
 
 Since we have the normal of the plane three points ($U,Z,H_y$) in the plane,
 computing the distance from the point $C$ to the plane has a simple
 formula. We'll use the point $H = [0, H_y, 0]$ as our main point.
-The equation of our plane is
-$ \overrightarrow{N} \cdot \overrightarrow{X} = k$.
+The equation of our plane (the condition for when a point $\overrightarrow{P}$ is in the plane) is
+$ \overrightarrow{N} \cdot \overrightarrow{P} = k$.
 \begin{align}
 k &= \frac{N \cdot U}{N_y} \\
 c &= \frac{\abs{N \cdot P - k}}{\abs{N}} \\
-c &= \frac{\abs{C_x  N_x  + C_z  N_z - k}}{1} \label{eq:c_constraint}\\
+c &= \frac{\abs{C_x  N_x  + C_z  N_z - k}}{1} \label{eq:c_constraint}
 \end{align}
 
 By substituting \ref{eq:c_constraint} into equations
 \ref{eq:a_constraint} and \ref{eq:b_constraint},
 we obtain:
 \begin{align}
-a +  -(x N_x + z N_z - k) &= \sqrt{x^2 + z ^2} \\
-b +  -(x N_x + z N_z - k) &= \sqrt{(a+b-x)^2 + z^2} \\
+a +  -(C_x N_x + C_z N_z - k) &= \sqrt{C_x^2 + C_z ^2} \\
+b +  -(C_x N_x + C_z N_z - k) &= \sqrt{(a+b-C_x)^2 + C_z^2}
 \end{align}
 
-This is a system of two nonlinear equations with unkowns $x$ and $z$.
+This is a system of two nonlinear equations with unkowns $C_x$ and $C_z$.
 Solving this system is beyond the capacities of the authors,
 but not Mathematica, although the answer that Mathematica produces
 in its raw form has dozens of terms.
@@ -366,31 +374,29 @@ Furthermore, there are actually two solutions, corresponding
 to the two sides of the $AB$ line which the circle $C$ could be
 on and satsify these constratints.
 We have selected the solution that place $C$ in the positive $Z$
-direction, as constrained.
+direction conformant to our problem set-up.
 
 However, by introducing new variables to represent repeated
 portions of this long expression, the expressions be
 made tractable and easily programmed.
 
-\begin{align*}
+\begin{align}
   J &= (a-b N_x+b+k) \\
   L &= a b N_z^2 (a-b)^2  \\
   M &= \sqrt{L  \left((k - a  N_x) J +a b
     N_z^2\right)}\\
   D &= (a N_x+a-b N_x+b)^2-4 a b N_z^2 \\
-  x &= \frac{\left(a^2+a (b+k)-b
+  C_x &= \frac{\left(a^2+a (b+k)-b
     k\right)
     (a N_x+a-b N_x+b) - 2 M -2 a b N_z^2 (a+b)}{D} \\
   R &=   -2 a^2 b k N_z^2 + a^3b(-1 + N_x) N_z^2 - b(-1 + N_x)M  \\
     S &= a (2 b^2 k N_z^2 - b^3(-1 + N_x)N_z^2 + (1 +N_x) M )
      \\
-     z &= \frac{2 (R + S)}{N_z (a-b) D}\\
-\end{align*}
+     C_z &= \frac{2 (R + S)}{N_z (a-b) D}
+\end{align}
 
-The variable $c$ can be compute from $x$ and $z$ as:
-\begin{align*}
-    c &= x^2 + z^2 -a \\
-\end{align*}
+The variable $c$ can be compute from $a$,$C_x$ and $C_z$
+form Eq. \ref{eq:a_constraint}.
 
 This math has been checked in Javascript and it appears to
 be correct in computing $c$,
@@ -398,39 +404,45 @@ though it is sometimes off in the third or even second digit,
 which I assume is a numerical problem
 rather than a problem in the formal math.
 
-\subsection{Special when $\gamma = 0$}
+\subsection{Special case when $\gamma = 0$}
 
 In the above math when $\gamma$ is $0$, then $N_z$ is zero,
 creating a division by zero.
 In this case we can use the proportionality of similar
 triangles to assert:
-\begin{align*}
-  a &= c + \frac{a x}{U_x}
-\end{align*}
+\begin{align}
+  a &= c + \frac{a C_x}{U_x}
+\end{align}
 Combined with our previous equations in the plane
-relating $x$ and $z$ to $c$:
-\begin{align*}
-  a + c &= \sqrt{x^2 + z^2} \\
-  b + c &= \sqrt{(a+b-x)^2 + z^2} \\
-\end{align*}
+relating $C_x$ and $C_z$ to $c$:
+\begin{align}
+  a + c &= \sqrt{C_x^2 + C_z^2} \\
+  b + c &= \sqrt{(a+b-C_x)^2 + C_z^2}
+\end{align}
 we obtain the following equation:
-\begin{align*}
-c & = \frac{a (a + b) (a - U_x)}{a^2 - a b + a U_x + b U_x} \\
-\end{align*}
+\begin{align}
+c & = \frac{a (a + b) (a - U_x)}{a^2 - a b + a U_x + b U_x}
+\end{align}
 
 
-\subsection{Special when $\theta = 0$}
+\subsection{Special case when $\theta = 0$}
 
 When $\theta = 0$, the point $U$ is at infinity or
 cannot be found. In thise case $b = a$.
-We use the simple fact that:
-\begin{align*}
-  z &= \frac{a}{\sin{\gamma}} \\
-  \end{align*}
-to obtain:
-\begin{align*}
-  c &= \sqrt{d^2 + x^2}-a \\
-  \end{align*}
+In this case the sphere $C$ is symmetrically
+positioned in contact with $A$ and $B$ because
+they have the same radius. Therefore $x = a$.
+The point $H$ is actually in contact with the sphere $A$,
+and $H_y = a$, so from Eq. \ref{eq:zprime}:
+\begin{align}
+  Z' &= \frac{a}{\sin{\gamma}}
+  \end{align}
+Projecting out the $X$ dimension and forming
+similar triangles in the $YZ$ plane, we find that
+\begin{align}
+  \sin{\gamma} &= \frac{c}{Z_z - (a + c)} \\
+  c &= \frac{ (Z_z -a) \sin{\gamma}}{\sin{\gamma} + 1}
+  \end{align}
 
 When both $\theta = 0$ and $\gamma = 0$, then $c = b = a$.
 
@@ -453,6 +465,9 @@ algorithm. A Stewart platform implemented in this would
 be expected to be have ``softly'' in response to pressure,
 and yet have a predictable shape in the absence of external
 forces.
+
+Note: These closed-form expressions make it possible to compute the Jacobian of the system (the change in in the position
+of the plane relative to a change in the radius of any or all spheres.)
 
 \printbibliography
 

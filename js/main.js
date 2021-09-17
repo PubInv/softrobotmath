@@ -737,8 +737,9 @@ function computeInversion(a,theta,gamma) {
     // the positive solution is c = sqrt(d^2 + x^2) -a
     var xx = a;
     var d = a / Math.sin(gamma);
-    const c = Math.sqrt(d**2 + xx**2)-a;
-//    return [a,b,c];
+ //   const c = Math.sqrt(d**2 + xx**2)-a;
+    //    return [a,b,c];
+    const c = Math.sin(gamma)* ( Z_z -a) / (Math.sin(gamma) + 1);
     return [a,b,c,U_x,H_y,Z_z];
   }
 
@@ -1018,6 +1019,11 @@ My own algebra:
 
 Yields:
 {{x -> (a^2 + a b + a s u - b s u)/(a + b + a s - b s)}}
+
+
+ When \theta = 0:
+
+c = a - x/u
 
 */
 }
