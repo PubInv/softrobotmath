@@ -192,7 +192,7 @@ function Compute3TouchingCircles(ra,rb,rc) {
 }
 
 function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
-  if (ra == rb == rc) {
+  if ((ra == rb)  && (rb == rc)) {
     // This is not correct!
     return [0,0,null];
   }
@@ -218,10 +218,10 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
     // in this case we have to do something a little different...
     if (ra == rb) {
       zprime = cA3.z;
-      console.log("SPECIAL",zprime);
+//      console.log("SPECIAL",zprime);
       return [0,Math.asin(ra/zprime),zprime];
     }
-    console.log("theta1",theta1);
+//    console.log("theta1",theta1);
     if (ra < rb) theta1 = -theta1;
     // h is a height tilted about x-axis; distance of the plane to origin.
     var h = Math.tan(theta1) * cA1.x;
@@ -229,7 +229,7 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
 
     //  var gamma = Math.asin(ra/zprime);
     // Zprime cannot be computed if all are equal.
-    console.log("h,zprime",h,zprime);
+//    console.log("h,zprime",h,zprime);
 
     // I am not sure this is really correct!!!
     var gamma = Math.asin(h/zprime);
@@ -263,16 +263,20 @@ function computeRadiiFromAngles(theta,gamma) {
   return [ra,rb,rc_m];
 }
 
-
-
 // TODO: remove the GUI calls from this move to soft_robot_math and test.
 // This returns a number of parameters:
-//
+// [a,b,c,U_x,H_y,Z_z]
+// a : radius a
+// b : radius b
+// c : radius c
+// U_x : The x-coordinate of the U point on the apex line
+// H_y : The y coordinate of the top plane at x = 0, z = 0
+// Z_z : The z-coordinate of the Z point on the apex line
 function computeInversion(a,theta,gamma) {
   if (isNaN(gamma)) debugger;
-  var t = Math.abs(theta);
+//  var t = Math.abs(theta);
 //  var g = Math.abs(gamma);
-//  var t = theta;
+  var t = theta;
   var g = gamma;
   const N = computeNormalFromExtrinsicEuler(theta,gamma);
   console.log(N);
@@ -284,10 +288,13 @@ function computeInversion(a,theta,gamma) {
   var Z;
   var H_y;
   if (theta != 0) {
+    // this may not respect the negative value. plane_const may be a
     U_x = a / Math.sin(t);
     b = (U_x - a) * Math.sin(t)/ (Math.sin(t) + 1);
     U = new THREE.Vector3(U_x,0,0);
     plane_const = N.dot(U);
+    //
+    plane_const = a;
     H_y =  plane_const/N.y;
     Z_z = H_y / Math.sin(g);
     Z = new THREE.Vector3(0,0,Z_z);
@@ -302,14 +309,15 @@ function computeInversion(a,theta,gamma) {
     Z = new THREE.Vector3(0,0,Z_z);
     plane_const = N.dot(Z);
     H_y = a;
-    // By summetray, x = a.
+    // By symmetry, x = a.
     // We compute by using proportionality from gamma
     // d^2 + x^2 == (c + a)^2, solve for c, then
     // the positive solution is c = sqrt(d^2 + x^2) -a
     var xx = a;
     var d = a / Math.sin(gamma);
-    const c = Math.sqrt(d**2 + xx**2)-a;
-//    return [a,b,c];
+ //   const c = Math.sqrt(d**2 + xx**2)-a;
+    //    return [a,b,c];
+    const c = Math.sin(gamma)* ( Z_z -a) / (Math.sin(gamma) + 1);
     return [a,b,c,U_x,H_y,Z_z];
   }
 
@@ -339,6 +347,7 @@ function computeInversion(a,theta,gamma) {
   // This fix is inelegant.
   if (I < 0) {
     M = 0;
+    console.log("WARNING! Internal error",I);
   } else {
     M = Math.sqrt(I);
   }
@@ -590,8 +599,14 @@ My own algebra:
 Yields:
 {{x -> (a^2 + a b + a s u - b s u)/(a + b + a s - b s)}}
 
+
+ When \theta = 0:
+
+c = a - x/u
+
 */
 }
+
 function testCircle(ra,rb,rc) {
   const vs = Compute3TouchingCircles(ra,rb,rc);
 
