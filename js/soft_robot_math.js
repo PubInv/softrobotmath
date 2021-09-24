@@ -191,76 +191,168 @@ function Compute3TouchingCircles(ra,rb,rc) {
   return [A,B,C];
 }
 
+
+// I don't believe this is returning things correctly now.
 function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   if ((ra == rb)  && (rb == rc)) {
     // This is not correct!
     return [0,0,null];
   }
-
+  // Note: This is an absolute angle of the cone,
+  // but we need a signed angle to represent the rotation
+  // of the plane, so we process separately...
   var theta1 = ComputeAxisAngleOfCone(ra,rb);
-
-  // Experimental...
-  // Assume A > B, and A and B are on the z axis (z = 0)
-  console.assert(A.z == 0);
-  console.assert(B.z == 0);
-  // Assume their contact point is at the origin,
-  // so that A.x == -ra;
-  console.assert(A.x == 0);
+  if (rb > ra) theta1 = -theta1;
 
   if (isNaN(cA3.x)) {
     debugger;
-
-
   } else {
     var zprime = cA3.z * cA1.x / ((cA1.x) - (cA3.x));
-
     if (isNaN(zprime)) debugger;
     // in this case we have to do something a little different...
     if (ra == rb) {
-      zprime = cA3.z;
-//      console.log("SPECIAL",zprime);
+      // in this case, the Apex line is parallel to the x axis...
+      // that means that cA2.z == cA3.z == zprime;
+      console.assert(near(cA2.z,cA3.z));
+      var zprime = cA3.z;
       return [0,Math.asin(ra/zprime),zprime];
     }
-//    console.log("theta1",theta1);
-    if (ra < rb) theta1 = -theta1;
-    // h is a height tilted about x-axis; distance of the plane to origin.
-    var h = Math.tan(theta1) * cA1.x;
 
+    // h is a height tilted about x-axis; distance of the plane to origin. This should always be ra!!!
+    //    var h = Math.tan(theta1) * cA1.x;
 
-    //  var gamma = Math.asin(ra/zprime);
-    // Zprime cannot be computed if all are equal.
-//    console.log("h,zprime",h,zprime);
-
+    // DANGER !!! THIS is off by 10%!!!
+    var h = ra;
     // I am not sure this is really correct!!!
     var gamma = Math.asin(h/zprime);
-    if (isNaN(gamma)) debugger;
-
-    console.log("gamma",gamma * 180 / Math.PI);
-    return [-theta1,gamma,zprime];
+    // CHANGE THIS TO POINT OUT THAT rc is probably too small
+    if (isNaN(gamma)) {
+      console.log("WARNING! PROBABLY rc too small rc:",rc);
+      return [theta1,null,zprime];
+    }
+   if (zprime < 0) {
+     gamma = -Math.abs(gamma);
+   } else {
+     gamma = Math.abs(gamma);
+   }
+    // I'm not sure why I am negating gamma here...
+    return [theta1,gamma,zprime];
   }
 }
 
-// Return [ra,rb,rc0,rc1] This math assumes ra+rb=2.0
-function computeRadiiFromAngles(theta,gamma) {
-  // theta is negative in our typical case...
-  // I'm not sure what that means, but something is wrong with
-  // my math below...
-  // I'm going to fudge it...
-  const st = Math.sin(Math.abs(theta))
-  const ra = 1.0 + st;
-  const rb = 1.0 - st;
-  const Ux = ra / st;
-  const Hy = Ux * Math.tan(theta);
-  const Wz = Hy / Math.sin(gamma);
-  const M = Wz / Ux;
-  const Q = 1.0 + M*M;
-  const P = ra*ra - 2*ra*rb + rb*rb*Q;
-  const P_or_M = Math.sqrt(P/Q);
-  const rc_raw = rb - ra/Q;
-  const denom = (-1 + 1/Q);
-  const rc_m = (rc_raw - P_or_M)/denom;
-  const rc_p = (rc_raw + P_or_M)/denom;
-  return [ra,rb,rc_m];
+// Note that we will treat gamma as positive if it
+// represents a clockwise tilt of the plane when sighting
+// down the positive X axis to the origin. This is
+// in accordance with the THREE.js convention, and
+// theta is measured as clockwise tilt when sighting
+// along the Z axis.
+// Therefore, roughly speaking a large c means a positive
+// gamma, and a small c means a negative gamma.
+function testComputeThetaAndGamma() {
+  const ra = 1.2;
+  const rb0 = 1.1;
+  const rb1 = 1.3;
+  const rc0 = 0.6;
+  const rc1 = 1.6;
+  const [theta0,gamma0,zprime0] =
+        computeFromRadii(ra,rb0,rc0);
+  console.assert(zprime0 > 0);
+  console.assert(gamma0 > 0);
+
+  const [theta1,gamma1,zprime1] =
+        computeFromRadii(ra,rb0,rc1);
+  console.assert(zprime1 < 0);
+  console.assert(gamma1 < 0);
+
+  // I have a bug when theta is negative (when rb > ra).
+  const [theta2,gamma2,zprime2] =
+        computeFromRadii(ra,rb1,rc0);
+  console.assert(theta2 < 0);
+  console.assert(zprime2 > 0);
+  console.assert(gamma2 > 0);
+
+  const [theta3,gamma3,zprime3] =
+        computeFromRadii(ra,rb1,rc1);
+  console.assert(theta3 < 0);
+  console.assert(zprime3 < 0);
+  console.assert(gamma3 < 0);
+
+}
+
+function computeNormalFromExtrinsicEuler(theta,gamma) {
+  // Note: I believed I was confused about the coordinate
+  // system. We should use -theta here (where theta
+  // is the the angle in the XY plane measured from U_X.
+  var Pp = new THREE.Vector3(0,1,0);
+  const Z = new THREE.Vector3(0,0,1);
+  const X = new THREE.Vector3(1,0,0);
+  Pp.applyAxisAngle(Z,-theta);
+  Pp.applyAxisAngle(X,gamma);
+  return Pp;
+}
+
+function testComputeNormalFromExtrinsicEuler() {
+  const thetaP = 1.0*Math.PI/180;
+  const gamma = 15.0*Math.PI/180;
+  const thetaN = -1.0*Math.PI/180;
+  const Np = computeNormalFromExtrinsicEuler(thetaP,gamma);
+  const Nn = computeNormalFromExtrinsicEuler(thetaN,gamma);
+  console.assert(Math.abs(Np.x) == Math.abs(Nn.x));
+  console.assert(Np.x > 0);
+  console.assert(Nn.x < 0);
+}
+
+/*
+M = ((a + b + a nx - b nx)^2 - 4 a b nz^2)
+L = (a (a + b + a nx - b nx) - b (a + b) nz^2)
+G = -a^2 (a - b)^2 b nz^2
+H = (2 a (-1 + nx) - b ((-1 + nx)^2 + nz^2))
+F = Sqrt[G H]
+K = 4 a^2 b^2 nz^2 + 2 a^3 b (-3 + nx) nz^2
+J = b^3 (-1 + nx) nz^2
+
+{{x -> (2 (F + a L))/M,
+  z -> (K + 2 b F (-1 + nx) -
+    2 a (F (1 + nx) + b^3 (-1 + nx) nz^2))/((a -
+      b) M nz)},
+{x -> (-2 F + 2 a L)/M,
+  z -> (K - 2 b F (-1 + nx) +
+    2 a (F (1 + nx) - b^3 (-1 + nx) nz^2))/((a - b) M nz)}}
+*/
+
+// This function is not allowed to return a negative z value;
+// but sometimes it does!
+function GetXZC(a,b,N) {
+
+  const nx = N.x;
+  const nz = N.z;
+
+  const M = ((a + b + a * nx - b * nx)**2 - 4 * a * b * nz**2);
+  const L = (a * (a + b + a * nx - b * nx) - b * (a + b) * nz**2);
+  const G = -(a**2) * (a - b)**2 *  b * nz**2;
+  const H = (2 * a * (-1 + nx) - b * ((-1 + nx)**2 + nz**2));
+  const F = Math.sqrt(G * H);
+  const K = 4 * a**2 * b**2 * nz**2 + 2 * a**3 * b * (-3 + nx) * nz**2;
+  const J = b**3  * (-1 + nx) * nz**2;
+
+  const x0 = (2 * (F + a * L))/M;
+  const z0 = (K + 2 * b * F * (-1 + nx) -
+              2 * a * (F * (1 + nx) + b**3 * (-1 + nx) * nz**2))/
+        ((a - b) *  M * nz);
+  const x1 = (-2 * F + 2 * a * L)/M;
+  const z1 = (K - 2 * b * F * (-1 + nx) +
+              2 * a * (F * (1 + nx) - b**3  * (-1 + nx) * nz**2))/
+        ((a - b) * M * nz);
+
+  const x = (z0 > 0) ? x0 : x1;
+  const z = (z0 > 0) ? z0 : z1;
+
+  if (z0 > 0) console.log("first!");
+  else console.log("second");
+
+  const c = Math.sqrt(x**2 + z**2)-a;
+
+  return [x,z,c];
 }
 
 // TODO: remove the GUI calls from this move to soft_robot_math and test.
@@ -274,16 +366,13 @@ function computeRadiiFromAngles(theta,gamma) {
 // Z_z : The z-coordinate of the Z point on the apex line
 function computeInversion(a,theta,gamma) {
   if (isNaN(gamma)) debugger;
-//  var t = Math.abs(theta);
-//  var g = Math.abs(gamma);
   var t = theta;
   var g = gamma;
   const N = computeNormalFromExtrinsicEuler(theta,gamma);
-  console.log(N);
   var U_x;
   var b;
   var U;
-  var plane_const;
+  var plane_const = a;
   var Z_z;
   var Z;
   var H_y;
@@ -292,11 +381,9 @@ function computeInversion(a,theta,gamma) {
     U_x = a / Math.sin(t);
     b = (U_x - a) * Math.sin(t)/ (Math.sin(t) + 1);
     U = new THREE.Vector3(U_x,0,0);
-    plane_const = N.dot(U);
-    //
-    plane_const = a;
     H_y =  plane_const/N.y;
     Z_z = H_y / Math.sin(g);
+
     Z = new THREE.Vector3(0,0,Z_z);
   } else {
     if (gamma == 0) {
@@ -307,156 +394,32 @@ function computeInversion(a,theta,gamma) {
     Z_z = a / Math.sin(g);
     U = null;
     Z = new THREE.Vector3(0,0,Z_z);
-    plane_const = N.dot(Z);
-    H_y = a;
-    // By symmetry, x = a.
-    // We compute by using proportionality from gamma
-    // d^2 + x^2 == (c + a)^2, solve for c, then
-    // the positive solution is c = sqrt(d^2 + x^2) -a
-    var xx = a;
-    var d = a / Math.sin(gamma);
- //   const c = Math.sqrt(d**2 + xx**2)-a;
-    //    return [a,b,c];
-    const c = Math.sin(gamma)* ( Z_z -a) / (Math.sin(gamma) + 1);
+
+    H_y = Math.tan(g) * Z_z;
+
+    const z0 = (2 * a**2 * Z_z - Math.sqrt(a**4 * Z_z**2 + 3 * a**2 * Z_z**4))/(a**2 - Z_z**2);
+    const c = a * ( Z_z - z0)/Z_z;
     return [a,b,c,U_x,H_y,Z_z];
   }
 
   const Y = new THREE.Vector3(0,1,0).normalize();
-  // const N = normal.normalize();
-//  const N = normal.clone();
-  // These vectors are normalized
-//  const CC = new THREE.Vector3(C.x,0,C.z);
   const H = new THREE.Vector3(0,H_y,0);
-//  const U = new THREE.Vector3(U_x,0,0);
-//  const Atouch = N.clampLength(ra,ra);
-//  const d = Math.abs(N.dot(CC) - plane_const);
-//  console.log(N.length());
-//  console.log(N,C,plane_const);
-//  console.log("This should be equal to c:");
-//  console.log(d);
-//  console.log("This also should be equal to c:");
-//  console.log(C.x*N.x+ C.z*N.z - plane_const);
-//  console.log("plane_const (k)",plane_const);
-  const k = plane_const;
-  const J = a - b * N.x + b + k;
-  const L = a * b * (N.z**2) *(a -b)**2;
-  const I = L *((k - a*N.x)*J + a*b*N.z**2);
-  var M;
-  // WARNING! This appaears to be a needed because
-  // of a floating point error, not a flaw in the math.
-  // This fix is inelegant.
-  if (I < 0) {
-    M = 0;
-    console.log("WARNING! Internal error",I);
-  } else {
-    M = Math.sqrt(I);
-  }
 
-  const D =(a * N.x + a - b*N.x + b)**2 - 4*a*b*(N.z**2);
-  const E = (a**2 + a*(b+k) -b*k)*(a*N.x + a - b*N.x + b);
-  const F = -2*M - 2*a*b*(N.z**2)*(a+b);
-  const x = (E+F)/D;
-
-  const R = -2 * a**2 * b * k * N.z**2 + a**3 * b * (-1 + N.x) * N.z**2 - b * (-1 + N.x) * M;
-  const S = a *( 2 * b**2 * k * N.z**2 - b**3*(-1 + N.x)* N.z**2 + (1 + N.x)*M);
-//  console.log("Numerator:", 2*(R-S));
-  //  console.log("D:",N.z * (a-b) * D);
-
-  // This does not work when a == b!!!
-  // Also, when N.z is zero, this does not work;
-  // c must be computed in a different way
   if (N.z == 0) {
-    // how we we comute c so that the top plane
-    // touches all three spheres? It will be
-    // some value between a and b, close to (a+b)/2
-
     var u = U_x;
-    // This equation found by Mathematic....
+    // This equation found by Mathematica....
     var mc = -((a *(a + b) * (a - u))/(a**2 - a*b + a*u + b*u));
-//    return [a,b,mc];
     return [a,b,mc,U_x,H_y,Z_z];
   }
-  const z = 2*(R+S)/(N.z *(a-b) * D);
-  const c = Math.sqrt(x**2 + z**2)-a;
- // console.log("J,L,M");
-//  console.log(J,L,M);
-//  console.log("R,S");
-//  console.log(R,S);
 
-//  console.log("x,z,c",x,z,c);
+  const [x,z,c] = GetXZC(a,b,N);
+
   if (isNaN(c)) {
     debugger;
   }
   return [a,b,c,U_x,H_y,Z_z];
 
-/* Mathematica equation entry:
-x/z == r/s
-eqn1 = %
-x^2 + z^2 == (a + c) ^2
-eqn2 = %
-v == -u*w/q + u
-eqn3 = %
-r == -u*s/q + u
-eqn4 = %
-b/(Sqrt[(a + b - v)^2 + w^2]) == c / (Sqrt[(a + b - v)^2 + w^2] - (b + c))
-// Or ..
-b/(Sqrt[(a + b - v)^2 + w^2]) == c / (Sqrt[(x - v)^2 + (z-w)^2])
-eqn5 = %
-a/(Sqrt[r^2 + s^2]) == c / (Sqrt[r^2 + s^2] - (a + c))
-// or
-a/(Sqrt[r^2 + s^2]) == c / (Sqrt[(r -x)^2 + (s - z)^2])
-eqn6 = %
-z^2 + (a + b - x)^2 == (b + c)^2
- eqn7 = %
-// Up until now, we are asymmetric, becasue we have eqn1, but
-// not similar equation for the point W = (u,v). We must
-// insist that W = (u,v), C = (x,z), and B = (a+b,0) are colinear.
-// This does this via the distance formula
-Sqrt((u - (a+b))^2 + v^2)  = Sqrt((u-x)^2+(w-z)^2) + b + c
-// However, Heron's formula may be better:
-// W = (u,v), C = (x,z), and B = (a+b,0)
-// 0 = u * (z - 0) + x * ( 0 - v) + (a+b)*(v - z)
-0 == uz + -vx + (a+b)*(v-z)
-eqn8 = %
-// We could do this for the point A = (0,0), C = (x,z) and V = (r,s) as well:
-// 0 = 0 + x * (s - 0) + r * (0 - z)
-// xs = rz
-// So---this amounts to the same equation we alread have!
-*/
-
-/* Mathematica, attempt at another approach.
-
-Let q = Zz, Let u = Ux. Let iota = perpendicular plane angle
-Let k = Cu, the x intercept of the line through C parallel to
-the plane intersection. Let n = sin(alpha), a known.
-
-
-
-
-eqn2 = %
-// n == c / i (u - k)
-c == - i * n/(k -u)
-eqn3 = %
-
-// Could this work? k, x, z are unknowns.
- Sqrt[x^2 + z ^2] - a == -i *n/(k - u)
-0 == - u*z/q + -x +  k
-
-
-We could try adding in :https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-
-Based on c/d = sin iota, where d is the distance (a function of u,z) in this case.
-Let j = sin(iota)
-
-This seems to produce a correct-looking plot of z and x:
-Sqrt[x^2 + z ^2] -a == Sqrt[(a+b-x)^2 + z^2] - b
-And this can be solved for x in terms of z
-
-Then:
-
-c == Abs[-u/q*z + -1*x + u]/Sqrt[(-u/q)^2 + (-1)^2] * j
-
-Sqrt[x^2 + z ^2] -a ==  Abs[-u/q*z + -1*x + u]/Sqrt[(-u/q)^2 + (-1)^2] * j
+/*
 
 This seems to work:
 Solve[eqn2, {x}]
@@ -481,129 +444,61 @@ eqn1 = %
 c == Abs[nx * x + nz * z - k]
 eqn3 = %
 
-
-
+Note: Possibly I can simplify this by asserting that k == a.
 
 a + Abs[nx * x + nz * z - k] == Sqrt[x^2 + z ^2]
 eqn0 = %
 b + Abs[nx * x + nz * z - k] == Sqrt[(a+b-x)^2 + z^2]
 eqn1 = %
 
-Note: This returns a large polynomial as a result,
-which I have not tested, but should be testable.
-I feel that I am getting closer!!
-Tomorrow I can test with with values for a,b,nx, and nz!
-Solve[eqn0 && eqn1, {x, z}]
-
-Test:
-a = 1.2
-b = 0.9
-nx = 0.1428571428571428
-nz = 0.4593496414986631
-k = 1.2
-Clear[a]
-Clear[b]
-Clear[c]
-Clear[nx]
-Clear[nz]
-Clear[k]
-
-
-Amazingly, This worked in Mathematica! Let's see
-if we can clean it up...
-
-To clean this, we need to remove the Abs sign..
-Note:
-This is negative as we've defined it in our scheme:
-nx * x + nz * z - k
-
-a + -(nx * x + nz * z - k) == Sqrt[x^2 + z ^2]
+// Hypothesis: nx * x + nz * z - a is almost always negative.
+// This would always be true if let a == 1, though I am not sure
+// if that helps us overall.
+a + Abs[nx * x + nz * z - a] == Sqrt[x^2 + z ^2]
 eqn0 = %
-b + -(nx * x + nz * z - k) == Sqrt[(a+b-x)^2 + z^2]
+b + Abs[nx * x + nz * z - a] == Sqrt[(a+b-x)^2 + z^2]
 eqn1 = %
 
-Now Solve[eqn0,x] provides a relative comprehensible
-formula, but it requires a +- split
-
-FullSimplify[Solve[eqn0 && eqn1, {x, z}]]
-
-Gives something almost tractable:
-
-{{x -> ((a^2 - b k + a (b + k)) (a + b + a nx - b nx) -
-      2 a b (a + b) nz^2 -
-      2 Sqrt[-a (a - b)^2 b nz^2 ((-k + a nx) (a + b + k - b nx) -
-          a b nz^2)])/((a + b + a nx - b nx)^2 - 4 a b nz^2),
-  z -> (2 (-2 a^2 b k nz^2 + a^3 b (-1 + nx) nz^2 -
-        b (-1 + nx) Sqrt[
-         a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
-            a b nz^2)] +
-        a (2 b^2 k nz^2 -
-           b^3 (-1 + nx) nz^2 + (1 + nx) Sqrt[
-            a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
-               a b nz^2)])))/((a - b) nz ((a + b + a nx - b nx)^2 -
-        4 a b nz^2))},
-{x -> ((a^2 - b k + a (b + k)) (a + b + a nx -
-         b nx) - 2 a b (a + b) nz^2 +
-      2 Sqrt[-a (a - b)^2 b nz^2 ((-k + a nx) (a + b + k - b nx) -
-          a b nz^2)])/((a + b + a nx - b nx)^2 - 4 a b nz^2),
-  z -> (2 (-2 a^2 b k nz^2 + a^3 b (-1 + nx) nz^2 +
-        b (-1 + nx) Sqrt[
-         a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
-            a b nz^2)] -
-        a (-2 b^2 k nz^2 +
-           b^3 (-1 + nx) nz^2 + (1 + nx) Sqrt[
-            a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
-               a b nz^2)])))/((a - b) nz ((a + b + a nx - b nx)^2 -
-        4 a b nz^2))}}
-
-There are in fact two physical solutions, but
-by our coordinate system we prefer the one with positive z value.
-This the second solution:
-
-x == ((a^2 - b k + a (b + k)) (a + b + a nx - b nx) -
-     2 a b (a + b) nz^2 +
-     2 Sqrt[-a (a - b)^2 b nz^2 ((-k + a nx) (a + b + k - b nx) -
-         a b nz^2)])/((a + b + a nx - b nx)^2 - 4 a b nz^2),
- z == (2 (-2 a^2 b k nz^2 + a^3 b (-1 + nx) nz^2 +
-       b (-1 + nx) Sqrt[
-        a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
-           a b nz^2)] -
-       a (-2 b^2 k nz^2 +
-          b^3 (-1 + nx) nz^2 + (1 + nx) Sqrt[
-           a (a - b)^2 b nz^2 ((k - a nx) (a + b + k - b nx) +
-              a b nz^2)])))/((a - b) nz ((a + b + a nx - b nx)^2 -
-       4 a b nz^2))
-
-Now, let me try to find substitutions that simply
-
-
-Now, sadly, When gamma = 0 we have to do something different.
-Let s = Sin[theta]
-a + c == Sqrt[x^2 + z^2]
+If the inner expression nx*x + nz*z -a is positive, we get:
+nx * x + nz * z  == Sqrt[x^2 + z ^2]
 eqn0 = %
-b + c == Sqrt[(a+b-x)^2 + z^2]
+nx * x + nz * z == Sqrt[(a+b-x)^2 + z^2]
 eqn1 = %
-c ==(u-x) a / u
-eqn2 = %
+posrules = FullSimplify[Solve[eqn0 && eqn1, {x, z}]]
+{{x -> (a + b)/2,
+  z -> -(((a + b) (nx nz + Sqrt[-1 + nx^2 + nz^2]))/(
+    2 (-1 + nz^2)))}, {x -> (a + b)/2,
+  z -> ((a + b) (-nx nz + Sqrt[-1 + nx^2 + nz^2]))/(2 (-1 + nz^2))}}
 
-a + (u-x) a / u == Sqrt[x^2 + z]
+Which ALWAYS produces imaginary expressions.  So,
+we can assume nx * x + nz * z - a < 0, and so:
+a + -nx * x + -nz * z + a == Sqrt[x^2 + z ^2]
 eqn0 = %
-b + (u-x) a / u == Sqrt[(a+b-x)^2 + z^2]
+b + -nx * x + -nz * z + a == Sqrt[(a+b-x)^2 + z^2]
 eqn1 = %
 
-a/u == c / ( u -x) == b/(u - (a + b))
+This produces a simple expression set of two rules, but the
+sign of the z value depends on the nz value (which is what
+we want.) We must evaluate both and take the positive z value
+as our solution.
 
-My own algebra:
-(a + b -x)^2 - x^2 = (b + s(u-x))^2 - (a + s(u-x))^2
+M = ((a + b + a nx - b nx)^2 - 4 a b nz^2)
+L = (a (a + b + a nx - b nx) - b (a + b) nz^2)
+G = -a^2 (a - b)^2 b nz^2
+H = (2 a (-1 + nx) - b ((-1 + nx)^2 + nz^2))
+F = Sqrt[G H]
+K = 4 a^2 b^2 nz^2 + 2 a^3 b (-3 + nx) nz^2
+J = b^3 (-1 + nx) nz^2
 
-Yields:
-{{x -> (a^2 + a b + a s u - b s u)/(a + b + a s - b s)}}
+{{x -> (2 (F + a L))/M,
+  z -> (K + 2 b F (-1 + nx) -
+    2 a (F (1 + nx) + b^3 (-1 + nx) nz^2))/((a -
+      b) M nz)},
+{x -> (-2 F + 2 a L)/M,
+  z -> (K - 2 b F (-1 + nx) +
+    2 a (F (1 + nx) - b^3 (-1 + nx) nz^2))/((a - b) M nz)}}
 
-
- When \theta = 0:
-
-c = a - x/u
-
+This was all checked with Mathematica.
 */
 }
 
@@ -642,30 +537,6 @@ function testCompute3TouchingCircles() {
   }
 }
 
-// // "Axis Angle" is the half-aperture
-// function ComputeAxisAngleOfConeX(r1,r2) {
-//   if (r1 == r2) {
-//     return 0;
-//   }
-//   if ((r1 == 0) || (r2 == 0)) {
-//     console.log("error! We can't handle zero radii!");
-//     return null;
-//   }
-
-//   if (r2 < r1) {
-//     var temp = r1;
-//     r1 = r2;
-//     r2 = temp;
-//   }
-//   let z = -2 * (r1**2 / (r1 - r2));
-//   console.assert( z >= 0);
-
-//   let psi = Math.asin(r1/ (z + r1));
-//   console.log("r1,r2,z,psi",r1,r2,z,psi *180/Math.PI);
-//   console.assert(near((z+r1)**2,r1**2 + (Math.cos(psi)*(z+r1))**2));
-//   return psi;
-// }
-
 function ComputeAxisAngleOfCone(r1,r2) {
   if (r1 == r2) {
     return 0;
@@ -687,7 +558,6 @@ function ComputeAxisAngleOfCone(r1,r2) {
   console.assert(near((r2-r1)/(r2+r1),r1/ (z + r1)));
   let psi = Math.asin((r2-r1)/(r2+r1));
 
-//  console.log("r1,r2,z,psi",r1,r2,z,psi *180/Math.PI);
   console.assert(near((z+r1)**2,r1**2 + (Math.cos(psi)*(z+r1))**2));
   return psi;
 }
@@ -740,10 +610,8 @@ function GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3) {
   }
   return [cA1,cA2,cA3];
 }
-function testInverseProblem() {
-  const ra = 1.2;
-  const rb = 0.8;
-  const rc = 0.5;
+function computeFromRadii(ra,rb,rc) {
+
   const vs = Compute3TouchingCircles(ra,rb,rc);
 
   const A2d = vs[0];
@@ -757,20 +625,29 @@ function testInverseProblem() {
   const theta2 = ComputeAxisAngleOfCone(rb,rc);
   const theta3 = ComputeAxisAngleOfCone(rc,ra);
 
-  console.log("theta3",theta3 * 180 / Math.PI);
-
   let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
-  console.log("cA3",cA3);
   var gamma;
   var theta;
   var zprime;
+
   [theta,gamma,zprime] =
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
+  return [theta,gamma,zprime];
+}
 
-  theta = Math.abs(theta);
-  const [a,b,c] = computeRadiiFromAngles(theta,gamma);
-  console.log(" input",ra,rb,rc);
-  console.log("output",a,b,b,c);
+function testInverseProblem() {
+  const ra = 1.2;
+  const rb = 0.8;
+  const rc = 0.5;
+
+  var [theta,gamma,zprime] = computeFromRadii(ra,rb,rc);
+
+  // const [a,b,c] = computeRadiiFromAngles(ra,theta,gamma);
+  // console.log(" input",ra,rb,rc);
+  // console.log("output",a,b,b,c);
+  // console.assert(near(a,ra));
+  // console.assert(near(b,rb));
+  // console.assert(near(c,rc));
 }
 
 
@@ -787,28 +664,22 @@ function testInverseProblemRaIsRb() {
   const B = new THREE.Vector3(B2d.x,0,B2d.y);
   const C = new THREE.Vector3(C2d.x,0,C2d.y);
 
+
   const theta1 = ComputeAxisAngleOfCone(ra,rb);
   const theta2 = ComputeAxisAngleOfCone(rb,rc);
   const theta3 = ComputeAxisAngleOfCone(rc,ra);
 
-  console.log("theta3",theta3 * 180 / Math.PI);
-
   let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
-  console.log("cA3",cA3);
+
   var gamma;
   var theta;
   var zprime;
   [theta,gamma,zprime] =
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
-
-  theta = Math.abs(theta);
-  const [a,b,c] = computeRadiiFromAngles(theta,gamma);
-  console.log(" input",ra,rb,rc);
-  console.log("output",a,b,b,c);
 }
 
 
-function testInverstionWorksWithNegativeAndPostiveGamma() {
+function testInversionWorksWithNegativeAndPostiveGamma() {
   const ai = 1.2;
   const theta = 30*Math.PI/180;
   const gamma = 30*Math.PI/180;
@@ -819,9 +690,91 @@ function testInverstionWorksWithNegativeAndPostiveGamma() {
   // and nc > c.
   console.assert(nZ_z < 0);
   console.assert(nc > c);
-
 }
 
+function testInversionWorksWithNegativeTheta() {
+  const ai = 1.2;
+  const theta = -1*Math.PI/180;
+  const gamma = 13*Math.PI/180;
+  const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta,gamma);
+  console.assert(Z_z > 0);
+  console.assert(c < ai);
+}
+
+// This is a major test. We will first test a wide range
+// of theta,gamma pairings and make sure that the inversion produces
+// a,b,c values from which theta,gamma are calculable near our starting point.
+function testInversionExhaustively() {
+  const OneDeg_radians = 1*Math.PI/180;
+  const ai = 1.2;
+  const LIMIT = 10;
+  const STEP = 2;
+  for(var theta_deg = -LIMIT; theta_deg < LIMIT; theta_deg += 2) {
+    var theta = theta_deg * OneDeg_radians;
+    for(var gamma_deg = -LIMIT; gamma_deg < LIMIT; gamma_deg += 2) {
+      var gamma = gamma_deg * OneDeg_radians;
+      const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta,gamma);
+      var [calc_theta,calc_gamma,calc_zprime] = computeFromRadii(a,b,c);
+      // c == null means we don't have three points of contact--probably, we need to check this.
+      if (c != null) {
+        if (!near(calc_theta,theta) || !near(calc_gamma,gamma,1e-2)) {
+          console.log("failure of test!");
+          console.log("a,b,c,U_x,H_y,Z_z:",a,b,c,U_x,H_y,Z_z);
+          console.log("theta, gamma           :",theta_deg,gamma_deg);
+          console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
+//          debugger;
+        }
+      }
+    }
+  }
+}
+
+function testInversionThetaZeroGamma15() {
+  const OneDeg_radians = 1*Math.PI/180;
+  const ai = 1.2;
+  const LIMIT = 10;
+  var theta_deg = 0;
+  var theta = theta_deg * OneDeg_radians;
+  var gamma_deg = 15;
+  var gamma = gamma_deg * OneDeg_radians;
+
+  {
+  const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta+0.001,gamma);
+  var [calc_theta,calc_gamma,calc_zprime] = computeFromRadii(a,b,c);
+  // c == null means we don't have three points of contact--probably, we need to check this.
+  if (c != null) {
+    if (!near(calc_theta,theta) || !near(calc_gamma,gamma,1e-2)) {
+      console.log("failure of test!");
+      console.log("a,b,c,U_x,H_y,Z_z:",a,b,c,U_x,H_y,Z_z);
+      console.log("theta, gamma           :",theta_deg,gamma_deg);
+      console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
+    }
+  }
+  }
+  {
+  const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta,gamma);
+  var [calc_theta,calc_gamma,calc_zprime] = computeFromRadii(a,b,c);
+  // c == null means we don't have three points of contact--probably, we need to check this.
+  if (c != null) {
+    if (!near(calc_theta,theta) || !near(calc_gamma,gamma,1e-2)) {
+      console.log("failure of test!");
+      console.log("a,b,c,U_x,H_y,Z_z:",a,b,c,U_x,H_y,Z_z);
+      console.log("theta, gamma           :",theta_deg,gamma_deg);
+      console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
+    }
+  }
+  }
+}
+
+
+function testGetXZC() {
+  const a = 1.2;
+  const b = 1.0;
+  const k = 1.2;
+  const N = new THREE.Vector3(0.5,0.75,-0.433);
+  const [x,z,c] = GetXZC(a,b,N,k);
+  console.assert(z > 0);
+}
 function runUnitTests() {
 
   testCompute3TouchingCirclesSimple();
@@ -832,7 +785,19 @@ function runUnitTests() {
   testInverseProblem();
   testInverseProblemRaIsRb();
 
-  testInverstionWorksWithNegativeAndPostiveGamma();
+  testComputeThetaAndGamma();
+
+  testComputeNormalFromExtrinsicEuler();
+
+  testGetXZC();
+
+  testInversionWorksWithNegativeAndPostiveGamma();
+
+  testInversionWorksWithNegativeTheta();
+
+  testInversionThetaZeroGamma15();
+
+  testInversionExhaustively();
 
  // testClosestPoint();
   // testComputeRotation();

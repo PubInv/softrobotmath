@@ -671,15 +671,6 @@ function render_tentacle() {
 }
 const RENDER_TENTACLE = false;
 
-function computeNormalFromExtrinsicEuler(theta,gamma) {
-  var Pp = new THREE.Vector3(0,1,0);
-  const Z = new THREE.Vector3(0,0,1);
-  const X = new THREE.Vector3(1,0,0);
-  Pp.applyAxisAngle(Z,theta);
-  Pp.applyAxisAngle(X,gamma);
-  return Pp;
-}
-
 // This routine will be constantly evolving
 // This is my attempt to use the interface to check my inversion math as I develop it.
 // I have had a lot of trouble with this; I have to go carefully and check every step.
@@ -691,6 +682,7 @@ function computeInversion_fromUI() {
   $( "#r_b_inv" ).val( format_num(b,3) );
   $( "#Z_z" ).val( format_num(Z_z,3) );
   $( "#c_inv" ).val( format_num(c,3) );
+
   return [a,b,c,U_x,H_y,Z_z];
 }
 
@@ -721,10 +713,6 @@ function onComputeParams() {
   const ra = $( "#radius_a_slider" ).slider( "value" );
   const rb = $( "#radius_b_slider" ).slider( "value" );
   const rc = $( "#radius_c_slider" ).slider( "value" );
-
-//  console.log("ra,rb,rc",ra,rb,rc);
-
-
 
   let colors = [d3.color("DarkRed"),
                 d3.color("DarkOrange"),
@@ -767,7 +755,6 @@ function onComputeParams() {
   }
 
   let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
-
   var ma = createSphere(ra,A,colors[0].hex());
   var mb = createSphere(rb,B,colors[1].hex());
   var mc = createSphere(rc,C,colors[2].hex());
@@ -821,12 +808,13 @@ function onComputeParams() {
   var gamma;
   var theta;
   var zprime;
+
   [theta,gamma,zprime] =
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
   if (isNaN(gamma)) debugger;
 
-//  console.log("theta",theta * 180 / Math.PI);
-
+  // The THREE system uses a different coordinate system that what we are using, so we negate these here...
+  theta = -theta;
 
   const Z = new THREE.Vector3(0,0,1);
   const Y = new THREE.Vector3(0,1,0);
@@ -838,13 +826,11 @@ function onComputeParams() {
 
   Pp.applyAxisAngle(Z,theta);
   Pp1.applyAxisAngle(Z,theta);
-//  console.log("pp, pp1",Pp,Pp1);
 
   Pp2.applyAxisAngle(Z,Math.PI/2);
 
   Pp.applyAxisAngle(X,gamma);
 
-//  console.log(" After Rotation pp, pp1",Pp,Pp1);
   Pp2.applyAxisAngle(X,gamma);
 
   // var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
@@ -862,8 +848,6 @@ function onComputeParams() {
   var N = Pp.clone();
   N.clampLength(1,1);
   // is this the normal? YES
-//  console.log("N",N);
-
 
   // Now I want the equation of the plane...
   var H_y;
@@ -885,28 +869,12 @@ function onComputeParams() {
   check_s.debugObject = true;
   am.scene.add(check_s);
 
-//  console.log("cA1.length",cA1.length());
-//  console.log("H_y",H_y);
-  const H = new THREE.Vector3(0,H_y,0);
-//  console.log("distance should be zero");
-//  console.log(N.dot(H)-plane_const);
-
-//  console.log("distance should be r_a");
+//  const H = new THREE.Vector3(0,H_y,0);
 
   const Origin = new THREE.Vector3(0,0,0);
-  // console.log(N.dot(Origin)-plane_const);
 
-
-  // console.log("distance should be r_b");
-  // console.log(N.dot(B)-plane_const);
-
-  // console.log("distance should be r_c");
-  // console.log(N.dot(C)-plane_const);
-
-  // console.log(N,C,plane_const);
-
-  var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
-  var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.1, side: THREE.DoubleSide} );
+  var geometry = new THREE.PlaneGeometry( 20, 20, 32 );
+  var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.2, side: THREE.DoubleSide} );
   var plane = new THREE.Mesh( geometry, pmaterial );
   plane.debugObject = true;
   let qz = new THREE.Quaternion();
@@ -929,7 +897,6 @@ function onComputeParams() {
   narrowHelper.debugObject = true;
   am.scene.add( narrowHelper );
 
-
   var zc = createSphere(0.1,new THREE.Vector3(0,0,zprime),0xffffff);
 
   zc.castShadow = false;
@@ -937,11 +904,21 @@ function onComputeParams() {
   zc.debugObject = true;
   am.scene.add(zc);
 
-  // HACKING: Now attempting to check my math by recomputing ra,rb,rc from gamma and theta
-  // Now we want to set theta and gamma in the sliders so the user can see it.
-  // Note: this causes a problem when we called this by setting these values anyway!
-//  setThetaGammaValues(theta,gamma);
-  return [theta,gamma];
+  // Now in the UI, set debugging values...
+  if (ra != rb) {
+    $( "#U_x" ).val( format_num(cA1.x,3) );
+  }
+  $( "#H_y" ).val( format_num(H_y,3) );
+  $( "#r_b_inv" ).val( format_num(rb,3) );
+  $( "#Z_z" ).val( format_num(zprime,3) );
+  $( "#c_inv" ).val( format_num(rc,3) );
+
+  // We're returning this in our computational system,
+  // but we've set it up differently in THREE.
+  // THREE is right handed, but we use a left-handed system in our paper.
+  // We use the left-handed system in our description of Z on
+  // the website for debugging purposes.
+  return [-theta,gamma];
 }
 
 function main() {
@@ -957,52 +934,9 @@ function main() {
 // at n = -1, n = 0, or centered on the z axis.
 var gmat = new THREE.LineBasicMaterial({color: "green"});
 
-// function RenderHelix(l,r,d,theta,v,phi,wh,MAX_POINTS) {
-//   // One way to effect this is to compute a z-axis aligned helix,
-//   // Then rotate it parallel to v, then translate it on the
-//   // z axis so that the certain points on the on the z-axis.
-//   // In fact the rotation is purely about the y-axis.
-
-//   var init_y  = r * Math.cos(0.5*theta);
-//   var trans = new THREE.Matrix4().makeTranslation(0,wh - init_y,0);
-//   var points3D = new THREE.Geometry();
-//   // We'll tack on some extra segments to make it look better.
-//   let POINTS =  (2 + Math.floor(MAX_POINTS / 2)) * 2;
-// //  console.log("d,theta,phi",d,theta,phi);
-//   const travel = d;
-//   const sidedness = (2 * Math.PI / theta);
-//   const pitch = sidedness * travel;
-// //  console.log("TIGHTNESS: ",pitch/r);
-//   for (var i=0; i < POINTS; i++) {
-//     var n = i - (POINTS/2) + 0.5;
-//     var y = r * Math.cos(n*theta);
-//     // Not entirely sure why this is negated...
-//     var x = r * Math.sin(n*theta);
-//     x = -x;
-//     var z = n * d;
-//     // We will apply the global translation here...
-//     var p = new THREE.Vector3(x,y,z);
-//     p.applyMatrix4(trans);
-//     points3D.vertices.push(p);
-//   }
-//   var line2 = new THREE.Line(points3D, gmat);
-//   line2.rotation.y = phi;
-//   line2.name = "HELIX";
-//   am.scene.add(line2);
-// }
-
-// Here I will attempt to do several things:
-// First, to compute the 4 points corresponding to rho and omega.
-// Secondly, I will compute the intrinsic parameters as I have done
-// in Mathematica.
-// However, the point here is to render something.
-// I suppose at first I can render lines.
-
 function format_num(num,digits) {
   return parseFloat(Math.round(num * 10**digits) / 10**digits).toFixed(digits);
 }
-
-
 
 // I'm treating a label spreat as an object having postion p,
 // color c, and text t.
@@ -1254,10 +1188,7 @@ var GAMMA_D = 0;
     $( "#radius_c_slider" ).slider( "value", RADIUS_C );
     $( "#r_c" ).val( format_num(RADIUS_C,3) );
     $( "#radius_c" ).val( format_num(RADIUS_C,3) );
-//    onComputeParams();
     const [theta,gamma] = onComputeParams();
-//    setThetaGammaValues(theta,gamma);
-
   }
 
 {
@@ -1274,8 +1205,6 @@ var GAMMA_D = 0;
 	$( "#r_a" ).val( ui.value );
 	$( "#radius_a" ).val( ui.value );
 	RADIUS_A = ui.value;
-        console.log(RADIUS_A);
-//        onComputeParams();
         const [theta,gamma] = onComputeParams();
         setThetaGammaValues(theta,gamma);
       }
@@ -1294,8 +1223,6 @@ var GAMMA_D = 0;
 	$( "#r_b" ).val( ui.value );
 	$( "#radius_b" ).val( ui.value );
 	RADIUS_B = ui.value;
-        console.log(RADIUS_B);
-//        onComputeParams();
         const [theta,gamma] = onComputeParams();
         setThetaGammaValues(theta,gamma);
       }
@@ -1314,8 +1241,6 @@ var GAMMA_D = 0;
 	$( "#r_c" ).val( ui.value );
 	$( "#radius_c" ).val( ui.value );
 	RADIUS_C = ui.value;
-        console.log(RADIUS_C);
-//        onComputeParams();
         const [theta,gamma] = onComputeParams();
         setThetaGammaValues(theta,gamma);
       }
@@ -1332,9 +1257,9 @@ var GAMMA_D = 0;
       step: 1,
       slide: function( event, ui ) {
 	$( "#d_theta" ).val( ui.value );
+	$( "#theta" ).val( ui.value );
 	$( "#theta_slider" ).val( ui.value );
 	THETA_D = ui.value;
-        console.log(THETA_D);
         const [a,b,c] = computeInversion_fromUI();
         if (c < 0) {
           debugger;
@@ -1354,9 +1279,9 @@ var GAMMA_D = 0;
       step: 1,
       slide: function( event, ui ) {
 	$( "#d_gamma" ).val( ui.value );
+	$( "#gamma" ).val( ui.value );
 	$( "#gamma_slider" ).val( ui.value );
 	GAMMA_D = ui.value;
-        console.log(GAMMA_D);
         const [a,b,c] = computeInversion_fromUI();
         setRadiusValues(a,b,c);
       }
@@ -1375,13 +1300,15 @@ function setup_input_molecule(slider,ro,txt,x,set,f)
     if (event.which == 13) {
       // Does this change the value or the parameter?
       x = event.currentTarget.value;
-      set(x);
-//      console.log("x=",x);
-      $( slider ).slider( "value",x );
-      $( ro ).val( x );
-      $( txt ).val( x );
-
-      f();
+      // It is possible to enter a non-number
+      if (!isNaN(x)) {
+        set(x);
+        console.log("x=",x);
+        $( slider ).slider( "value",x );
+        $( ro ).val( x );
+        $( txt ).val( x );
+        f();
+      }
     }
   });
 }
@@ -1421,6 +1348,9 @@ $( document ).ready(function() {
   setup_input_molecule("#gamma_slider","#gamma",
                        "#d_gamma",GAMMA_D,(v => GAMMA_D = v),( () => {
                          const [a,b,c ] = computeInversion_fromUI();
+                         if (c < 0) {
+                           debugger;
+                         }
                          setRadiusValues(a,b,c);
                          onComputeParams();
                        }));

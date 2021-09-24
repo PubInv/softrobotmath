@@ -193,7 +193,7 @@ calculates from the radii and the computed extrinsic Euler angles $\theta$ and $
 \subsection{Variable definitions}
 
 We assume that the spheres centered at points $A,B,$ and $C$
-of radii $a,b,$ and $c$. We setup our coordinate system as a right-
+of radii $a,b,$ and $c$. We setup our coordinate system as a left-
 handed coordinate system with $XZ$ plane contaning the center of all spheres.
 The $A$ sphere is placed at the origin, so that $O = A$, and the $B$ sphere
 is place on the positive $X$ axis. Without loss of generality assume $a \geq b \geq c$.
@@ -352,24 +352,36 @@ computing the distance from the point $C$ to the plane has a simple
 formula. We'll use the point $H = [0, H_y, 0]$ as our main point.
 The equation of our plane (the condition for when a point $\overrightarrow{P}$ is in the plane) is
 $ \overrightarrow{N} \cdot \overrightarrow{P} = k$.
+In our situation, because the sphere $A$ is at the origin, $k = a$.
 \begin{align}
-k &= \frac{N \cdot U}{N_y} \\
-c &= \frac{\abs{N \cdot P - k}}{\abs{N}} \\
-c &= \frac{\abs{C_x  N_x  + C_z  N_z - k}}{1} \label{eq:c_constraint}
+a &= \frac{N \cdot U}{N_y} \\
+c &= \frac{\abs{N \cdot P - a}}{\abs{N}} \\
+c &= \frac{\abs{C_x  N_x  + C_z  N_z - a}}{1} \label{eq:c_constraint}
 \end{align}
 
 By substituting \ref{eq:c_constraint} into equations
 \ref{eq:a_constraint} and \ref{eq:b_constraint},
 we obtain:
 \begin{align}
-a +  -(C_x N_x + C_z N_z - k) &= \sqrt{C_x^2 + C_z ^2} \\
-b +  -(C_x N_x + C_z N_z - k) &= \sqrt{(a+b-C_x)^2 + C_z^2}
+  a + \abs{C_x N_x + C_z N_z - a} &= \sqrt{x^2 + z ^2} \\
+  b + \abs{C_x N_x + C_z N_z - a} &= \sqrt{(a+b-x)^2 + z^2}
 \end{align}
+
+If the interior expression $C_x N_x + C_z N_z - a$ is positive,
+then upon solving the system we find only imaginary solutions.
+
+So assuming it is negative, we obtain:
+\begin{align}
+  2a + -C_x N_x + -C_z N_z  &= \sqrt{x^2 + z ^2} \\
+  2b + -C_x N_x + -C_z N_z  &= \sqrt{(a+b-x)^2 + z^2}
+\end{align}
+
+
 
 This is a system of two nonlinear equations with unkowns $C_x$ and $C_z$.
 Solving this system is beyond the capacities of the authors,
 but not Mathematica, although the answer that Mathematica produces
-in its raw form has dozens of terms.
+in its raw form is half a page long.
 Furthermore, there are actually two solutions, corresponding
 to the two sides of the $AB$ line which the circle $C$ could be
 on and satsify these constratints.
@@ -381,28 +393,33 @@ portions of this long expression, the expressions be
 made tractable and easily programmed.
 
 \begin{align}
-  J &= (a-b N_x+b+k) \\
-  L &= a b N_z^2 (a-b)^2  \\
-  M &= \sqrt{L  \left((k - a  N_x) J +a b
-    N_z^2\right)}\\
-  D &= (a N_x+a-b N_x+b)^2-4 a b N_z^2 \\
-  C_x &= \frac{\left(a^2+a (b+k)-b
-    k\right)
-    (a N_x+a-b N_x+b) - 2 M -2 a b N_z^2 (a+b)}{D} \\
-  R &=   -2 a^2 b k N_z^2 + a^3b(-1 + N_x) N_z^2 - b(-1 + N_x)M  \\
-    S &= a (2 b^2 k N_z^2 - b^3(-1 + N_x)N_z^2 + (1 +N_x) M )
-     \\
-     C_z &= \frac{2 (R + S)}{N_z (a-b) D}
+M &= (a + b + a N_x - b N_x)^2 - 4 a b N_z^2 \\
+L &= a (a + b + a N_x - b N_x) - b (a + b) N_z^2 \\
+G &= -a^2 (a - b)^2 b N_z^2 \\
+H &= 2 a (-1 + N_x) - b ((-1 + N_x)^2 + N_z^2) \\
+F &= \sqrt{G H} \\
+K &= 4 a^2 b^2 N_z^2 + 2 a^3 b (-3 + N_x) N_z^2 \\
+J &= b^3 (-1 + N_x) N_z^2 \\
+x_0 &= \frac{2 (F + a L)}{M} \\
+z_0 &= \frac{K + 2 b F (-1 + N_x) -
+  2 a (F (1 + N_x) + b^3 (-1 + N_x) N_z^2)}
+{(a -  b) M N_z} \\
+x_1 &= \frac{-2 F + 2 a L}{M} \\
+  z_1 &= \frac{K - 2 b F (-1 + N_x) +
+    2 a (F (1 + N_x) - b^3 (-1 + N_x) N_z^2)}
+  {(a - b) M N_z}
 \end{align}
 
-The variable $c$ can be compute from $a$,$C_x$ and $C_z$
+One solution ($(x_0,z_0)$ or $(x_1,z_1)$) will be on the
+positive side of the $X$ axis, but which one is highly dependendent
+on the input variables, so both are computed and the positive $z$
+value selected.
+
+The variable $c$ can be compute from $a$, $C_x$ and $C_z$
 form Eq. \ref{eq:a_constraint}.
 
-This math has been checked in Javascript and it appears to
-be correct in computing $c$,
-though it is sometimes off in the third or even second digit,
-which I assume is a numerical problem
-rather than a problem in the formal math.
+This math can be found in the JavaScript which is licensed
+under the GPL\cite{gplv3} at our website\cite{softrobotcalc}.
 
 \subsection{Special case when $\gamma = 0$}
 
@@ -431,18 +448,28 @@ When $\theta = 0$, the point $U$ is at infinity or
 cannot be found. In thise case $b = a$.
 In this case the sphere $C$ is symmetrically
 positioned in contact with $A$ and $B$ because
-they have the same radius. Therefore $x = a$.
-The point $H$ is actually in contact with the sphere $A$,
-and $H_y = a$, so from Eq. \ref{eq:zprime}:
+they have the same radius; therefore $x = a$ and:
 \begin{align}
-  Z' &= \frac{a}{\sin{\gamma}}
-  \end{align}
+(a + c)^2 &= a^2 + z^2
+\end{align}
+
+In this case,
+\begin{align}
+Z' &= \frac{a}{\sin{\gamma}}
+\end{align}
+
 Projecting out the $X$ dimension and forming
 similar triangles in the $YZ$ plane, we find that
 \begin{align}
-  \sin{\gamma} &= \frac{c}{Z_z - (a + c)} \\
-  c &= \frac{ (Z_z -a) \sin{\gamma}}{\sin{\gamma} + 1}
-  \end{align}
+  \frac{a}{Z'} &= \frac{c}{Z'-z} \\
+  c &= \frac{a( Z' -z )}{Z'} \label{eqn:cthetazero}
+\end{align}
+
+Asking Mathematica to solve these two non-linear equations, we obtain:
+\begin{align}
+ z &=  \frac{2 a^2 Z' \pm \sqrt{a^4 (Z')^2 + 3 a^2 (Z')^4}}{a^2 - (Z')^2},
+\end{align}
+which allows us to obtain obtain $c$ from \ref{eqn:cthetazero}.
 
 When both $\theta = 0$ and $\gamma = 0$, then $c = b = a$.
 
@@ -461,10 +488,14 @@ Furthermore, an implementation based on soft inflatable spheres
 will not be really acheive perfect spheres at any pressure.
 Nonetheless, because these equations are trivial to implement
 in a micro-controller, they make a good basis for a control
-algorithm. A Stewart platform implemented in this would
+algorithm because it allows the Jacobian to be expressed as a
+closed from solution. A Stewart platform implemented in this would
 be expected to be have ``softly'' in response to pressure,
 and yet have a predictable shape in the absence of external
 forces.
+
+A series of such Stewart platforms stacked together would make
+a soft tentacle.
 
 Note: These closed-form expressions make it possible to compute the Jacobian of the system (the change in in the position
 of the plane relative to a change in the radius of any or all spheres.)
