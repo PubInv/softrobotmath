@@ -260,6 +260,9 @@ of the apex line with the $Z$-axis. Let $h$ be the height of the intersection of
 Then $\gamma$ is the angle we need to rotate the plane by so that it intersects with the $Z$-axis at a point, referred to as $I_z$. By basic geometry of simialr triangles, this is computed from the right triangle of the origin with $h$ and $I_z$.
 Having computed $\theta_{ab}$ and $\gamma$, these two degrees of rotation give us the plane tangent to all three spheres, and its corresponding tilt for our desired soft Stewart Platform.
 
+
+Note: Do we really need to define vectors here instead of points?
+
 Vectors $\overrightarrow{U}, \overrightarrow{V}, $ and $  \overrightarrow{W}$ represent the vectors from the center of the spheres $A$, $B$, and $C$ to
 the apices of the cones tangent to $A$ and $B$, $B$ and $C$, and $C$ and $A$ respectively.
 
@@ -290,12 +293,9 @@ tangent plane as a function of the three radii $a,b,c$.
 
 \section{The Inverse Problem}
 
-Note: The math presented here fails when $c >= b$. We need
-to find an elegant way to deal with this.
-
 To build a useful robotic platform in by controlling the radii of the
 spheres by inflating and deflating them, we wish to solve the inverse
-problem. That is, given $\theta_{ab}$ and $\gamma$ as desired Euler
+problem. That is, given input $\theta_{ab}$ and $\gamma$ as desired Euler
 angles, we want to compute $a,b,c$ which acheive these angles.
 
 Since these are smooth functions, the problem could be solved
@@ -363,8 +363,8 @@ By substituting \ref{eq:c_constraint} into equations
 \ref{eq:a_constraint} and \ref{eq:b_constraint},
 we obtain:
 \begin{align}
-  a + \abs{C_x N_x + C_z N_z - a} &= \sqrt{x^2 + z ^2} \\
-  b + \abs{C_x N_x + C_z N_z - a} &= \sqrt{(a+b-x)^2 + z^2}
+  a + \abs{C_x N_x + C_z N_z - a} &= \sqrt{C_x^2 + C_z^2} \\
+  b + \abs{C_x N_x + C_z N_z - a} &= \sqrt{(a+b-C_x)^2 + C_z^2}
 \end{align}
 
 If the interior expression $C_x N_x + C_z N_z - a$ is positive,
@@ -372,8 +372,8 @@ then upon solving the system we find only imaginary solutions.
 
 So assuming it is negative, we obtain:
 \begin{align}
-  2a + -C_x N_x + -C_z N_z  &= \sqrt{x^2 + z ^2} \\
-  2b + -C_x N_x + -C_z N_z  &= \sqrt{(a+b-x)^2 + z^2}
+  2a + -C_x N_x + -C_z N_z  &= \sqrt{C_x^2 + C_z ^2} \\
+  2b + -C_x N_x + -C_z N_z  &= \sqrt{(a+b-C_x)^2 + C_z^2}
 \end{align}
 
 
@@ -400,17 +400,17 @@ H &= 2 a (-1 + N_x) - b ((-1 + N_x)^2 + N_z^2) \\
 F &= \sqrt{G H} \\
 K &= 4 a^2 b^2 N_z^2 + 2 a^3 b (-3 + N_x) N_z^2 \\
 J &= b^3 (-1 + N_x) N_z^2 \\
-x_0 &= \frac{2 (F + a L)}{M} \\
-z_0 &= \frac{K + 2 b F (-1 + N_x) -
+C_{x0} &= \frac{2 (F + a L)}{M} \\
+C_{z0} &= \frac{K + 2 b F (-1 + N_x) -
   2 a (F (1 + N_x) + b^3 (-1 + N_x) N_z^2)}
 {(a -  b) M N_z} \\
-x_1 &= \frac{-2 F + 2 a L}{M} \\
-  z_1 &= \frac{K - 2 b F (-1 + N_x) +
+C_{x1} &= \frac{-2 F + 2 a L}{M} \\
+  C_{z1} &= \frac{K - 2 b F (-1 + N_x) +
     2 a (F (1 + N_x) - b^3 (-1 + N_x) N_z^2)}
   {(a - b) M N_z}
 \end{align}
 
-One solution ($(x_0,z_0)$ or $(x_1,z_1)$) will be on the
+One solution ($(C_{x0},C_{z0})$ or $(C_{x1},C_{z1})$) will be on the
 positive side of the $X$ axis, but which one is highly dependendent
 on the input variables, so both are computed and the positive $z$
 value selected.
@@ -430,12 +430,9 @@ triangles to assert:
 \begin{align}
   a &= c + \frac{a C_x}{U_x}
 \end{align}
-Combined with our previous equations in the plane
-relating $C_x$ and $C_z$ to $c$:
-\begin{align}
-  a + c &= \sqrt{C_x^2 + C_z^2} \\
-  b + c &= \sqrt{(a+b-C_x)^2 + C_z^2}
-\end{align}
+Combined with our previous equations
+Eqn. \ref{eq:a_constraint} and Eqn. \ref{eq:b_constraint} in the plane
+relating $C_x$ and $C_z$ to $c$,
 we obtain the following equation:
 \begin{align}
 c & = \frac{a (a + b) (a - U_x)}{a^2 - a b + a U_x + b U_x}
@@ -465,9 +462,10 @@ similar triangles in the $YZ$ plane, we find that
   c &= \frac{a( Z' -z )}{Z'} \label{eqn:cthetazero}
 \end{align}
 
-Asking Mathematica to solve these two non-linear equations, we obtain:
+Asking Mathematica to solve these two non-linear equations, we obtain,
+after again discarding the solution producing negative $z$ values:
 \begin{align}
- z &=  \frac{2 a^2 Z' \pm \sqrt{a^4 (Z')^2 + 3 a^2 (Z')^4}}{a^2 - (Z')^2},
+ z &=  \frac{2 a^2 Z' - \sqrt{a^4 (Z')^2 + 3 a^2 (Z')^4}}{a^2 - (Z')^2},
 \end{align}
 which allows us to obtain obtain $c$ from \ref{eqn:cthetazero}.
 
