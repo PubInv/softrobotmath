@@ -79,6 +79,25 @@ Megan Cadena
 
 \section{Introduction}
 
+A parallel manipulator varies the angle between two planes.
+The best known parallel manipulator is
+a Stewart Platform\cite{wiki:stewart} (\url{https://en.wikipedia.org/w/index.php?title=Stewart_platform&oldid=898429010}).
+Having a soft parallel manipulator analogous to a Stewart Platform would allow soft, gentle positioning\cite{glassner2020soft},
+and might be particularly valuable {\it in vivo} or in some space applications.
+Varying angular displacemnt is a coposable buliding block of more complicated systems, such as tentacles.
+
+One way to build such a manipulator is to have three inflatable spheres sandwiched between two planes
+and constrained to always be in contact with each other. As these spheres are inflated or deflated changing
+their size, the top plane changes its orientation relative to the bottom plane.
+This paper develops both the foward and inverse mathematics of this problem.
+The forward problem is given three radii, to determine the orientation of the top plane.
+The inverse problem is much harder: given a desired orientation and the radius of one
+sphere, find the radius of the other two spheres that acheives it.
+
+This paper gives closed-form expressions of both the forward and inverse problem.
+Additionally, we have create an online, browser based realtime simulation that reifies
+the math in this paper in JavaScript, both verifying it and making it easy to reuse.
+
 \section{Prelude: Three Touching Circles}
 
 Our goal is to be able to determine the orientation of plane resting
