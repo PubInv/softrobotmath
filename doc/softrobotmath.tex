@@ -15,6 +15,8 @@
  %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 \documentclass{article}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{softrobotmath.bib}
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -26,17 +28,12 @@
 \usepackage{breqn}
 \breqnsetup{breakdepth={1}}
 
-\usepackage[backend=biber]{biblatex}
-\addbibresource{softrobotmath.bib}
-
-
-
 
 \SetWatermarkText{DRAFT}
 \SetWatermarkScale{6}
 \SetWatermarkLightness{0.95}
 
-\title{Three Inflatable Spheres as a Theoretical Basis for a Soft Stewart Platform}
+\title{Three Inflatable Spheres as a Theoretical Basis for a Parallel Manipulator}
 
 \author{Robert L. Read
   \thanks{read.robert@gmail.com}
@@ -48,6 +45,7 @@ Megan Cadena
 
 
 \begin{document}
+A Stewart Platform\cite{wiki:stewart} is a fundamental mechanism for varying the angle
 
 \maketitle
 \begin{abstract}
@@ -81,95 +79,48 @@ Megan Cadena
 
 A parallel manipulator varies the angle between two planes.
 The best known parallel manipulator is
-a Stewart Platform\cite{wiki:stewart} (\url{https://en.wikipedia.org/w/index.php?title=Stewart_platform&oldid=898429010}).
-Having a soft parallel manipulator analogous to a Stewart Platform would allow soft, gentle positioning\cite{glassner2020soft},
-and might be particularly valuable {\it in vivo} or in some space applications.
-Varying angular displacemnt is a coposable buliding block of more complicated systems, such as tentacles.
+a Stewart Platform\cite{wiki:stewart} which as 6 degrees or freedom.
+Having a soft parallel manipulator analogous to a Stewart Platform would allow soft,
+gentle positioning,
+and might be particularly valuable {\it in vivo}\cite{softwhite2018soft} or in some space applications\cite{glassner2020}.
+Varying angular displacemnt is a composable buliding block of more complicated systems, such as tentacles.
 
-One way to build such a manipulator is to have three inflatable spheres sandwiched between two planes
-and constrained to always be in contact with each other. As these spheres are inflated or deflated changing
+One way theoretical way to build such a manipulator is to have three inflatable spheres sandwiched between two planes
+and constrained to always be in contact with each other.
+As these spheres are inflated or deflated changing
 their size, the top plane changes its orientation relative to the bottom plane.
-This paper develops both the foward and inverse mathematics of this problem.
-The forward problem is given three radii, to determine the orientation of the top plane.
+This creates a 3-degrees-of-rotation system
+(ignoring the slight translation the spheres are capable of by consistently enlarging),
+which is slightly more constrained than the 6DOF Stewart Platform.
+This paper gives closed-form expressions of both
+the forward and inverse problem as pure solid geometry.
+The forward problem is given three radii,
+to determine the orientation of the top plane.
 The inverse problem is much harder: given a desired orientation and the radius of one
 sphere, find the radius of the other two spheres that acheives it.
 
-This paper gives closed-form expressions of both the forward and inverse problem.
 Additionally, we have create an online, browser based realtime simulation that reifies
 the math in this paper in JavaScript, both verifying it and making it easy to reuse.
 
-\section{Prelude: Three Touching Circles}
+Soft robotics presume to operate under some deforming forces, so the precise mathematics
+of positioning must always be corrected by a control system with feedback on the position.
+Nonetheless, having a closed-form expression of both the inverse and forward problem allow
+an initial Jacobian to be computed effortlessly, which is likely to assist any control algorithm.
 
-Our goal is to be able to determine the orientation of plane resting
-on top of three spheres of different radii which are touching each
-other.
-Because there is a plane through any three points and we have three spheres, we can construct the plane through
-the center of these points.
-The projection of the edges of the spheres onto this plane form three touching circles.
-Knowing the position of these circles is a valuable prelude to solving the three dimenstional problem.
+\section{The Center Plane}
 
-\begin{figure}
-     \centering
-     \includegraphics[width=0.8\textwidth]{figures/ThreeTouchingPlanarCircles.png}
-     \caption{Three Touching Circles}
-  \label{fig:Tangent}
-\end{figure}
-
-To solve this problem most conveniently, we place the first circle on the negative $x$-axis, and the second circle
-on the positive $x$-axis, with the circles intersecting at the origin.
-The third circle is place in the positive $y$ direction. It's center will not be on the $y$-axis itself unless the
-radii of the first two circles are equal.
-
-We seek a formula for the coordinates of the third circle in terms of three input radii $a,b,c$.
-
-Because the distance between adjacent circles is the sum of their radii, define:\footnote{This is a confusing use of the variables $a$, $b$, and $c$.}
-\begin{align}
-  d  &= a + b \\
-  e  &= a + c \\
-  f  &= b + c \\
-\end{align}
-
-Then we can use the cosine law to compute the angle $\angle ABC = \theta$:
-
-\begin{align}
-  \theta  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}} \\
-  \theta  &= \arccos{\frac{(b+c)^2 + (a+c)^2 - (a+b)^2}{2(a+c)(a+b)}} \\
-\end{align}
-
-It is clear that once $\theta$ has been calculated:
-
-\begin{align}
- C_z  &= a\sin{\theta}
-\end{align}
-Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean theorem:
-\begin{align}
-  b^2  &= C_z^2 + C_x^2 \\
-  C_x   &= \sqrt{b^2 - C_z^2}  \\
-\end{align}
-
-
-\section{Three Touching Spheres}
-
-
-Our fundamental goal now is to describe three touching spheres. As robotocists,
+As kinematicists,
 our interest is in the slope of the plane of the tops of these spheres
-as if they were resting on a table. Then by inflating or deflating spheres,
-we would be able to control the direction of a plane or platform.
-Such a device is sometimes called a parallel manipulator, of which a
-Stewart Platform\cite{wiki:stewart} (\url{https://en.wikipedia.org/w/index.php?title=Stewart_platform&oldid=898429010})
-is the best-known example.
-
-The fundamental action of a parallel manipulator is to tilt a plane or platform in a desired direction based
-on changes in the radii of the spheres.
-
-The problem finding the planes tangent to three touching spheres
-is given as an exercise in an advanaced textbook on solid geometry from 1881\cite{payne1881}. It does not give a solution, but it gives a hint: to consider the cones enveloping
-three spheres taken two at a time.
+as if they were resting on a fixed-frame such as a table. Then by inflating or deflating spheres,
+we would be able to control the direction of the top plane or platform.
 
 Choosing the coordinate system of the $XZ$ plane through the center of the spheres greatly
 simplifies the derivations, because the center of the spheres always form tangent circles
-in this plane. Call this plane the {\em center plane.} The position of $A$ is fixed, $B$ is constrained to the $x$-axis, and
-$C$ is contrained to the $xz$-plane. The center of these circles in the $xz$ plane can be
+in this plane. Call this plane the {\em center plane.}
+Following computer graphics convention, we think of the $Y$ dimension as vertical and a
+right-handed set of axes.
+The position of $A$ is fixed at the origin, $B$ is constrained to the $x$-axis touching $A$, and
+$C$ is contrained to the positive $xz$-plane. The center of these circles in the $xz$ plane can be
 calculated from the radii independent of the tilt they induce.
 In this coordinate system, the $y$-coordinate of the center of all spheres is $0$.
 Furthermore, a cone tangent to two spheres has its axis and apex in the $xz$-plane.
@@ -180,27 +131,59 @@ We can imagine the spheres resting on a fixed surface called the {\em bottom pla
 The tilt of the top and bottom plane relative to the center of the spheres
 is alway a mirror image of each other across the coordinate $XZ$-plane.
 
-If the tilt of the top plane relative to the coordinate plane is given by a rotation about the $z$ axis of $\theta$ and
-then a rotation about $x$ axis of $\gamma$, the tilt of the top plane relative
-to the bottom plane is given by the $zx$ extrinsic Euler angles $(2\theta, 2\gamma)$.\footnote{Is this really true?}
 
-\subsection{Physical Embodiment}
+Define extrinsic Euler angles $\theta$ to be the rotation about the $Z$-axis and then $\gamma$ to
+be the rotaion about the $X$-axis.
+The tilt of the top plane relative
+to the bottom plane is given by the $zx$ extrinsic Euler angles $(2\theta, 2\gamma)$.\footnote{Is this really true?
+We should be able to verify this with a JavaScript program.}
 
-To embody this system precisely, the sphere $A$ could be pinned to
-the origin of the bottom plane.
-The contact point of the sphere $B$ with the bottom plane
-could be placed on a
-linear slider on the $x$-axis.
-The conact point $C$ could be constrained to
-rest on the botom plane by gravity or some elastic cables.
-Choose the convention that the $C$ object is to the right hand
-(clockwise)
-side of the $AB$ line.
-As the spheres
-change change, the origin of the center plane will experience minor translation
-relative to the bottom plane, but will not experience rotation about the $y$-axis.
-If needed the coordinates of the spheres in the bottom plane can be easily
-calculates from the radii and the computed extrinsic Euler angles $\theta$ and $\gamma$.
+Because there is a plane through any three points and we have three spheres, we can construct the plane through
+the center of these points.
+The projection of the edges of the spheres onto this plane form three touching circles.
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.8\textwidth]{figures/ThreeTouchingPlanarCircles.png}
+     \caption{Three Touching Circles}
+  \label{fig:Tangent}
+\end{figure}
+
+To solve this problem most conveniently, we place the first circle at the orign, and the second circle
+on the positive $x$-axis, with the circles intersecting at the origin.
+The third circle is place in the positive $z$ direction touching both other circles.
+
+We seek a formula for the coordinates of the third circle in terms of three input radii $a,b,c$.
+
+Because the distance between adjacent circles is the sum of their radii, define:
+\begin{align}
+  d  &= a + b \\
+  e  &= a + c \\
+  f  &= b + c \\
+\end{align}
+
+\section{The Tilt from the Radii}
+
+Given $a,b$ and $c$, we seek the angles $\theta$ and $\gamma$.
+We seek the  point $C$ first.
+The cosine law to compute the angle $\angle ABC = \alpha$:
+
+\begin{align}
+  \alpha  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}} \\
+%  \alpha  &= \arccos{\frac{(b+c)^2 + (a+c)^2 - (a+b)^2}{2(a+c)(a+b)}} \\
+\end{align}
+
+It is clear that once $\alpha$ has been calculated:
+
+\begin{align}
+ C_z  &= a\sin{\alpha}
+\end{align}
+Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean theorem:
+\begin{align}
+  C_x   &= \sqrt{b^2 - C_z^2}  \\
+\end{align}
+
+
 
 \begin{figure}
      \centering
@@ -209,33 +192,24 @@ calculates from the radii and the computed extrinsic Euler angles $\theta$ and $
   \label{fig:fixed}
 \end{figure}
 
-\subsection{Variable definitions}
-
-We assume that the spheres centered at points $A,B,$ and $C$
-of radii $a,b,$ and $c$. We setup our coordinate system as a left-
-handed coordinate system with $XZ$ plane contaning the center of all spheres.
-The $A$ sphere is placed at the origin, so that $O = A$, and the $B$ sphere
-is place on the positive $X$ axis. Without loss of generality assume $a \geq b \geq c$.
-Following computer graphics convention, we think of the $Y$ dimension as vertical.
-
-Taking any two spheres defines a cone whose apex is in the $XZ$ plane.
-Call the apex of the $AB$ cone $U$, the $AC$ cone $V$, and the $BC$ cone $W$.
-
-It is a beautiful fact that the th apices $U,V$ and $W$ are colinear
-on a line we call the {\em apex line}, depicted in both Figure \ref{fig:fixed}
-or Figure \ref{fig:rotation}.
-Further, by your choice of coordinates,
-this line is in the $XZ$ plane. Finally, the top and bottom planes
-intersect at this line, because those planes are tangent to the three cones.
-
-We assert that these three points form a line, which we call the {\em apex line}, in the $XZ$ plane and that this
-line is the intersection of the {\em tangent plane} touching all three spheres at a single point
-with the $XZ$ plane. We will use points $U$ and $V$ in our calculation.
 
 \subsection{Axis Angle of Cone Enveloping Two Spheres}
 
-In order to compute the apex line, it is helpful
-to note that the apex angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
+The problem of finding the planes tangent to three touching spheres
+is given as an exercise in an advanaced textbook on solid geometry from 1881\cite{payne1881} which does not give a solution,
+but it gives a hint: to consider the cones enveloping
+three spheres taken two at a time.
+
+Taking two adjacent spheres defines a cone tangent to both spheres whose apex is in the $XZ$ plane.
+Call the apex of the $AB$ cone $U$, the $AC$ cone $V$, and the $BC$ cone $W$.
+
+It is a beautiful fact that the the apices $U,V$ and $W$ are colinear
+on the {\em apex line} which is in the $XZ$ plane, depicted in both Figure \ref{fig:fixed}
+or Figure \ref{fig:rotation}.
+Finally, the top and bottom planes
+intersect at this line, because those planes are tangent to the three cones.
+
+The apex angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
 spheres of radii $r,s$, is:
 
 \begin{align}
@@ -255,10 +229,9 @@ the $A$ sphere in a circle on the surface of the $A$ perpendicular to and center
 
 The half-angle of a cone tangent to two tangent spheres is computed from the radii directly:
 \begin{align}
-  \theta_{ab} &= \arcsin{\frac{a - b}{a + b}} \label{eq:theta}\\
-  \theta_{bc} &= \arcsin{\frac{b - c}{b + c}}
+  \theta &= \arcsin{\frac{a - b}{a + b}} \label{eq:theta}\\
+  \phi &= \arcsin{\frac{b - c}{b + c}}
 \end{align}
-
 
 \begin{figure}
      \centering
@@ -268,44 +241,50 @@ The half-angle of a cone tangent to two tangent spheres is computed from the rad
 \end{figure}
 
 A vector of length $a$ that is always rotated about the origin is always a point on the sphere.
-The first operation is move this vector perpendicular to the $AB$ cone.
+The first operation is to move this vector perpendicular to the $AB$ cone.
 A vector $N$ in the $Y$ direction and rotated counterclockwise
-about the $Z$-axis by $\theta_{ab}$ is perpendicular to the $AB$ cone.
+about the $Z$-axis by $\theta$ is perpendicular to the $AB$ cone.
 
 However, we must rotate this vector $N$ about the $X$ axis by an unknown amount, $\gamma$, in order
-to orient the vector to line up properly with the desired tilt of the tangent plane despite not being a pure rotation about the $Z$ axis. Since this angle is computed in the $YZ$ plane, we compute a projection of the point $V$ into
-that plane, forming a triangle in the $YZ$ plane.  Call this point $I_z$, the intersection
+to orient the vector to line up properly with the
+desired tilt of the tangent plane despite not being a pure rotation about the $Z$ axis.
+Since this angle is computed in the $YZ$ plane, we compute a projection of the point $V$ into
+that plane, forming a triangle in the $YZ$ plane.
+
+Call this point $I_z$, the intersection
 of the apex line with the $Z$-axis. Let $h$ be the height of the intersection of the y-axis with the $AB$ cone.
-Then $\gamma$ is the angle we need to rotate the plane by so that it intersects with the $Z$-axis at a point, referred to as $I_z$. By basic geometry of simialr triangles, this is computed from the right triangle of the origin with $h$ and $I_z$.
-Having computed $\theta_{ab}$ and $\gamma$, these two degrees of rotation give us the plane tangent to all three spheres, and its corresponding tilt for our desired soft Stewart Platform.
-
-
-Note: Do we really need to define vectors here instead of points?
-
-Vectors $\overrightarrow{U}, \overrightarrow{V}, $ and $  \overrightarrow{W}$ represent the vectors from the center of the spheres $A$, $B$, and $C$ to
-the apices of the cones tangent to $A$ and $B$, $B$ and $C$, and $C$ and $A$ respectively.
-
+Then $\gamma$ is the angle we need to rotate the plane by so that it intersects with the
+$Z$-axis at a point, referred to as $Z'$.
+By basic geometry of simialr triangles, this is computed from the right triangle of the origin with $h$ and $I_z$.
+Points $U, V, $ and $W$ represent the apices of the apices of the cones tangent to $A$ and $B$, $B$ and $C$,
+and $C$ and $A$ respectively. Recall that $A = [0,0,0]$.
 
 \begin{align}
-  \overrightarrow{U} &= \overrightarrow{A} + \hat{\overrightarrow{AB}} \frac{a}{\sin{\theta_{ab}}} \\
-  \overrightarrow{V} &= \overrightarrow{B} + \hat{\overrightarrow{BC}} \frac{b}{\sin{\theta_{bc}}}
+  U &= A + \overrightarrow{AB} \frac{a}{\sin{\theta}} \\
+  V &= B + \overrightarrow{BC} \frac{b}{\sin{\phi}}
+\end{align}
+So long as $a \neq b$,
+\begin{align}
+  Z' &= \frac{U_z V_x}{U_x - V_x}, \text{if  $a \neq b$} \label{eq:zprime} \\
+  Z' &= V_z, \text{if $a = b$}
 \end{align}
 
 The point $H$ is the intesection of the $AB$ cone with the $y$ axis.
+\begin{align}
+  H_y &= U_x \tan{\theta} \\
+\end{align}
 This is right triangle of the origin with the points $U$ and $H$. (The hypotenuse
-of this triangle is $\overrightarrow{HU}$, and side adjacent to $\theta_{AB}$ is $\overrightarrow{OU}$.)
+of this triangle is $\overline{HU}$, and side adjacent to $\theta$ is $\overline{AU}$.)
 It is computed by projecting the contact point of the top plane in the $xy$-plane
 onto the $xz$-plane. This allows $\gamma$ to be computed as a pure rotation
 about the $x$-axis.
 
 \begin{align}
-  H_y &= U_x \tan{\theta_{ab}} \\
-  Z' &= \frac{H_y}{\sin{\gamma}} \label{eq:zprime} \\
   \gamma &= \arcsin{\frac{Z'}{H_y}} \label{eq:gamma}
 \end{align}
 
 Equations \ref{eq:theta} and \ref{eq:gamma} give the Euler angles
-$\theta_{ab}$ and $\gamma$
+$\theta$ and $\gamma$
 for the tilt of the
 tangent plane as a function of the three radii $a,b,c$.
 
@@ -314,7 +293,7 @@ tangent plane as a function of the three radii $a,b,c$.
 
 To build a useful robotic platform in by controlling the radii of the
 spheres by inflating and deflating them, we wish to solve the inverse
-problem. That is, given input $\theta_{ab}$ and $\gamma$ as desired Euler
+problem. That is, given input $\theta$ and $\gamma$ as desired Euler
 angles, we want to compute $a,b,c$ which acheive these angles.
 
 Since these are smooth functions, the problem could be solved
@@ -322,19 +301,19 @@ easily by a Newton-Raphson style solver based on \ref{eq:theta} and \ref{eq:gamm
 However, a closed-form solution is always superior, and allows derivatives,
 and hence Jacobians, to be expressed symbolically as closed-form solutions.
 
-The radius $b$ can be computed directly from $\theta_{ab}$
+The radius $b$ can be computed directly from $\theta$
 because of our choice of coordinates.
 By considering to proportionality of the similar triangles formed
 by the contacts points of sphere $A$ and $B$ and their centers with $U_x$ in the $XY$ plane,
 we obtain:
 \begin{align}
-  U_x &= \frac{a}{\sin{\theta_{ab}}} \\
-  b &= \frac{(U_x - a)\sin{\theta_{ab}}}{\sin{\theta_{ab}}+1}
+  U_x &= \frac{a}{\sin{\theta}} \\
+  b &= \frac{(U_x - a)\sin{\theta}}{\sin{\theta}+1}
 \end{align}
 
 \newcommand{\abs}[1]{ \left\lvert#1\right\rvert}
 
-Given the plane defined by a known radius $a$, $\theta_{ab}$ and $\gamma$,
+Given the plane defined by a known radius $a$, $\theta$ and $\gamma$,
 the point $C$ is constrained by asserting that the perpendicular
 distance to this plane of $C$ is $c$.
 Additionally, in the central plane we have two other constraints,
@@ -368,10 +347,11 @@ when $ a >= b >= c $.)
 
 Since we have the normal of the plane three points ($U,Z,H_y$) in the plane,
 computing the distance from the point $C$ to the plane has a simple
-formula. We'll use the point $H = [0, H_y, 0]$ as our main point.
-The equation of our plane (the condition for when a point $\overrightarrow{P}$ is in the plane) is
-$ \overrightarrow{N} \cdot \overrightarrow{P} = k$.
-In our situation, because the sphere $A$ is at the origin, $k = a$.
+formula.
+We'll use the point $U = [Ux, 0, 0]$ as our main point.
+In our situation, because the sphere $A$ is at the origin,
+the equation of the top plane  is
+$ \overrightarrow{N} \cdot \overrightarrow{U} = a$.
 \begin{align}
 a &= \frac{N \cdot U}{N_y} \\
 c &= \frac{\abs{N \cdot P - a}}{\abs{N}} \\
@@ -440,7 +420,7 @@ form Eq. \ref{eq:a_constraint}.
 This math can be found in the JavaScript which is licensed
 under the GPL\cite{gplv3} at our website\cite{softrobotcalc}.
 
-\subsection{Special case when $\gamma = 0$}
+\section{Special case when }
 
 In the above math when $\gamma$ is $0$, then $N_z$ is zero,
 creating a division by zero.
@@ -458,7 +438,7 @@ c & = \frac{a (a + b) (a - U_x)}{a^2 - a b + a U_x + b U_x}
 \end{align}
 
 
-\subsection{Special case when $\theta = 0$}
+\section{Special case when }
 
 When $\theta = 0$, the point $U$ is at infinity or
 cannot be found. In thise case $b = a$.
@@ -521,107 +501,3 @@ of the plane relative to a change in the radius of any or all spheres.)
 
 
 \end{document}
-
-
-  In 1881, the problem of computing the plane tangent to three spheres was set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881}. We have solved this problem in JavaScript, producing an interactive, browser-based web page that dynamically solves the problem. All of the code is released under the GNU Public License. We propose constructing a ``soft'' Stewart platform using this theory which  allows us to control the inclination of two planes with a very simple  mechanism powered only by phase change of a liquid to a gas or by pneumatics. Future work includes computing the Jacobian of a ``tentacle'' formed  by stringing together many such Stewart Platforms, thus providing a  theoretical model for a simple, inexpensive, ``soft'' tentacle.  Such a tentacle can be scaled down nicely for {\em in vivo} medical  applications such as endoscopy and arterial catheterization.
-
-
-  \section{Thing to Research}
-
-Idea: It may be possible to solve for the support points as the intersection of cones\cite{shene1994lower}.
-
-Note problem CXLVIII (148). Page 195
-Joseph Payne (of the Charterhouse)
-``Practical solid geometry; or, Orthographic and Isometric projection.
-
-http://www.coe.org/p/fo/et/thread=11194
-
-https://math.stackexchange.com/questions/2101056/how-to-compute-the-formula-of-common-tangent-plane-of-three-spheres
-
-https://math.stackexchange.com/questions/1129402/solving-a-common-tangent-problem-using-matrices
-
-
-We used this derivation with Wolfram Alpha:
-\begin{align}
- z &= -2 \frac{r_x^2}{r_x - r_y}\\
- \psi &= 2 \arcsin{\frac{r_x}{z + r_y}} \\
- \psi &= 2 \arcsin{\frac{r_x}{-2 \frac{r_x^2}{r_x - r_y} + r_y}} \\
- \psi &= \arcsin{\frac{r_x r_y - r_x^2}{2 r_x^2 - r_x r_y + r_y^2}} \\
-\end{align}
-
-
-Mathematica set up:
-
-So this is 4 equations in 4 unknowns, can Mathematic solve it?
-
-Solve[{x == -u*z/w + u,
-    Tan[i] = y/(Sqrt[x^2 + z^2],
-    Sin[i] = c /(Sqrt[x^2 + z^2] - (a + c)),
-    Sin[i] == (a - c)/(a + c)},c]
-
-
-Reduce[{x > 0, z> 0, u> 0, w > 0, a > c,x == -u*z/w + u, Tan[q] == y/Sqrt[x^2 + z^2],
-  Sin[q] == c/(Sqrt[x^2 + z^2] - (a + c)), Sin[q] == (a - c)/(a + c)},
-  c]
-
-
-
-Reduce[{q > 0, q < Pi/2, x > 0, z > 0, u > 0, w > 0, a > c,a >0, c > 0,
-  x == -u*z/w + u, Tan[q] == y/Sqrt[x^2 + z^2],
-  Sin[q] == c/(Sqrt[x^2 + z^2] - (a + c)), Sin[q] == (a - c)/(a + c),
-  Sin[q] == a/Sqrt[x^2 + z^2] },
-  c]
-
-
-
-Reduce[{q > 0, q < Pi/2,  a > c, a >0, c > 0, L > (a + c),
-  Sin[q] == c/(L - (a + c)),
-  Sin[q] == (a - c)/(a + c),
-  Sin[q] == a/L },
-  c]
-
-Reduce[{ a > c, a >0, c > 0, L > (a + c),
-  a/L == c/(L - (a + c)),
-  a/L == (a - c)/(a + c)
- },
-  c]
-
-
-New thought:
-
-Let s = Sin[delta]
-
-
-Unknowns: c,x,z
-Knowns: a,b,s,w,u,M
-
-x^2 + z^2 == (a + c)^2
-(c+b)^2 == (a + b - x)^2 + z^2
-M == w/u
-x == M*z + u + c * Sqrt[M^2 + 1] / s
-
-4 equations, 3 unkowns (3 independent equations).
-
-
-Solve[{a+b== 2, a >0, c > 0, a > c, w >0 , u > 0, x>0, z> 0, s> 0, s < 1,
-x^2 + z^2 == (a + c)^2,
-(c+b)^2 == (a + b - x)^2 + z^2,
-x == (w/u)*z + u + c * Sqrt[(w/u)^2 + 1] / s},{c,x,z}]
-
-
-
-x^2 + z^2 == (a + c)^2,
-z^2 == a^2 + 2 * a * c + c^2 - x^2
-
-(c+b)^2 == (a + b - x)^2 + z^2,
-
-z^2 = (c+b)^2 - (a + b - x)^2
-
-
-
-(c+b)^2 - (a + b - x)^2 == a^2 + 2 * a * c + c^2 - x^2
-
-Reduce[{a+b== 2, a >0, c > 0, a > c, w >0 , u > 0, x>0, z> 0, s> 0, s < 1,
-    c == -((a + b) (a - x))/(a - b),
-    x^2 + z^2 == (a + c)^2,
-x == (w/u)*z + u + c * Sqrt[(w/u)^2 + 1]},{c},Reals]

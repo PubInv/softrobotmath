@@ -218,10 +218,7 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
       return [0,Math.asin(ra/zprime),zprime];
     }
 
-    // h is a height tilted about x-axis; distance of the plane to origin. This should always be ra!!!
-    //    var h = Math.tan(theta1) * cA1.x;
 
-    // DANGER !!! THIS is off by 10%!!!
     var h = ra;
     // I am not sure this is really correct!!!
     var gamma = Math.asin(h/zprime);
