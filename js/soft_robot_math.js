@@ -202,7 +202,8 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   // but we need a signed angle to represent the rotation
   // of the plane, so we process separately...
   var theta1 = ComputeAxisAngleOfCone(ra,rb);
-  if (rb > ra) theta1 = -theta1;
+//  if (rb > ra) theta1 = -theta1;
+  if (ra > rb) theta1 = -theta1;
 
   if (isNaN(cA3.x)) {
     debugger;
@@ -283,7 +284,7 @@ function computeNormalFromExtrinsicEuler(theta,gamma) {
   var Pp = new THREE.Vector3(0,1,0);
   const Z = new THREE.Vector3(0,0,1);
   const X = new THREE.Vector3(1,0,0);
-  Pp.applyAxisAngle(Z,-theta);
+  Pp.applyAxisAngle(Z,theta);
   Pp.applyAxisAngle(X,gamma);
   return Pp;
 }
@@ -366,6 +367,7 @@ function computeInversion(a,theta,gamma) {
   var t = theta;
   var g = gamma;
   const N = computeNormalFromExtrinsicEuler(theta,gamma);
+  console.log("theta,gamma,N",theta,gamma,N);
   var U_x;
   var b;
   var U;
@@ -804,7 +806,6 @@ function runUnitTests() {
   // testComputeRotationIntoPlane2();
 
   // runChaslesTests();
-  // testThreeIsRightHanded();
   // testPointOnAxisRotationMatrix();
 
 }

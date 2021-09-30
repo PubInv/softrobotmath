@@ -28,7 +28,6 @@
 \usepackage{breqn}
 \breqnsetup{breakdepth={1}}
 
-
 \SetWatermarkText{DRAFT}
 \SetWatermarkScale{6}
 \SetWatermarkLightness{0.95}
@@ -45,8 +44,6 @@ Megan Cadena
 
 
 \begin{document}
-A Stewart Platform\cite{wiki:stewart} is a fundamental mechanism for varying the angle
-
 \maketitle
 \begin{abstract}
   A Stewart Platform\cite{wiki:stewart} is a fundamental mechanism for varying the angle
@@ -82,30 +79,31 @@ The best known parallel manipulator is
 a Stewart Platform\cite{wiki:stewart} which as 6 degrees or freedom.
 Having a soft parallel manipulator analogous to a Stewart Platform would allow soft,
 gentle positioning,
-and might be particularly valuable {\it in vivo}\cite{softwhite2018soft} or in some space applications\cite{glassner2020}.
+and might be particularly valuable {\it in vivo}\cite{white2018soft} or in some space applications\cite{glassner2020soft}.
 Varying angular displacemnt is a composable buliding block of more complicated systems, such as tentacles.
 
-One way theoretical way to build such a manipulator is to have three inflatable spheres sandwiched between two planes
+One theoretical way to build such a manipulator is to have three enlargable spheres sandwiched between two planes
 and constrained to always be in contact with each other.
-As these spheres are inflated or deflated changing
+As these spheres are enlarged, perhaps by pneumatially inflating them changing
 their size, the top plane changes its orientation relative to the bottom plane.
-This creates a 3-degrees-of-rotation system
+This creates 3 degress of rotational freedom
 (ignoring the slight translation the spheres are capable of by consistently enlarging),
 which is slightly more constrained than the 6DOF Stewart Platform.
-This paper gives closed-form expressions of both
-the forward and inverse problem as pure solid geometry.
+
 The forward problem is given three radii,
 to determine the orientation of the top plane.
 The inverse problem is much harder: given a desired orientation and the radius of one
 sphere, find the radius of the other two spheres that acheives it.
+This paper gives closed-form expressions of both
+the forward and inverse problem of three inflatable spheres as a parallel manipulator as pure solid geometry.
 
-Additionally, we have create an online, browser based realtime simulation that reifies
+Additionally, we have created an online, interactive, browser based realtime simulation that reifies
 the math in this paper in JavaScript, both verifying it and making it easy to reuse.
 
-Soft robotics presume to operate under some deforming forces, so the precise mathematics
+Soft robotics presume to operate under some deforming forces, so in any deformable robot the precise mathematics
 of positioning must always be corrected by a control system with feedback on the position.
 Nonetheless, having a closed-form expression of both the inverse and forward problem allow
-an initial Jacobian to be computed effortlessly, which is likely to assist any control algorithm.
+an initial Jacobian to be computed effortlessly, which is likely to assist any soft robotic control algorithm.
 
 \section{The Center Plane}
 
@@ -162,6 +160,13 @@ Because the distance between adjacent circles is the sum of their radii, define:
   f  &= b + c \\
 \end{align}
 
+Considering Fig. \ref{fig:Tangent}, varying the radius $c$ without constraint will cause
+the center of the circle $C$ to move, as shown by the dotted circles,
+describing a gentle curve depicted by the dashed curve which at very large $c$ is perpendicular to a
+line tangent to both $A$ and $B$, indicated by the dotted line.
+By considering the desired tilt of the top plane,
+a particular point on this curve is chosen.
+
 \section{The Tilt from the Radii}
 
 Given $a,b$ and $c$, we seek the angles $\theta$ and $\gamma$.
@@ -192,9 +197,6 @@ Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean the
   \label{fig:fixed}
 \end{figure}
 
-
-\subsection{Axis Angle of Cone Enveloping Two Spheres}
-
 The problem of finding the planes tangent to three touching spheres
 is given as an exercise in an advanaced textbook on solid geometry from 1881\cite{payne1881} which does not give a solution,
 but it gives a hint: to consider the cones enveloping
@@ -209,29 +211,31 @@ or Figure \ref{fig:rotation}.
 Finally, the top and bottom planes
 intersect at this line, because those planes are tangent to the three cones.
 
-The apex angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
-spheres of radii $r,s$, is:
-
-\begin{align}
- \psi &= \arcsin{\frac{s - r}{s + r}} \\
-\end{align}
-where $r < s$ without loss of generality. Note that when $r = s$
-there is a special case,
-the cone tangent to both is degenerate (that is, a cylinder, or a cone of
-$\psi = 0$ apex angle.)
-
-\subsection{Strategy}
 
 We seek to compute the normal of the tangent plane.
 Observe that this plane is tangent to all three cones.
 Observe that the $AB$ cone intersects
 the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
 
-The half-angle of a cone tangent to two tangent spheres is computed from the radii directly:
+The apex half-angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
+spheres of radii $r,s$, is:
 \begin{align}
-  \theta &= \arcsin{\frac{a - b}{a + b}} \label{eq:theta}\\
-  \phi &= \arcsin{\frac{b - c}{b + c}}
+ \psi_{abs} &= \arcsin{\frac{s - r}{s + r}}
 \end{align}
+where $r < s$ without loss of generality. Note that when $r = s$
+there is a special case,
+the cone tangent to both is degenerate (that is, a cylinder, or a cone of
+$\psi = 0$ apex angle.)
+Because we use $\theta$ as a rotation angle, it must be signed, and is
+negative if $a > b$.
+\begin{align}
+  \theta &= \begin{cases}
+    \theta_{abs}, & \text{ if $a > b$, } \\
+    -\theta_{abs}, & \text{  otherwise}
+\end{cases} \label{eq:theta} \\
+  \phi_{abs} &= \arcsin{\frac{b - c}{b + c}}
+\end{align}
+
 
 \begin{figure}
      \centering
@@ -260,16 +264,17 @@ Points $U, V, $ and $W$ represent the apices of the apices of the cones tangent 
 and $C$ and $A$ respectively. Recall that $A = [0,0,0]$.
 
 \begin{align}
-  U &= A + \overrightarrow{AB} \frac{a}{\sin{\theta}} \\
-  V &= B + \overrightarrow{BC} \frac{b}{\sin{\phi}}
-\end{align}
-So long as $a \neq b$,
-\begin{align}
-  Z' &= \frac{U_z V_x}{U_x - V_x}, \text{if  $a \neq b$} \label{eq:zprime} \\
-  Z' &= V_z, \text{if $a = b$}
+  U &= A + (B-A) \frac{a}{\sin{\theta}} \\
+  V &= B + (C-B) \frac{b}{\sin{\phi_{abs}}} \\
+  Z'&= \begin{cases}
+    V_z, & \text{ if $a = b$ } \\
+    \frac{U_z V_x}{U_x - V_x}, & \text{ if  $a \neq b$}
+  \end{cases}
+  \label{eq:zprime} \\
 \end{align}
 
-The point $H$ is the intesection of the $AB$ cone with the $y$ axis.
+The point $H$ is the intesection of the $AB$ cone with the $y$ axis (and therefore the intersection
+of the top plane with the $y$ axis.
 \begin{align}
   H_y &= U_x \tan{\theta} \\
 \end{align}
@@ -400,12 +405,12 @@ F &= \sqrt{G H} \\
 K &= 4 a^2 b^2 N_z^2 + 2 a^3 b (-3 + N_x) N_z^2 \\
 J &= b^3 (-1 + N_x) N_z^2 \\
 C_{x0} &= \frac{2 (F + a L)}{M} \\
-C_{z0} &= \frac{K + 2 b F (-1 + N_x) -
-  2 a (F (1 + N_x) + b^3 (-1 + N_x) N_z^2)}
+C_{z0} &= \frac{K + (2 b F (-1 + N_x) -
+  2 a (F (1 + N_x) + b^3 (-1 + N_x) N_z^2))}
 {(a -  b) M N_z} \\
 C_{x1} &= \frac{-2 F + 2 a L}{M} \\
-  C_{z1} &= \frac{K - 2 b F (-1 + N_x) +
-    2 a (F (1 + N_x) - b^3 (-1 + N_x) N_z^2)}
+  C_{z1} &= \frac{K - (2 b F (-1 + N_x) -
+  2 a (F (1 + N_x) + b^3 (-1 + N_x) N_z^2))}
   {(a - b) M N_z}
 \end{align}
 
@@ -414,15 +419,19 @@ positive side of the $X$ axis, but which one is highly dependendent
 on the input variables, so both are computed and the positive $z$
 value selected.
 
-The variable $c$ can be compute from $a$, $C_x$ and $C_z$
+The variable $c$ can be computed from $a$, $C_x$ and $C_z$
 form Eq. \ref{eq:a_constraint}.
 
 This math can be found in the JavaScript which is licensed
 under the GPL\cite{gplv3} at our website\cite{softrobotcalc}.
 
-\section{Special case when }
+\section{Special Cases of the Inverse Problem}
 
-In the above math when $\gamma$ is $0$, then $N_z$ is zero,
+When both $\theta = 0$ and $\gamma = 0$, then $c = b = a$.
+
+\subsection{Special case when $\gamma$ is $0$ }
+
+In the above math when $\gamma = 0$, then $N_z$ is zero,
 creating a division by zero.
 In this case we can use the proportionality of similar
 triangles to assert:
@@ -438,15 +447,15 @@ c & = \frac{a (a + b) (a - U_x)}{a^2 - a b + a U_x + b U_x}
 \end{align}
 
 
-\section{Special case when }
+\subsection{Special case when $\theta$ is $0$ }
 
 When $\theta = 0$, the point $U$ is at infinity or
 cannot be found. In thise case $b = a$.
 In this case the sphere $C$ is symmetrically
 positioned in contact with $A$ and $B$ because
-they have the same radius; therefore $x = a$ and:
+they have the same radius; therefore $C_x = a$ and:
 \begin{align}
-(a + c)^2 &= a^2 + z^2
+(a + c)^2 &= a^2 + C_z^2
 \end{align}
 
 In this case,
@@ -457,18 +466,16 @@ Z' &= \frac{a}{\sin{\gamma}}
 Projecting out the $X$ dimension and forming
 similar triangles in the $YZ$ plane, we find that
 \begin{align}
-  \frac{a}{Z'} &= \frac{c}{Z'-z} \\
-  c &= \frac{a( Z' -z )}{Z'} \label{eqn:cthetazero}
+  c &= \frac{a( Z' -C_z )}{Z'} \label{eqn:cthetazero}
 \end{align}
 
 Asking Mathematica to solve these two non-linear equations, we obtain,
 after again discarding the solution producing negative $z$ values:
 \begin{align}
- z &=  \frac{2 a^2 Z' - \sqrt{a^4 (Z')^2 + 3 a^2 (Z')^4}}{a^2 - (Z')^2},
+ C_z &=  \frac{2 a^2 Z' - \sqrt{a^4 (Z')^2 + 3 a^2 (Z')^4}}{a^2 - (Z')^2},
 \end{align}
 which allows us to obtain obtain $c$ from \ref{eqn:cthetazero}.
 
-When both $\theta = 0$ and $\gamma = 0$, then $c = b = a$.
 
 \section{Usage}
 

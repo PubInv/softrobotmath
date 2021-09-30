@@ -813,8 +813,8 @@ function onComputeParams() {
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
   if (isNaN(gamma)) debugger;
 
-  // The THREE system uses a different coordinate system that what we are using, so we negate these here...
-  theta = -theta;
+  // WARNING: XXX Changing to right-handed counter-clockwise defintion
+//  theta = -theta;
 
   const Z = new THREE.Vector3(0,0,1);
   const Y = new THREE.Vector3(0,1,0);
@@ -918,7 +918,8 @@ function onComputeParams() {
   // THREE is right handed, but we use a left-handed system in our paper.
   // We use the left-handed system in our description of Z on
   // the website for debugging purposes.
-  return [-theta,gamma];
+  //  return [-theta,gamma];
+  return [theta,gamma];
 }
 
 function main() {
