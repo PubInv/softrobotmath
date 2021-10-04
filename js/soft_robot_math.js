@@ -813,21 +813,27 @@ function testGetXZC() {
 // is the same as rotating once by twice theta, twice gamma.
 function testDoubleRotationEquivalence() {
   const OneDeg_radians = 1*Math.PI/180;
-  var theta_deg = 5;
+  var theta_deg = 30;
   var theta = theta_deg * OneDeg_radians;
-  var gamma_deg = 5;
+  var gamma_deg = 30;
   var gamma = gamma_deg * OneDeg_radians;
 
-  const e_once = new THREE.Euler( theta, gamma, 0, 'ZXY' );
+  const e_once = new THREE.Euler( gamma, 0, theta, 'ZXY' );
   const Y0 = new THREE.Vector3( 0, 1, 0 );
-  Y.applyEuler(e);
-  Y.applyEuler(e);
+  Y0.applyEuler(e_once);
 
+  const e_neg = new THREE.Euler( -gamma, 0, -theta, 'ZXY' );
   const Y1 = new THREE.Vector3( 0, 1, 0 );
-  const e_twice = new THREE.Euler( 2*theta, 2*gamma, 0, 'ZXY' );
+  Y1.applyEuler(e_neg);
 
-  console.assert(e_once.angleTo(e_twice) == 0);
+// Now if we go back twice, do we get back to where we started?
+  const e_double = new THREE.Euler( 2*gamma, 0, 2*theta, 'ZXY' );
+  Y1.applyEuler(e_double);
 
+  console.assert(near(Y0.angleTo(Y1),0,1e+1));
+
+  console.log("Y0, Y1", Y0,Y1);
+  console.log("angle", Y0.angleTo(Y1) * 180 / Math.PI);
 }
 function runUnitTests() {
 
