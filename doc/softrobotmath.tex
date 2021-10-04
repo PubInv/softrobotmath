@@ -72,6 +72,22 @@ Megan Cadena
 \end{abstract}
 
 
+\begin{abstract}
+  A Stewart Platform\cite{wiki:stewart} is a fundamental mechanism for varying the angle
+  between two objects.
+  A soft Stewart Platform can be made of two discs and
+  three inflatable spheres.
+  Soft robots are meant to deform under force, but it is useful to have
+  a closed-form description of a plane in contact with three spheres of changing size.
+  This papers gives closed-form expressions for the plane in contact with
+  three adjacent spheres from known radii, and closed-form expressions for
+  the much harder inverse problem of finding the radii to match a plane inclination.
+  An interactive,
+  browser-based web page that dynamically solves the problem\cite{softrobotcalc}
+  using JavaScript implementations of this math.
+\end{abstract}
+
+
 \section{Introduction}
 
 A parallel manipulator varies the angle between two planes.
@@ -89,6 +105,9 @@ their size, the top plane changes its orientation relative to the bottom plane.
 This creates 3 degress of rotational freedom
 (ignoring the slight translation the spheres are capable of by consistently enlarging),
 which is slightly more constrained than the 6DOF Stewart Platform.
+In 1881, the problem of computing the plane tangent to three spheres was
+set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881},
+but not solved.
 
 The forward problem is given three radii,
 to determine the orientation of the top plane.
@@ -97,8 +116,9 @@ sphere, find the radius of the other two spheres that acheives it.
 This paper gives closed-form expressions of both
 the forward and inverse problem of three inflatable spheres as a parallel manipulator as pure solid geometry.
 
-Additionally, we have created an online, interactive, browser based realtime simulation that reifies
+Additionally, we have created an online, interactive, browser based realtime simulation\cite{softrobotcalc} that implements
 the math in this paper in JavaScript, both verifying it and making it easy to reuse.
+All of the code is released under the GNU Public License\cite{gplv3}.
 
 Soft robotics presume to operate under some deforming forces, so in any deformable robot the precise mathematics
 of positioning must always be corrected by a control system with feedback on the position.
@@ -189,7 +209,6 @@ Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean the
 \end{align}
 
 
-
 \begin{figure}
      \centering
      \includegraphics[width=0.99\textwidth]{figures/StandardThreeSphereDiagram.png}
@@ -210,7 +229,6 @@ on the {\em apex line} which is in the $XZ$ plane, depicted in both Figure \ref{
 or Figure \ref{fig:rotation}.
 Finally, the top and bottom planes
 intersect at this line, because those planes are tangent to the three cones.
-
 
 We seek to compute the normal of the tangent plane.
 Observe that this plane is tangent to all three cones.
@@ -500,9 +518,6 @@ forces.
 
 A series of such Stewart platforms stacked together would make
 a soft tentacle.
-
-Note: These closed-form expressions make it possible to compute the Jacobian of the system (the change in in the position
-of the plane relative to a change in the radius of any or all spheres.)
 
 \printbibliography
 

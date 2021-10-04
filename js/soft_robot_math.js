@@ -254,24 +254,26 @@ function testComputeThetaAndGamma() {
   const rc1 = 1.6;
   const [theta0,gamma0,zprime0] =
         computeFromRadii(ra,rb0,rc0);
+  console.assert(theta0 < 0);
   console.assert(zprime0 > 0);
   console.assert(gamma0 > 0);
 
   const [theta1,gamma1,zprime1] =
         computeFromRadii(ra,rb0,rc1);
+  console.assert(theta1 < 0);
   console.assert(zprime1 < 0);
   console.assert(gamma1 < 0);
 
   // I have a bug when theta is negative (when rb > ra).
   const [theta2,gamma2,zprime2] =
         computeFromRadii(ra,rb1,rc0);
-  console.assert(theta2 < 0);
+  console.assert(theta2 > 0);
   console.assert(zprime2 > 0);
   console.assert(gamma2 > 0);
 
   const [theta3,gamma3,zprime3] =
         computeFromRadii(ra,rb1,rc1);
-  console.assert(theta3 < 0);
+  console.assert(theta3 > 0);
   console.assert(zprime3 < 0);
   console.assert(gamma3 < 0);
 
@@ -296,9 +298,10 @@ function testComputeNormalFromExtrinsicEuler() {
   const Np = computeNormalFromExtrinsicEuler(thetaP,gamma);
   const Nn = computeNormalFromExtrinsicEuler(thetaN,gamma);
   console.assert(Math.abs(Np.x) == Math.abs(Nn.x));
-  console.assert(Np.x > 0);
-  console.assert(Nn.x < 0);
+  console.assert(Np.x < 0);
+  console.assert(Nn.x > 0);
 }
+
 
 /*
 M = ((a + b + a nx - b nx)^2 - 4 a b nz^2)
@@ -774,6 +777,27 @@ function testGetXZC() {
   const [x,z,c] = GetXZC(a,b,N,k);
   console.assert(z > 0);
 }
+
+// This is to prove or disprove that rotating twice by theta,gamma
+// is the same as rotating once by twice theta, twice gamma.
+function testDoubleRotationEquivalence() {
+  const OneDeg_radians = 1*Math.PI/180;
+  var theta_deg = 5;
+  var theta = theta_deg * OneDeg_radians;
+  var gamma_deg = 5;
+  var gamma = gamma_deg * OneDeg_radians;
+
+  const e_once = new THREE.Euler( theta, gamma, 0, 'ZXY' );
+  const Y0 = new THREE.Vector3( 0, 1, 0 );
+  Y.applyEuler(e);
+  Y.applyEuler(e);
+
+  const Y1 = new THREE.Vector3( 0, 1, 0 );
+  const e_twice = new THREE.Euler( 2*theta, 2*gamma, 0, 'ZXY' );
+
+  console.assert(e_once.angleTo(e_twice) == 0);
+
+}
 function runUnitTests() {
 
   testCompute3TouchingCirclesSimple();
@@ -797,6 +821,8 @@ function runUnitTests() {
   testInversionThetaZeroGamma15();
 
   testInversionExhaustively();
+
+  testDoubleRotationEquivalence();
 
  // testClosestPoint();
   // testComputeRotation();
