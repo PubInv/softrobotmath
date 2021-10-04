@@ -238,6 +238,37 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   }
 }
 
+// This is the "Bottom Plane" version
+// Note that the inputs are for the "Center Plane"
+// solution, which we need, but we are working
+// towards a "Bottom Plane" calculation.
+// Return values are [theta,gamma,zprime], where
+// theta is the rotation about the Z axis,
+// gamma is rotation about the X axis, and
+// zprime is the distance to the plane intersection point along
+// the z(Bottom Plane) axis.
+function ComputeThetaAndGammaBP(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
+  if ((ra == rb)  && (rb == rc)) {
+    return [0,0,null];
+  }
+  var theta1halfangle = ComputeAxisAngleOfCone(ra,rb);
+  const theta1 = (ra > rb) ? -2*theta1halfangle : 2*theta1halfangle;
+  const U_x = a / Math.tan(theta1/2);
+  const alpha = 2 * ComputeAxisAngleOfCone(ra,rc);
+  const d = a / Math.tan(alpha/2);
+  var V_cp = new THREE.Vector3(C);
+  var phi = alpha/2;
+  V_cp.multiply(b/Math.sin(phi));
+  const fsq = (U_x - V.x)**2 + V.z**2;
+  const dsq = d**2;
+  const factor = (fsq - dsq);
+  const V_bp_x = (1/2) * U_x + Math.sqrt(3*U_x**2 - 2*factor);
+  const V_bp_z = Math.sqrt(dsq - V_x**2);
+  const Zprime_bp = V_pb_z * U_x / (U_x - V_bp_x);
+  const gamma = 2 * Math.arctan(a/Zprime_bp);
+  return [theta1,gamma,Zprime_bp];
+}
+
 // Note that we will treat gamma as positive if it
 // represents a clockwise tilt of the plane when sighting
 // down the positive X axis to the origin. This is

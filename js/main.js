@@ -702,6 +702,7 @@ function setThetaGammaValues(theta,gamma) {
 }
 
 // This is the main recomputation
+// Starting Oct. 4th I am rewriting this to work on the "Bottom plane".
 function onComputeParams() {
 
   clearAm();
@@ -811,10 +812,17 @@ function onComputeParams() {
 
   [theta,gamma,zprime] =
     ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
-  if (isNaN(gamma)) debugger;
+  [theta_bp,gamma_bp,zprime_bp] =
+    ComputeThetaAndGammaBP(ra,rb,rc,A,B,C,cA1,cA2,cA3);
+  // Roughly speaking, theta_bp should be twice theta,
+  // gamma_bp should be twice gamma, and Zprime should
+  // be slightly different.
+  console.log("Center Plane: ",
+              theta * 180 / Math.PI,gamma * 180 / Math.PI,zprime);
+  console.log("Bottom Plane: ",
+              theta_bp * 180 / Math.PI,gamma_bp * 180 / Math.PI,zprime_bp);
 
-  // WARNING: XXX Changing to right-handed counter-clockwise defintion
-//  theta = -theta;
+  if (isNaN(gamma)) debugger;
 
   const Z = new THREE.Vector3(0,0,1);
   const Y = new THREE.Vector3(0,1,0);
