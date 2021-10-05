@@ -238,36 +238,149 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   }
 }
 
+function altitude_of_triangle(base,s1,s2) {
+  const a = s1;
+  const b = base;
+  const c = s2;
+  const s = (a+b+c)/2;
+  const A = Math.sqrt(s*(s-a)*(s-b)*(s-c));
+  const h = 2*A/b;
+  return h;
+}
+
 // This is the "Bottom Plane" version
 // Note that the inputs are for the "Center Plane"
 // solution, which we need, but we are working
 // towards a "Bottom Plane" calculation.
-// Return values are [theta,gamma,zprime], where
+// Return values are [theta,gamma,zprime,B,C], where
 // theta is the rotation about the Z axis,
 // gamma is rotation about the X axis, and
 // zprime is the distance to the plane intersection point along
 // the z(Bottom Plane) axis.
-function ComputeThetaAndGammaBP(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
+// B and C are the points at the bottoms of the B and C
+// spheres in the Bottom Plane coordinates.
+function ComputeThetaAndGammaBP(ra,rb,rc) {
+
+  // Note: These are central plane compuatsions
+
+  const vs = Compute3TouchingCircles(ra,rb,rc);
+
+  const A2d = vs[0];
+  const B2d = vs[1];
+  const C2d = vs[2];
+  const A = new THREE.Vector3(A2d.x,0,A2d.y);
+  const B = new THREE.Vector3(B2d.x,0,B2d.y);
+  const C = new THREE.Vector3(C2d.x,0,C2d.y);
+
+  const theta1 = ComputeAxisAngleOfCone(ra,rb);
+  if (isNaN(theta1)) {
+    debugger;
+  }
+  const theta2 = ComputeAxisAngleOfCone(rb,rc);
+  if (isNaN(theta2)) {
+    debugger;
+  }
+  const theta3 = ComputeAxisAngleOfCone(rc,ra);
+  if (isNaN(theta3)) {
+    debugger;
+  }
+
+  let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3)
+
+  const A_bp = new THREE.Vector3(0,ra,0);
   if ((ra == rb)  && (rb == rc)) {
-    return [0,0,null];
+    const B_bp = new THREE.Vector3(ra+rb,rb,0);
+    // This is the height of an equilateral triangle
+    const z = (ra + rb) * Math.sqrt(3)/2;
+    const C_bp = new THREE.Vector3(ra,rc,z);
+    return [0,0,null,B_bp,C_cp,nul];
   }
   var theta1halfangle = ComputeAxisAngleOfCone(ra,rb);
-  const theta1 = (ra > rb) ? -2*theta1halfangle : 2*theta1halfangle;
-  const U_x = a / Math.tan(theta1/2);
+  const theta = (ra > rb) ? -2*theta1halfangle : 2*theta1halfangle;
+
+  // I need to understand the need for negation here...
+
+//  const U_x = - ra / Math.tan(theta/2);
   const alpha = 2 * ComputeAxisAngleOfCone(ra,rc);
-  const d = a / Math.tan(alpha/2);
-  var V_cp = new THREE.Vector3(C);
-  var phi = alpha/2;
-  V_cp.multiply(b/Math.sin(phi));
-  const fsq = (U_x - V.x)**2 + V.z**2;
+  const d = ra / Math.tan(alpha/2);
+  // This is NOT correct!!! This is the distance to UC,
+  // not UV! Editing...
+  const fsq = (cA1.x - cA3.x)**2 + cA3.z**2;
+  const f = Math.sqrt(fsq);
+  console.log("d,f",d,f);
+//  var V_cp = new THREE.Vector3(C.x, C.y, C.z);
+//  var phi = alpha/2;
+//  V_cp.multiplyScalar(rb/Math.sin(phi));
+
   const dsq = d**2;
   const factor = (fsq - dsq);
-  const V_bp_x = (1/2) * U_x + Math.sqrt(3*U_x**2 - 2*factor);
-  const V_bp_z = Math.sqrt(dsq - V_x**2);
-  const Zprime_bp = V_pb_z * U_x / (U_x - V_bp_x);
-  const gamma = 2 * Math.arctan(a/Zprime_bp);
-  return [theta1,gamma,Zprime_bp];
+  var U_x;
+  var V_bp_x;
+
+  if (ra == rb) {
+    var Zprime_cp = cA3.z;
+    var gamma = 2 * Math.asin(ra / Zprime_cp);
+    const Zprime_bp = ra / Math.tan(gamma / 2);
+    const B_x = 2*ra;
+    const B_bp = new THREE.Vector3(B_x,rb,0);
+//    const r = rc / Math.tan(alpha/2);
+//    const q = (d - r);
+//    const F = q / Math.sqrt(V_bp_x^2 + V_bp_z^2)
+    const C_x = ra;
+    const r = rc / Math.tan(gamma /2);
+    const C_z = Zprime_bp - r;
+    const C_bp = new THREE.Vector3(C_x,rc,C_z);
+    return [theta,gamma,Zprime_bp,A_bp,B_bp,C_bp,null];
+  } else {
+    U_x  = - ra / Math.tan(theta/2);
+
+    const V_bp_z_tri = altitude_of_triangle(U_x,d,f);
+    console.log(V_bp_z_tri);
+    V_bp_x = (factor - U_x **2) / (-2 * U_x);
+    if ((dsq - V_bp_x**2) < 0) debugger;
+    var V_bp_z = Math.sqrt(dsq - (V_bp_x**2));
+
+    console.log("plain, tri", V_bp_z, V_bp_z_tri);
+    //   V_bp_z = V_bp_z_tri;
+    //    V_bp_x = Math.sqrt(dsq - (V_bp_z**2));
+    V_bp_x = Math.sqrt(dsq - (V_bp_x**2));
+    const computed_d = Math.sqrt(V_bp_x**2 + V_bp_z**2);
+    console.assert(near(d,computed_d));
+
+
+    const Zprime_bp = V_bp_z * U_x / (U_x - V_bp_x);
+    const gamma = 2 * Math.atan2(ra , Zprime_bp);
+
+  // Now I need to try to construct B and C
+  // Note that the plus sign here is based on our choice
+  // of values
+    const B_x = U_x + (rb / Math.tan(theta/2));
+    const B_bp = new THREE.Vector3(B_x,rb,0);
+    const r = rc / Math.tan(alpha/2);
+    const q = (d - r);
+    const F = q / Math.sqrt(V_bp_x**2 + V_bp_z**2);
+    const C_x = V_bp_x * F;
+    const C_z = V_bp_z * F;
+    const C_bp = new THREE.Vector3(C_x,rc,C_z);
+    const V_bp = new THREE.Vector3(V_bp_x,0,V_bp_z);
+    return [theta,gamma,Zprime_bp,A_bp,B_bp,C_bp,V_bp];
+  }
 }
+
+function testComputeThetaAndGammaBPEqual() {
+
+  // This is set up intentionally so that C_bp should
+  // have an x value fo 1.2!
+  const ra = 1.2;
+  const rb = 1.2;
+  const rc = 0.6;
+
+  var [theta_bp,gamma_bp,zprime_bp,A_bp,B_bp,C_bp] =
+      ComputeThetaAndGammaBP(ra,rb,rc);
+  console.assert(C_bp.x == 1.2);
+
+}
+
 
 // Note that we will treat gamma as positive if it
 // represents a clockwise tilt of the plane when sighting
@@ -861,6 +974,7 @@ function runUnitTests() {
 
   testDoubleRotationEquivalence();
 
+  testComputeThetaAndGammaBPEqual();
  // testClosestPoint();
   // testComputeRotation();
   // testComputeRotationFull();

@@ -719,20 +719,7 @@ function onComputeParams() {
                 d3.color("DarkOrange"),
                 d3.color("Green")];
 
-  const vs = Compute3TouchingCircles(ra,rb,rc);
-
-  const A2d = vs[0];
-  const B2d = vs[1];
-  const C2d = vs[2];
-  const A = new THREE.Vector3(A2d.x,0,A2d.y);
-  const B = new THREE.Vector3(B2d.x,0,B2d.y);
-  const C = new THREE.Vector3(C2d.x,0,C2d.y);
-
-  console.assert(near(A.distanceTo(B),ra+rb));
-  console.assert(near(B.distanceTo(C),rb+rc));
-  console.assert(near(A.distanceTo(C),ra+rc));
-
-  // Cone Axes
+//  Cone Axes
   // const A1 = new THREE.Vector3().subVectors(A,B);
   // const A2 = new THREE.Vector3().subVectors(B,C);
   // const A3 = new THREE.Vector3().subVectors(C,A);
@@ -742,24 +729,61 @@ function onComputeParams() {
   // const A3unit = A3.clone().clampLength(1.0,1.0);
 
 
-  const theta1 = ComputeAxisAngleOfCone(ra,rb);
-  if (isNaN(theta1)) {
-    debugger;
-  }
-  const theta2 = ComputeAxisAngleOfCone(rb,rc);
-  if (isNaN(theta2)) {
-    debugger;
-  }
-  const theta3 = ComputeAxisAngleOfCone(rc,ra);
-  if (isNaN(theta3)) {
-    debugger;
-  }
 
-  let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
-  var ma = createSphere(ra,A,colors[0].hex());
-  var mb = createSphere(rb,B,colors[1].hex());
-  var mc = createSphere(rc,C,colors[2].hex());
+  // Add Apex points
 
+  // var map = createSphere(0.1,cA1,colors[0].hex());
+  // var mbp = createSphere(0.1,cA2,colors[1].hex());
+  // var mcp = createSphere(0.1,cA3,colors[2].hex());
+  // map.debugObject = true;
+  // mbp.debugObject = true;
+  // mcp.debugObject = true;
+  // am.scene.add(map);
+  // am.scene.add(mbp);
+  // am.scene.add(mcp);
+
+
+  // // Add Cones
+  // var coneab;
+  // var coneac;
+  // var conebc;
+  // if (ra != rb) {
+  //   var coneab = positionConeOnSphere(cA1,A,ComputeAxisAngleOfCone(ra,rb),0xff00);
+  //   am.scene.add(coneab);
+  // }
+  // if (ra != rc) {
+  //   var coneac = positionConeOnSphere(cA3,A,ComputeAxisAngleOfCone(ra,rc),0x0000ff);
+  //   am.scene.add(coneac);
+  // }
+  // if (rb != rc) {
+  //   var conebc = positionConeOnSphere(cA2,B,ComputeAxisAngleOfCone(rb,rc),0x00ff00);
+  //   am.scene.add(conebc);
+  // }
+
+
+  var gamma;
+  var theta;
+  var zprime;
+
+//  [theta,gamma,zprime] =
+//    ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
+  var [theta_bp,gamma_bp,zprime_bp,A_bp,B_bp,C_bp,V_bp] =
+    ComputeThetaAndGammaBP(ra,rb,rc);
+  // Roughly speaking, theta_bp should be twice theta,
+  // gamma_bp should be twice gamma, and Zprime should
+  // be slightly different.
+  console.log("Center Plane: ",
+              theta * 180 / Math.PI,gamma * 180 / Math.PI,zprime);
+  console.log("Bottom Plane: ",
+              theta_bp * 180 / Math.PI,gamma_bp * 180 / Math.PI,zprime_bp);
+  console.log("B_p, C_p ",
+              B_bp,C_bp);
+
+  var ma = createSphere(ra,A_bp,colors[0].hex());
+  var mb = createSphere(rb,B_bp,colors[1].hex());
+  var mc = createSphere(rc,C_bp,colors[2].hex());
+
+  var md = createSphere(0.1,V_bp,colors[0].hex());
   ma.castShadow = false;
   ma.receiveShadow = false;
   ma.debugObject = true;
@@ -775,54 +799,29 @@ function onComputeParams() {
   mc.debugObject = true;
   am.scene.add(mc);
 
-  // Add Apex points
-
-  var map = createSphere(0.1,cA1,colors[0].hex());
-  var mbp = createSphere(0.1,cA2,colors[1].hex());
-  var mcp = createSphere(0.1,cA3,colors[2].hex());
-  map.debugObject = true;
-  mbp.debugObject = true;
-  mcp.debugObject = true;
-  am.scene.add(map);
-  am.scene.add(mbp);
-  am.scene.add(mcp);
+  md.castShadow = false;
+  md.receiveShadow = false;
+  md.debugObject = true;
+  am.scene.add(md);
 
 
-  // Add Cones
-  var coneab;
-  var coneac;
-  var conebc;
-  if (ra != rb) {
-    var coneab = positionConeOnSphere(cA1,A,ComputeAxisAngleOfCone(ra,rb),0xff00);
-    am.scene.add(coneab);
-  }
-  if (ra != rc) {
-    var coneac = positionConeOnSphere(cA3,A,ComputeAxisAngleOfCone(ra,rc),0x0000ff);
-    am.scene.add(coneac);
-  }
-  if (rb != rc) {
-    var conebc = positionConeOnSphere(cA2,B,ComputeAxisAngleOfCone(rb,rc),0x00ff00);
-    am.scene.add(conebc);
-  }
+  // const theta1 = ComputeAxisAngleOfCone(ra,rb);
+  // if (isNaN(theta1)) {
+  //   debugger;
+  // }
+  // const theta2 = ComputeAxisAngleOfCone(rb,rc);
+  // if (isNaN(theta2)) {
+  //   debugger;
+  // }
+  // const theta3 = ComputeAxisAngleOfCone(rc,ra);
+  // if (isNaN(theta3)) {
+  //   debugger;
+  // }
+
+  // let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
 
 
-  var gamma;
-  var theta;
-  var zprime;
-
-  [theta,gamma,zprime] =
-    ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
-  [theta_bp,gamma_bp,zprime_bp] =
-    ComputeThetaAndGammaBP(ra,rb,rc,A,B,C,cA1,cA2,cA3);
-  // Roughly speaking, theta_bp should be twice theta,
-  // gamma_bp should be twice gamma, and Zprime should
-  // be slightly different.
-  console.log("Center Plane: ",
-              theta * 180 / Math.PI,gamma * 180 / Math.PI,zprime);
-  console.log("Bottom Plane: ",
-              theta_bp * 180 / Math.PI,gamma_bp * 180 / Math.PI,zprime_bp);
-
-  if (isNaN(gamma)) debugger;
+//  if (isNaN(gamma_bp)) debugger;
 
   const Z = new THREE.Vector3(0,0,1);
   const Y = new THREE.Vector3(0,1,0);
@@ -832,24 +831,24 @@ function onComputeParams() {
   var Pp1 = new THREE.Vector3(0,1,0);
   var Pp2 = new THREE.Vector3(0,1,0);
 
-  Pp.applyAxisAngle(Z,theta);
-  Pp1.applyAxisAngle(Z,theta);
+  Pp.applyAxisAngle(Z,theta_bp);
+  Pp1.applyAxisAngle(Z,theta_bp);
 
   Pp2.applyAxisAngle(Z,Math.PI/2);
 
-  Pp.applyAxisAngle(X,gamma);
+  Pp.applyAxisAngle(X,gamma_bp);
 
-  Pp2.applyAxisAngle(X,gamma);
+  Pp2.applyAxisAngle(X,gamma_bp);
 
   // var ppHelper = new THREE.ArrowHelper( Pp, A, 4, 0xff0000 );
   // ppHelper.debugObject = true;
   // am.scene.add( ppHelper );
 
-  var ppHelper1 = new THREE.ArrowHelper( Pp1, A, 3, 0x00ff00 );
+  var ppHelper1 = new THREE.ArrowHelper( Pp1, A_bp, 3, 0x00ff00 );
   ppHelper1.debugObject = true;
   am.scene.add( ppHelper1 );
 
-  var ppHelper2 = new THREE.ArrowHelper( Pp2, A, 3, 0x0000ff );
+  var ppHelper2 = new THREE.ArrowHelper( Pp2, A_bp, 3, 0x0000ff );
   ppHelper2.debugObject = true;
   am.scene.add( ppHelper2 );
 
@@ -858,26 +857,24 @@ function onComputeParams() {
   // is this the normal? YES
 
   // Now I want the equation of the plane...
-  var H_y;
-  if (ra != rb) {
-    const U = new THREE.Vector3(cA1.length(),0,0);
-    const plane_const = N.dot(U);
-    // Now I want to create
-    // Check... This is the sphere at y intersection on the plane
-    var H_y =  plane_const/N.y;
-  } else {
-    H_y = ra;
-  }
+  // var H_y;
+  // if (ra != rb) {
+  //   const U = new THREE.Vector3(cA1.length(),0,0);
+  //   const plane_const = N.dot(U);
+  //   // Now I want to create
+  //   // Check... This is the sphere at y intersection on the plane
+  //   var H_y =  plane_const/N.y;
+  // } else {
+  //   H_y = ra;
+  // }
 
-  var check_s = createSphere(0.05,
-                             new THREE.Vector3(0,H_y,0),0x00ff88);
+  // var check_s = createSphere(0.05,
+  //                            new THREE.Vector3(0,H_y,0),0x00ff88);
 
-  check_s.castShadow = false;
-  check_s.receiveShadow = false;
-  check_s.debugObject = true;
-  am.scene.add(check_s);
-
-//  const H = new THREE.Vector3(0,H_y,0);
+  // check_s.castShadow = false;
+  // check_s.receiveShadow = false;
+  // check_s.debugObject = true;
+  // am.scene.add(check_s);
 
   const Origin = new THREE.Vector3(0,0,0);
 
@@ -891,7 +888,7 @@ function onComputeParams() {
   plane.applyMatrix(RM0);
 
   // S is my attempt to construct a true "support point"
-  const S = A.clone().add(N.clone().clampLength(ra,ra));
+  const S = A_bp.clone().add(N.clone().clampLength(ra,ra));
    let qzn = new THREE.Quaternion();
   qzn.setFromUnitVectors(Y,N);
   const RM1 = new THREE.Matrix4().makeRotationFromQuaternion(qzn);
@@ -914,7 +911,7 @@ function onComputeParams() {
 
   // Now in the UI, set debugging values...
   if (ra != rb) {
-    $( "#U_x" ).val( format_num(cA1.x,3) );
+//    $( "#U_x" ).val( format_num(cA1.x,3) );
   }
   $( "#H_y" ).val( format_num(H_y,3) );
   $( "#r_b_inv" ).val( format_num(rb,3) );
@@ -926,8 +923,8 @@ function onComputeParams() {
   // THREE is right handed, but we use a left-handed system in our paper.
   // We use the left-handed system in our description of Z on
   // the website for debugging purposes.
-  //  return [-theta,gamma];
-  return [theta,gamma];
+  //  return [-theta_bp,gamma_bp];
+  return [theta_bp,gamma_bp];
 }
 
 function main() {
