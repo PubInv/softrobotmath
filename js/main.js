@@ -767,13 +767,11 @@ function onComputeParams() {
 
 //  [theta,gamma,zprime] =
 //    ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3);
-  var [theta_bp,gamma_bp,zprime_bp,A_bp,B_bp,C_bp,V_bp] =
+  var [theta_bp,gamma_bp,zprime_bp,A_bp,B_bp,C_bp,V_bp,U_bp] =
     ComputeThetaAndGammaBP(ra,rb,rc);
   // Roughly speaking, theta_bp should be twice theta,
   // gamma_bp should be twice gamma, and Zprime should
   // be slightly different.
-  console.log("Center Plane: ",
-              theta * 180 / Math.PI,gamma * 180 / Math.PI,zprime);
   console.log("Bottom Plane: ",
               theta_bp * 180 / Math.PI,gamma_bp * 180 / Math.PI,zprime_bp);
   console.log("B_p, C_p ",
@@ -783,7 +781,6 @@ function onComputeParams() {
   var mb = createSphere(rb,B_bp,colors[1].hex());
   var mc = createSphere(rc,C_bp,colors[2].hex());
 
-  var md = createSphere(0.1,V_bp,colors[0].hex());
   ma.castShadow = false;
   ma.receiveShadow = false;
   ma.debugObject = true;
@@ -799,10 +796,24 @@ function onComputeParams() {
   mc.debugObject = true;
   am.scene.add(mc);
 
+  var md = createSphere(0.1,V_bp,colors[0].hex());
   md.castShadow = false;
   md.receiveShadow = false;
   md.debugObject = true;
   am.scene.add(md);
+
+  var Zprime = new THREE.Vector3(0,0,zprime_bp);
+  var me = createSphere(0.1,Zprime,colors[1].hex());
+  me.castShadow = false;
+  me.receiveShadow = false;
+  me.debugObject = true;
+  am.scene.add(me);
+
+  var mf = createSphere(0.1,U_bp,colors[2].hex());
+  mf.castShadow = false;
+  mf.receiveShadow = false;
+  mf.debugObject = true;
+  am.scene.add(mf);
 
 
   // const theta1 = ComputeAxisAngleOfCone(ra,rb);

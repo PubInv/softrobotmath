@@ -303,8 +303,6 @@ function ComputeThetaAndGammaBP(ra,rb,rc) {
 //  const U_x = - ra / Math.tan(theta/2);
   const alpha = 2 * ComputeAxisAngleOfCone(ra,rc);
   const d = ra / Math.tan(alpha/2);
-  // This is NOT correct!!! This is the distance to UC,
-  // not UV! Editing...
   const fsq = (cA1.x - cA3.x)**2 + cA3.z**2;
   const f = Math.sqrt(fsq);
   console.log("d,f",d,f);
@@ -330,7 +328,7 @@ function ComputeThetaAndGammaBP(ra,rb,rc) {
     const r = rc / Math.tan(gamma /2);
     const C_z = Zprime_bp - r;
     const C_bp = new THREE.Vector3(C_x,rc,C_z);
-    return [theta,gamma,Zprime_bp,A_bp,B_bp,C_bp,null];
+    return [theta,gamma,Zprime_bp,A_bp,B_bp,C_bp,null,null];
   } else {
     U_x  = - ra / Math.tan(theta/2);
 
@@ -343,10 +341,9 @@ function ComputeThetaAndGammaBP(ra,rb,rc) {
     console.log("plain, tri", V_bp_z, V_bp_z_tri);
     //   V_bp_z = V_bp_z_tri;
     //    V_bp_x = Math.sqrt(dsq - (V_bp_z**2));
-    V_bp_x = Math.sqrt(dsq - (V_bp_x**2));
+    V_bp_x = Math.sqrt(dsq - (V_bp_z**2));
     const computed_d = Math.sqrt(V_bp_x**2 + V_bp_z**2);
     console.assert(near(d,computed_d));
-
 
     const Zprime_bp = V_bp_z * U_x / (U_x - V_bp_x);
     const gamma = 2 * Math.atan2(ra , Zprime_bp);
@@ -363,7 +360,32 @@ function ComputeThetaAndGammaBP(ra,rb,rc) {
     const C_z = V_bp_z * F;
     const C_bp = new THREE.Vector3(C_x,rc,C_z);
     const V_bp = new THREE.Vector3(V_bp_x,0,V_bp_z);
-    return [theta,gamma,Zprime_bp,A_bp,B_bp,C_bp,V_bp];
+    const U_bp = new THREE.Vector3(U_x,0,0);
+
+    var Zprime_cp = cA3.z * cA1.x / ((cA1.x) - (cA3.x));
+
+
+    // I now believe this is wrong, and somewhat hopeless.
+    // We have to cmpute the rotaion on the off-axis.
+    // I think going back to the center-plane solution and
+    // attempting to find a transformation may be a better solution.
+    // Now trying something new...
+    const h = Math.abs(Math.tan(theta)*U_x);
+
+    const rod = Math.sqrt(Zprime_bp**2 - h**2);
+    console.log("h",h);
+    const gamma_new = Math.asin(h/Zprime_bp);
+    console.log("gamma, gamma_new", gamma * 180 / Math.PI, gamma_new * 180 / Math.PI);
+    var Pp = new THREE.Vector3(0,h,rod);
+    var A_clone = new THREE.Vector3(A_bp.x,A_bp.y,A_bp.z);
+    var B_clone = new THREE.Vector3(A_bp.x,A_bp.y,A_bp.z);
+    var axis = new THREE.Vector3(0,0,0);
+    var axis.subVectors(B_clone,A_clone);
+
+    Pp.applyAxisAngle(X,gamma_new);
+    console.assert(near(Pp.z,Zprime_bp));
+    console.log("Pp",Pp);
+    return [theta,gamma_new,Zprime_bp,A_bp,B_bp,C_bp,V_bp,U_bp];
   }
 }
 
