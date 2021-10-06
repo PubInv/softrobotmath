@@ -755,25 +755,6 @@ function onComputeParams() {
   }
 
   let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
-  var ma = createSphere(ra,A,colors[0].hex());
-  var mb = createSphere(rb,B,colors[1].hex());
-  var mc = createSphere(rc,C,colors[2].hex());
-
-  ma.castShadow = false;
-  ma.receiveShadow = false;
-  ma.debugObject = true;
-  am.scene.add(ma);
-
-  mb.castShadow = false;
-  mb.receiveShadow = false;
-  mb.debugObject = true;
-  am.scene.add(mb);
-
-  mc.castShadow = false;
-  mc.receiveShadow = false;
-  mc.debugObject = true;
-  am.scene.add(mc);
-
   // Add Apex points
 
   var map = createSphere(0.1,cA1,colors[0].hex());
@@ -872,7 +853,16 @@ function onComputeParams() {
 //  const H = new THREE.Vector3(0,H_y,0);
 
   const Origin = new THREE.Vector3(0,0,0);
+  // S is my attempt to construct a true "support point"
+  const S = A.clone().add(N.clone().clampLength(ra,ra));
 
+  var RM = new THREE.Matrix4();
+  var RM1;
+
+  var TopPlaneTotal;
+  const TM_rest = new THREE.Matrix4().makeTranslation(0,ra,0);
+
+  {
   var geometry = new THREE.PlaneGeometry( 20, 20, 32 );
   var pmaterial = new THREE.MeshPhongMaterial( {color: 0xffff00, transparent: true, opacity: 0.2, side: THREE.DoubleSide} );
   var plane = new THREE.Mesh( geometry, pmaterial );
@@ -880,18 +870,122 @@ function onComputeParams() {
   let qz = new THREE.Quaternion();
   qz.setFromUnitVectors(Z,Y);
   const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
-  plane.applyMatrix(RM0);
+//  plane.applyMatrix(RM0);
 
-  // S is my attempt to construct a true "support point"
-  const S = A.clone().add(N.clone().clampLength(ra,ra));
    let qzn = new THREE.Quaternion();
-  qzn.setFromUnitVectors(Y,N);
-  const RM1 = new THREE.Matrix4().makeRotationFromQuaternion(qzn);
-  plane.applyMatrix(RM1);
+    qzn.setFromUnitVectors(Y,N);
+    RM1 = new THREE.Matrix4().makeRotationFromQuaternion(qzn);
+    RM.multiplyMatrices(RM1,RM0);
+    const intermediate = new THREE.Matrix4().multiplyMatrices(RM1,RM);
 
-  const TM0 = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
-  plane.applyMatrix(TM0);
-  am.scene.add( plane );
+    {
+//      S.applyMatrix4(RM);
+    plane.applyMatrix(RM);
+//    S.applyMatrix4(TM_rest);
+    const TM0 = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
+      plane.applyMatrix(TM0);
+    }
+
+
+    // {
+    // S.applyMatrix4(intermediate);
+    // plane.applyMatrix(intermediate);
+    // S.applyMatrix4(TM_rest);
+    // const TM0 = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
+    //   plane.applyMatrix(TM0);
+    // }
+
+    am.scene.add( plane );
+  }
+
+  // Now attemptint to create a rotation that moves from the bottom plane to the top plane
+  // based on the code above...
+  // We seek a transformation that takes the top plane to the bottom plane
+  {
+    var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
+    var pmaterial = new THREE.MeshPhongMaterial( {color: 0xcc00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
+    var bplane = new THREE.Mesh( geometry, pmaterial );
+    bplane.debugObject = true;
+    // I think this just gives us a plane normal to Y
+    let qz = new THREE.Quaternion();
+    qz.setFromUnitVectors(Z,Y);
+    const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
+    bplane.applyMatrix(RM0);
+
+    const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
+    bplane.applyMatrix(RMtheta);
+    const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
+    bplane.applyMatrix(RMgamma);
+
+    const TM0 = new THREE.Matrix4().makeTranslation(S.x,-S.y,S.z);
+    bplane.applyMatrix(TM0);
+    bplane.applyMatrix(TM_rest);
+ //   am.scene.add( bplane );
+
+  }
+  var NegRotate;
+  var Support;
+    {
+      // Now I want to reconstitute the top plane with a double rotation...
+      var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
+      var pmaterial = new THREE.MeshPhongMaterial( {color: 0x00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
+      var tplane = new THREE.Mesh( geometry, pmaterial );
+      // I think this just gives us a plane normal to Y
+      let qz = new THREE.Quaternion();
+      qz.setFromUnitVectors(Z,Y);
+      const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
+      tplane.applyMatrix(RM0);
+
+      const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
+ //     tplane.applyMatrix(RMtheta);
+      const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
+  //    tplane.applyMatrix(RMgamma);
+
+      NegRotate = new THREE.Matrix4().multiplyMatrices(RMgamma,RMtheta);
+      // now tplane should be where the bplane is, and we try to rotate it back...
+      Support = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
+      const Translate = new THREE.Matrix4().multiplyMatrices(TM_rest,Support);
+
+//      tplane.applyMatrix(TM0);
+      const DoubleRotation = new THREE.Matrix4().multiplyMatrices(RM1,RM1);
+      const BottomToTop = new THREE.Matrix4().multiplyMatrices(Translate,DoubleRotation);
+      tplane.applyMatrix(BottomToTop);
+//      tplane.applyMatrix(TM_rest);
+
+//      am.scene.add( tplane );
+    }
+
+  // how do we transform these?
+
+
+  // A.applyMatrix4(RM1);
+  // B.applyMatrix4(RM1);
+  // C.applyMatrix4(RM1);
+
+  // A.applyMatrix4(TM_rest);
+  // B.applyMatrix4(TM_rest);
+  // C.applyMatrix4(TM_rest);
+
+  var ma = createSphere(ra,A,colors[0].hex());
+  var mb = createSphere(rb,B,colors[1].hex());
+  var mc = createSphere(rc,C,colors[2].hex());
+
+  ma.castShadow = false;
+  ma.receiveShadow = false;
+  ma.debugObject = true;
+  am.scene.add(ma);
+
+  mb.castShadow = false;
+  mb.receiveShadow = false;
+  mb.debugObject = true;
+  am.scene.add(mb);
+
+  mc.castShadow = false;
+  mc.receiveShadow = false;
+  mc.debugObject = true;
+  am.scene.add(mc);
+
+
 
   var narrowHelper = new THREE.ArrowHelper( N, S,2, 0xff00ff );
   narrowHelper.debugObject = true;
