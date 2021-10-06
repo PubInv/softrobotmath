@@ -754,36 +754,9 @@ function onComputeParams() {
     debugger;
   }
 
+
   let [cA1,cA2,cA3] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
-  // Add Apex points
 
-  var map = createSphere(0.1,cA1,colors[0].hex());
-  var mbp = createSphere(0.1,cA2,colors[1].hex());
-  var mcp = createSphere(0.1,cA3,colors[2].hex());
-  map.debugObject = true;
-  mbp.debugObject = true;
-  mcp.debugObject = true;
-  am.scene.add(map);
-  am.scene.add(mbp);
-  am.scene.add(mcp);
-
-
-  // Add Cones
-  var coneab;
-  var coneac;
-  var conebc;
-  if (ra != rb) {
-    var coneab = positionConeOnSphere(cA1,A,ComputeAxisAngleOfCone(ra,rb),0xff00);
-    am.scene.add(coneab);
-  }
-  if (ra != rc) {
-    var coneac = positionConeOnSphere(cA3,A,ComputeAxisAngleOfCone(ra,rc),0x0000ff);
-    am.scene.add(coneac);
-  }
-  if (rb != rc) {
-    var conebc = positionConeOnSphere(cA2,B,ComputeAxisAngleOfCone(rb,rc),0x00ff00);
-    am.scene.add(conebc);
-  }
 
 
   var gamma;
@@ -860,6 +833,8 @@ function onComputeParams() {
   var RM1;
 
   var TopPlaneTotal;
+
+  var CenterToReal;
   const TM_rest = new THREE.Matrix4().makeTranslation(0,ra,0);
 
   {
@@ -886,7 +861,8 @@ function onComputeParams() {
       plane.applyMatrix(TM0);
     }
 
-
+    CenterToReal = new THREE.Matrix4().multiplyMatrices(TM_rest,RM1);
+    plane.applyMatrix(CenterToReal);
     // {
     // S.applyMatrix4(intermediate);
     // plane.applyMatrix(intermediate);
@@ -901,62 +877,65 @@ function onComputeParams() {
   // Now attemptint to create a rotation that moves from the bottom plane to the top plane
   // based on the code above...
   // We seek a transformation that takes the top plane to the bottom plane
-  {
-    var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
-    var pmaterial = new THREE.MeshPhongMaterial( {color: 0xcc00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
-    var bplane = new THREE.Mesh( geometry, pmaterial );
-    bplane.debugObject = true;
-    // I think this just gives us a plane normal to Y
-    let qz = new THREE.Quaternion();
-    qz.setFromUnitVectors(Z,Y);
-    const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
-    bplane.applyMatrix(RM0);
+//   {
+//     var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
+//     var pmaterial = new THREE.MeshPhongMaterial( {color: 0xcc00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
+//     var bplane = new THREE.Mesh( geometry, pmaterial );
+//     bplane.debugObject = true;
+//     // I think this just gives us a plane normal to Y
+//     let qz = new THREE.Quaternion();
+//     qz.setFromUnitVectors(Z,Y);
+//     const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
+//     bplane.applyMatrix(RM0);
 
-    const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
-    bplane.applyMatrix(RMtheta);
-    const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
-    bplane.applyMatrix(RMgamma);
+//     const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
+//     bplane.applyMatrix(RMtheta);
+//     const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
+//     bplane.applyMatrix(RMgamma);
 
-    const TM0 = new THREE.Matrix4().makeTranslation(S.x,-S.y,S.z);
-    bplane.applyMatrix(TM0);
-    bplane.applyMatrix(TM_rest);
- //   am.scene.add( bplane );
+//     const TM0 = new THREE.Matrix4().makeTranslation(S.x,-S.y,S.z);
+//     bplane.applyMatrix(TM0);
+//     bplane.applyMatrix(TM_rest);
+//  //   am.scene.add( bplane );
 
-  }
-  var NegRotate;
-  var Support;
-    {
-      // Now I want to reconstitute the top plane with a double rotation...
-      var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
-      var pmaterial = new THREE.MeshPhongMaterial( {color: 0x00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
-      var tplane = new THREE.Mesh( geometry, pmaterial );
-      // I think this just gives us a plane normal to Y
-      let qz = new THREE.Quaternion();
-      qz.setFromUnitVectors(Z,Y);
-      const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
-      tplane.applyMatrix(RM0);
+//   }
+//   var NegRotate;
+//   var Support;
+//     {
+//       // Now I want to reconstitute the top plane with a double rotation...
+//       var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
+//       var pmaterial = new THREE.MeshPhongMaterial( {color: 0x00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
+//       var tplane = new THREE.Mesh( geometry, pmaterial );
+//       // I think this just gives us a plane normal to Y
+//       let qz = new THREE.Quaternion();
+//       qz.setFromUnitVectors(Z,Y);
+//       const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
+//       tplane.applyMatrix(RM0);
 
-      const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
- //     tplane.applyMatrix(RMtheta);
-      const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
-  //    tplane.applyMatrix(RMgamma);
+//       const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
+//  //     tplane.applyMatrix(RMtheta);
+//       const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
+//   //    tplane.applyMatrix(RMgamma);
 
-      NegRotate = new THREE.Matrix4().multiplyMatrices(RMgamma,RMtheta);
-      // now tplane should be where the bplane is, and we try to rotate it back...
-      Support = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
-      const Translate = new THREE.Matrix4().multiplyMatrices(TM_rest,Support);
+//       NegRotate = new THREE.Matrix4().multiplyMatrices(RMgamma,RMtheta);
+//       // now tplane should be where the bplane is, and we try to rotate it back...
+//       Support = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
+//       const Translate = new THREE.Matrix4().multiplyMatrices(TM_rest,Support);
 
-//      tplane.applyMatrix(TM0);
-      const DoubleRotation = new THREE.Matrix4().multiplyMatrices(RM1,RM1);
-      const BottomToTop = new THREE.Matrix4().multiplyMatrices(Translate,DoubleRotation);
-      tplane.applyMatrix(BottomToTop);
-//      tplane.applyMatrix(TM_rest);
+// //      tplane.applyMatrix(TM0);
+//       const DoubleRotation = new THREE.Matrix4().multiplyMatrices(RM1,RM1);
+//       const BottomToTop = new THREE.Matrix4().multiplyMatrices(Translate,DoubleRotation);
+//       tplane.applyMatrix(BottomToTop);
+// //      tplane.applyMatrix(TM_rest);
 
-//      am.scene.add( tplane );
-    }
+// //      am.scene.add( tplane );
+//     }
 
   // how do we transform these?
 
+  A.applyMatrix4(CenterToReal);
+  B.applyMatrix4(CenterToReal);
+  C.applyMatrix4(CenterToReal);
 
   // A.applyMatrix4(RM1);
   // B.applyMatrix4(RM1);
@@ -985,13 +964,47 @@ function onComputeParams() {
   mc.debugObject = true;
   am.scene.add(mc);
 
+  // In this model, we get the new Apices after moving the spheres
+  let [cA1n,cA2n,cA3n] = GetConeApices(ra,rb,rc,A,B,C,theta1,theta2,theta3);
+
+    // Add Cones
+  var coneab;
+  var coneac;
+  var conebc;
+  if (ra != rb) {
+    var coneab = positionConeOnSphere(cA1n,A,ComputeAxisAngleOfCone(ra,rb),0xff00);
+    am.scene.add(coneab);
+  }
+  if (ra != rc) {
+    var coneac = positionConeOnSphere(cA3n,A,ComputeAxisAngleOfCone(ra,rc),0x0000ff);
+    am.scene.add(coneac);
+  }
+  if (rb != rc) {
+    var conebc = positionConeOnSphere(cA2n,B,ComputeAxisAngleOfCone(rb,rc),0x00ff00);
+    am.scene.add(conebc);
+  }
+
+  // Add Apex points
+
+  var map = createSphere(0.1,cA1n,colors[0].hex());
+  var mbp = createSphere(0.1,cA2n,colors[1].hex());
+  var mcp = createSphere(0.1,cA3n,colors[2].hex());
+  map.debugObject = true;
+  mbp.debugObject = true;
+  mcp.debugObject = true;
+  am.scene.add(map);
+  am.scene.add(mbp);
+  am.scene.add(mcp);
 
 
   var narrowHelper = new THREE.ArrowHelper( N, S,2, 0xff00ff );
   narrowHelper.debugObject = true;
   am.scene.add( narrowHelper );
 
-  var zc = createSphere(0.1,new THREE.Vector3(0,0,zprime),0xffffff);
+  // This is now incorrect; we need to compute it or transforme it.
+  const ZP = new THREE.Vector3(0,0,zprime);
+  ZP.applyMatrix4(CenterToReal);
+  var zc = createSphere(0.1,ZP,0x0000ff);
 
   zc.castShadow = false;
   zc.receiveShadow = false;
@@ -1000,7 +1013,7 @@ function onComputeParams() {
 
   // Now in the UI, set debugging values...
   if (ra != rb) {
-    $( "#U_x" ).val( format_num(cA1.x,3) );
+    $( "#U_x" ).val( format_num(cA1n.x,3) );
   }
   $( "#H_y" ).val( format_num(H_y,3) );
   $( "#r_b_inv" ).val( format_num(rb,3) );
