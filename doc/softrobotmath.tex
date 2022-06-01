@@ -205,21 +205,24 @@ $\psi = 0$ apex angle.)
 
 Given $a,b$ and $c$, we seek the angles $\theta$ and $\gamma$.
 We seek the  point $C$ first.
-The cosine law to compute the angle $\angle ABC = \alpha$:
+Call the angle $\angle ABC = \epsilon$, since the opposite side
+is labeled $e$.
+The cosine law to compute the angle $\epsilon$:
 
 \begin{align}
-  \alpha  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}}
-%  \alpha  &= \arccos{\frac{(b+c)^2 + (a+c)^2 - (a+b)^2}{2(a+c)(a+b)}} \\
+  \epsilon  &= \arccos{\frac{d^2 + f^2 - e^2}{2fd}}
 \end{align}
 
-It is clear that once $\alpha$ has been calculated:
+It is clear that once $\epsilon$ has been calculated
+we can calculate $C_z$\footnote{We use the common convention that $C_x, C_y, and C_z$ represent the $x$, $y$ and $z$
+coordinate of the point or vector $C$.}:
 
 \begin{align}
- C_z  &= a\sin{\alpha}
+ C_z  &= f\sin{\epsilon}
 \end{align}
-Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean theorem:
+Noting that $B_x = d = a + b$,
 \begin{align}
-  C_x   &= \sqrt{b^2 - C_z^2}
+  C_x   &= d - \cos{\epsilon}
 \end{align}
 
 
