@@ -80,7 +80,7 @@ This creates 3 degress of rotational freedom
 (ignoring the slight translation the spheres are capable of by consistently enlarging),
 which is slightly more constrained than the 6DOF Stewart Platform.
 In 1881, the problem of computing the plane tangent to three spheres was
-set as an exercise in a textbook, {em Practical Solid Geometry}\cite{payne1881},
+set as an exercise in a textbook, {\em Practical Solid Geometry}\cite{payne1881},
 but not solved.
 
 The forward problem is given three radii,
@@ -161,6 +161,46 @@ line tangent to both $A$ and $B$, indicated by the dotted line.
 By considering the desired tilt of the top plane,
 a particular point on this curve is chosen.
 
+\subsection{The half-angle of a cone eneveloping two tangent spheres}
+
+The apex half-angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
+spheres of radii $r,s$, is purely a function of $r$ and $s$.
+Luckily, to develop a formula for $\psi$, we can treat the problem as a two-dimenstional problem,
+as shown in Fig. \ref{fig:conehalf}
+
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.8\textwidth]{figures/Half-AngleOfConeTangenttoTwoTangentSpheres.png}
+     \caption{Half-angle of Cone Tangent to Two Tangent Spheres}
+  \label{fig:conehalf}
+\end{figure}
+
+Noting the lengths of the hypoteneuses as shown in the figure, we
+can calulate $x$ in terms of $r$ and $s$:
+
+\begin{align}
+  \sin{\psi} &= \frac{r}{x + r} \\
+  \sin{\psi} &= \frac{s}{x + 2r + s} \\
+  \frac{r}{x + r} &= \frac{s}{x + 2r + s} \\
+  s(x + r) &= r(x + 2r + s) \\
+  x &= \frac{2r^2}{s - r}
+\end{align}
+We can then eliminate $x$:
+\begin{align}
+  \sin{\psi} &= \frac{r}{x + r} \\
+  \sin{\psi} &= \frac{r}{\frac{2r^2}{s - r} + r} \\
+    \sin{\psi} &= \frac{1}{\frac{2r}{s - r} + 1} \\
+      \sin{\psi} &= \frac{s-r}{2r + s - r} \\
+    \sin{\psi} &= \frac{s-r}{r + s} \\
+ \psi &= \arcsin{\frac{s - r}{s + r}}
+\end{align}
+where $r < s$ without loss of generality. Note that when $r = s$
+there is a special case,
+the cone tangent to both is degenerate (that is, a cylinder, or a cone of
+$\psi = 0$ apex angle.)
+
+
 \section{The Tilt from the Radii}
 
 Given $a,b$ and $c$, we seek the angles $\theta$ and $\gamma$.
@@ -168,7 +208,7 @@ We seek the  point $C$ first.
 The cosine law to compute the angle $\angle ABC = \alpha$:
 
 \begin{align}
-  \alpha  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}} \\
+  \alpha  &= \arccos{\frac{a^2 + b^2 - c^2}{2bc}}
 %  \alpha  &= \arccos{\frac{(b+c)^2 + (a+c)^2 - (a+b)^2}{2(a+c)(a+b)}} \\
 \end{align}
 
@@ -179,7 +219,7 @@ It is clear that once $\alpha$ has been calculated:
 \end{align}
 Allowing us to form a right triangle $\triangle ACD$ and use the Pythagorean theorem:
 \begin{align}
-  C_x   &= \sqrt{b^2 - C_z^2}  \\
+  C_x   &= \sqrt{b^2 - C_z^2}
 \end{align}
 
 
@@ -268,7 +308,7 @@ and $C$ and $A$ respectively. Recall that $A = [0,0,0]$.
 The point $H$ is the intesection of the $AB$ cone with the $y$ axis (and therefore the intersection
 of the top plane with the $y$ axis.
 \begin{align}
-  H_y &= U_x \tan{\theta} \\
+  H_y &= U_x \tan{\theta}
 \end{align}
 This is right triangle of the origin with the points $U$ and $H$. (The hypotenuse
 of this triangle is $\overline{HU}$, and side adjacent to $\theta$ is $\overline{AU}$.)
