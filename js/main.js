@@ -1,4 +1,4 @@
-// Copyright (C) 2019 by
+// Copyright (C) 2019,2022 by
 //   Robert L. Read <read.robert@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -834,7 +834,6 @@ function onComputeParams() {
 
   var TopPlaneTotal;
 
-  var CenterToReal;
   const TM_rest = new THREE.Matrix4().makeTranslation(0,ra,0);
 
   {
@@ -845,7 +844,6 @@ function onComputeParams() {
   let qz = new THREE.Quaternion();
   qz.setFromUnitVectors(Z,Y);
   const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
-//  plane.applyMatrix(RM0);
 
    let qzn = new THREE.Quaternion();
     qzn.setFromUnitVectors(Y,N);
@@ -860,9 +858,6 @@ function onComputeParams() {
     const TM0 = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
       plane.applyMatrix(TM0);
     }
-
-    CenterToReal = new THREE.Matrix4().multiplyMatrices(TM_rest,RM1);
-    plane.applyMatrix(CenterToReal);
     // {
     // S.applyMatrix4(intermediate);
     // plane.applyMatrix(intermediate);
@@ -873,77 +868,6 @@ function onComputeParams() {
 
     am.scene.add( plane );
   }
-
-  // Now attemptint to create a rotation that moves from the bottom plane to the top plane
-  // based on the code above...
-  // We seek a transformation that takes the top plane to the bottom plane
-//   {
-//     var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
-//     var pmaterial = new THREE.MeshPhongMaterial( {color: 0xcc00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
-//     var bplane = new THREE.Mesh( geometry, pmaterial );
-//     bplane.debugObject = true;
-//     // I think this just gives us a plane normal to Y
-//     let qz = new THREE.Quaternion();
-//     qz.setFromUnitVectors(Z,Y);
-//     const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
-//     bplane.applyMatrix(RM0);
-
-//     const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
-//     bplane.applyMatrix(RMtheta);
-//     const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
-//     bplane.applyMatrix(RMgamma);
-
-//     const TM0 = new THREE.Matrix4().makeTranslation(S.x,-S.y,S.z);
-//     bplane.applyMatrix(TM0);
-//     bplane.applyMatrix(TM_rest);
-//  //   am.scene.add( bplane );
-
-//   }
-//   var NegRotate;
-//   var Support;
-//     {
-//       // Now I want to reconstitute the top plane with a double rotation...
-//       var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
-//       var pmaterial = new THREE.MeshPhongMaterial( {color: 0x00ff, transparent: true, opacity: 0.3, side: THREE.DoubleSide} );
-//       var tplane = new THREE.Mesh( geometry, pmaterial );
-//       // I think this just gives us a plane normal to Y
-//       let qz = new THREE.Quaternion();
-//       qz.setFromUnitVectors(Z,Y);
-//       const RM0 = new THREE.Matrix4().makeRotationFromQuaternion(qz);
-//       tplane.applyMatrix(RM0);
-
-//       const RMtheta = new THREE.Matrix4().makeRotationAxis(Z,-theta);
-//  //     tplane.applyMatrix(RMtheta);
-//       const RMgamma = new THREE.Matrix4().makeRotationAxis(X,-gamma);
-//   //    tplane.applyMatrix(RMgamma);
-
-//       NegRotate = new THREE.Matrix4().multiplyMatrices(RMgamma,RMtheta);
-//       // now tplane should be where the bplane is, and we try to rotate it back...
-//       Support = new THREE.Matrix4().makeTranslation(S.x,S.y,S.z);
-//       const Translate = new THREE.Matrix4().multiplyMatrices(TM_rest,Support);
-
-// //      tplane.applyMatrix(TM0);
-//       const DoubleRotation = new THREE.Matrix4().multiplyMatrices(RM1,RM1);
-//       const BottomToTop = new THREE.Matrix4().multiplyMatrices(Translate,DoubleRotation);
-//       tplane.applyMatrix(BottomToTop);
-// //      tplane.applyMatrix(TM_rest);
-
-// //      am.scene.add( tplane );
-//     }
-
-  // how do we transform these?
-
-  A.applyMatrix4(CenterToReal);
-  B.applyMatrix4(CenterToReal);
-  C.applyMatrix4(CenterToReal);
-
-  // A.applyMatrix4(RM1);
-  // B.applyMatrix4(RM1);
-  // C.applyMatrix4(RM1);
-
-  // A.applyMatrix4(TM_rest);
-  // B.applyMatrix4(TM_rest);
-  // C.applyMatrix4(TM_rest);
 
   var ma = createSphere(ra,A,colors[0].hex());
   var mb = createSphere(rb,B,colors[1].hex());
@@ -1003,7 +927,6 @@ function onComputeParams() {
 
   // This is now incorrect; we need to compute it or transforme it.
   const ZP = new THREE.Vector3(0,0,zprime);
-  ZP.applyMatrix4(CenterToReal);
   var zc = createSphere(0.1,ZP,0x0000ff);
 
   zc.castShadow = false;
@@ -1359,8 +1282,8 @@ var GAMMA_D = 0;
   $(function() {
     $( "#theta_slider" ).slider({
       range: "max",
-      min: -45,
-      max: 45,
+      min: -80,
+      max: 80,
       value: THETA_D,
       step: 1,
       slide: function( event, ui ) {
@@ -1381,8 +1304,8 @@ var GAMMA_D = 0;
   $(function() {
     $( "#gamma_slider" ).slider({
       range: "max",
-      min: -45,
-      max: 45,
+      min: -80,
+      max: 80,
       value: GAMMA_D,
       step: 1,
       slide: function( event, ui ) {

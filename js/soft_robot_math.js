@@ -20,7 +20,11 @@
 // to deal with roundoff error
 "use strict";
 
-
+// Coordinate system:
+// Let us define the coordinate system to be the one used by THREE.js,
+// which is a right handed-coordinate system.
+// Rotation angles are positive when counterclockwise looking frome the positive axis
+// to the origin.
 function near(x, y, e = 1e-5) {
   return Math.abs(x - y) <= e;
 }
@@ -192,7 +196,7 @@ function Compute3TouchingCircles(ra,rb,rc) {
 }
 
 
-// I don't believe this is returning things correctly now.
+// Theta will be negative when ra > rb.
 function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   if ((ra == rb)  && (rb == rc)) {
     // This is not correct!
@@ -202,7 +206,6 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
   // but we need a signed angle to represent the rotation
   // of the plane, so we process separately...
   var theta1 = ComputeAxisAngleOfCone(ra,rb);
-//  if (rb > ra) theta1 = -theta1;
   if (ra > rb) theta1 = -theta1;
 
   if (isNaN(cA3.x)) {
@@ -219,8 +222,12 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
       return [0,Math.asin(ra/zprime),zprime];
     }
 
-
-    var h = ra;
+    // WARNING !!! THIS IS THE HEART OF THE ERROR!
+    // We need this to be based U_x, at least, but we have to
+    // compute that separately
+    var U_x = ra / Math.sin(theta1);
+    //    var h = ra;
+    var h = U_x *  Math.tan(theta1);
     // I am not sure this is really correct!!!
     var gamma = Math.asin(h/zprime);
     // CHANGE THIS TO POINT OUT THAT rc is probably too small
@@ -233,19 +240,18 @@ function ComputeThetaAndGamma(ra,rb,rc,A,B,C,cA1,cA2,cA3) {
    } else {
      gamma = Math.abs(gamma);
    }
-    // I'm not sure why I am negating gamma here...
     return [theta1,gamma,zprime];
   }
 }
 
-// Note that we will treat gamma as positive if it
-// represents a clockwise tilt of the plane when sighting
-// down the positive X axis to the origin. This is
-// in accordance with the THREE.js convention, and
-// theta is measured as clockwise tilt when sighting
-// along the Z axis.
-// Therefore, roughly speaking a large c means a positive
-// gamma, and a small c means a negative gamma.
+
+/*
+We weill use the three.js system, which
+is a right handed coordinate system.
+A positive rotation is counterclockwise.
+a > b => Theta is negative.
+c < a => Gamma is positive.
+*/
 function testComputeThetaAndGamma() {
   const ra = 1.2;
   const rb0 = 1.1;
@@ -276,7 +282,7 @@ function testComputeThetaAndGamma() {
   console.assert(theta3 > 0);
   console.assert(zprime3 < 0);
   console.assert(gamma3 < 0);
-
+  return true;
 }
 
 function computeNormalFromExtrinsicEuler(theta,gamma) {
@@ -379,9 +385,8 @@ function computeInversion(a,theta,gamma) {
   var Z;
   var H_y;
   if (theta != 0) {
-    // this may not respect the negative value. plane_const may be a
-    U_x = a / Math.sin(t);
-    b = (U_x - a) * Math.sin(t)/ (Math.sin(t) + 1);
+    U_x = a / Math.sin(-t);
+    b = (U_x - a) * Math.sin(-t)/ (Math.sin(-t) + 1);
     U = new THREE.Vector3(U_x,0,0);
     H_y =  plane_const/N.y;
     Z_z = H_y / Math.sin(g);
@@ -692,6 +697,7 @@ function testInversionWorksWithNegativeAndPostiveGamma() {
   // and nc > c.
   console.assert(nZ_z < 0);
   console.assert(nc > c);
+  return true;
 }
 
 function testInversionWorksWithNegativeTheta() {
@@ -701,6 +707,7 @@ function testInversionWorksWithNegativeTheta() {
   const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta,gamma);
   console.assert(Z_z > 0);
   console.assert(c < ai);
+  return true;
 }
 
 // This is a major test. We will first test a wide range
@@ -731,6 +738,43 @@ function testInversionExhaustively() {
   }
 }
 
+function testInversionInterpretsSignsCorrectly() {
+  const OneDeg_radians = 1*Math.PI/180;
+  const ai = 1.2;
+  var theta_deg = -30;
+  var gamma_deg = 30;
+  var theta = theta_deg * OneDeg_radians;
+  var gamma = gamma_deg * OneDeg_radians;
+  const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta,gamma);
+  console.log("a,b,c",a,b,c);
+  console.log("U_x,H_y,Z_z",U_x,H_y,Z_z);
+  console.assert(a > b);
+  console.assert(a > c);
+  return true;
+}
+
+function testInversionSimply() {
+  const OneDeg_radians = 1*Math.PI/180;
+  const ai = 1.2;
+  var theta_deg = -30;
+  var gamma_deg = 30;
+  var theta = theta_deg * OneDeg_radians;
+  var gamma = gamma_deg * OneDeg_radians;
+  const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta,gamma);
+  debugger;
+  var [calc_theta,calc_gamma,calc_zprime] = computeFromRadii(a,b,c);
+  // c == null means we don't have three points of contact--probably, we need to check this.
+  if (c != null) {
+    if (!near(calc_theta,theta) || !near(calc_gamma,gamma,1e-2)) {
+      console.log("XXX failure of test!");
+      console.log("a,b,c",a,b,c);
+      console.log("U_x,H_y,Z_z",U_x,H_y,Z_z);
+      console.log("theta, gamma           :",theta_deg,gamma_deg);
+      console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
+    }
+  }
+}
+
 function testInversionThetaZeroGamma15() {
   const OneDeg_radians = 1*Math.PI/180;
   const ai = 1.2;
@@ -746,7 +790,7 @@ function testInversionThetaZeroGamma15() {
   // c == null means we don't have three points of contact--probably, we need to check this.
   if (c != null) {
     if (!near(calc_theta,theta) || !near(calc_gamma,gamma,1e-2)) {
-      console.log("failure of test!");
+      console.log("FIRST failure of test!");
       console.log("a,b,c,U_x,H_y,Z_z:",a,b,c,U_x,H_y,Z_z);
       console.log("theta, gamma           :",theta_deg,gamma_deg);
       console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
@@ -759,13 +803,14 @@ function testInversionThetaZeroGamma15() {
   // c == null means we don't have three points of contact--probably, we need to check this.
   if (c != null) {
     if (!near(calc_theta,theta) || !near(calc_gamma,gamma,1e-2)) {
-      console.log("failure of test!");
+      console.log("SECOND failure of test!");
       console.log("a,b,c,U_x,H_y,Z_z:",a,b,c,U_x,H_y,Z_z);
       console.log("theta, gamma           :",theta_deg,gamma_deg);
       console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
     }
   }
   }
+  return true;
 }
 
 
@@ -778,33 +823,12 @@ function testGetXZC() {
   console.assert(z > 0);
 }
 
-// This is to prove or disprove that rotating twice by theta,gamma
-// is the same as rotating once by twice theta, twice gamma.
-function testDoubleRotationEquivalence() {
-  const OneDeg_radians = 1*Math.PI/180;
-  var theta_deg = 30;
-  var theta = theta_deg * OneDeg_radians;
-  var gamma_deg = 30;
-  var gamma = gamma_deg * OneDeg_radians;
-
-  const e_once = new THREE.Euler( gamma, 0, theta, 'ZXY' );
-  const Y0 = new THREE.Vector3( 0, 1, 0 );
-  Y0.applyEuler(e_once);
-
-  const e_neg = new THREE.Euler( -gamma, 0, -theta, 'ZXY' );
-  const Y1 = new THREE.Vector3( 0, 1, 0 );
-  Y1.applyEuler(e_neg);
-
-// Now if we go back twice, do we get back to where we started?
-  const e_double = new THREE.Euler( 2*gamma, 0, 2*theta, 'ZXY' );
-  Y1.applyEuler(e_double);
-
-  console.assert(near(Y0.angleTo(Y1),0,1e+1));
-
-  console.log("Y0, Y1", Y0,Y1);
-  console.log("angle", Y0.angleTo(Y1) * 180 / Math.PI);
-}
 function runUnitTests() {
+  testInversionSimply();
+
+
+  return;
+
 
   testCompute3TouchingCirclesSimple();
   testCompute3TouchingCircles();
@@ -824,12 +848,12 @@ function runUnitTests() {
 
   testInversionWorksWithNegativeTheta();
 
+
+
+
+  // These are currently failing!
   testInversionThetaZeroGamma15();
-
   testInversionExhaustively();
-
-  testDoubleRotationEquivalence();
-
  // testClosestPoint();
   // testComputeRotation();
   // testComputeRotationFull();
