@@ -295,7 +295,13 @@ In our main view (see Fig. \ref{fig:rotation}) and in the initial view
 of our software, thus has a positive $\gamma$ and negative $\theta$, when $a > b$ and $a > c$.
 
 In order to compute $\gamma$, we seek to form a triangle in the $YZ$ plane.
-After a rotation of $\theta$ about the $Z$ axis, the top plane intersects the $X$ axis
+Because Euler angles are performed in a certain order, it is necessary to imagine
+the ground plane after it has been rotated by $\theta$ but before it has been rotated by $\gamma$.
+Call this the ``Z-rotated'' plane.
+
+
+
+After a rotation of $\theta$ about the $Z$ axis, the Z-rotated plane intersects the $X$ axis
 at a point $U = [U_x,0,0]$, the apex of the AB cone:
 \begin{align}
   U_x = \frac{a}{\sin{(-\theta)}}
@@ -307,7 +313,7 @@ the $Y$ axis is:
   H_y &= U_x \tan{\theta}
 \end{align}
 
-Any rotation about the $X$ axis of the top plane (and $H$) will keep that
+Any rotation about the $X$ axis of the Z-rotated plane (and $H$) will keep that
 point in the $YZ$ plane and a distance $ h = H_y$ from the origin.
 
 Call the intersection
@@ -336,7 +342,6 @@ in the $XZ$ plane of $\frac{V_z}{U_x-V_x}$:
   \label{eq:zprime} \\
 \end{align}
 
-
 The line $Z'H'$ is tangent to a circle of radius $h$ around the point $A$
 in the $YZ$ plane, so $\angle Z'H'A$ is a right angle.
 The point $H'$ is in the top plane by definition and $Z'$ is in the top plane
@@ -349,14 +354,12 @@ so:
 \end{align}
 
 Equations \ref{eq:theta} and \ref{eq:gamma} give the Euler angles
-$\theta$ and $\gamma$
-for the tilt of the
-tangent plane as a function of the three radii $a,b,c$.
-
+as a rotation $\theta$ about the $Z$ axis followed by a rotation $\gamma$ about the $X$ axis
+for the tangent plane as a function of the three radii $a,b,c$
 
 \section{The Inverse Problem}
 
-To build a useful robotic platform in by controlling the radii of the
+To build a theoretic robotic platform by controlling the radii of the
 spheres by inflating and deflating them, we wish to solve the inverse
 problem. That is, given input $\theta$ and $\gamma$ as desired Euler
 angles, we want to compute $a,b,c$ which acheive these angles.
@@ -385,8 +388,8 @@ Additionally, in the central plane we have two other constraints,
 that $C$ is placed so that it touches the circle centered on $A$ and
 the circle centered on $B$.
 
-Then we know that the point $C$ but have distance $a+c$ from
-the point $A$ (the origin) and distance $b+c$ from the known
+Then we do not know the point $C$ but know the distance $a+c$ from
+the point $A$ (the origin) and the distance $b+c$ from the known
 point $B$. These two constraints can be generated from the Pythagorean Theorem and can be expressed:
 \begin{align}
 a + c &= \sqrt{C_x^2 + C_z ^2} \label{eq:a_constraint}\\
@@ -395,9 +398,9 @@ b + c &= \sqrt{(a+b-C_x)^2 + C_z^2} \label{eq:b_constraint}
 
 If we were to plot the point $C$ as $c$ increases, we
 would find a gentle curve moving away from the intersection
-of the circle $A$ and $B$. An additional constraint will
-allow us to select a point on this curve.
-
+of the circle $A$ and $B$, curling in the direction of the smaller of $A$ or $B$.
+An additional constraint will
+designate a point on this curve.
 This gives us three equations, which
 should be more than enough to solve for the point $C$.
 
@@ -410,7 +413,7 @@ when $ a >= b >= c $.)
 \overrightarrow{N} &= \overrightarrow{Z' - U}  \times \overrightarrow{Z' - H}
 \end{align}
 
-Since we have the normal of the plane three points ($U,Z,H_y$) in the plane,
+Since we have the normal of the plane and three points ($U,Z,H_y$) in the plane,
 computing the distance from the point $C$ to the plane has a simple
 formula.
 We'll use the point $U = [Ux, 0, 0]$ as our main point.
@@ -440,12 +443,12 @@ So assuming it is negative, we obtain:
   2b + -C_x N_x + -C_z N_z  &= \sqrt{(a+b-C_x)^2 + C_z^2}
 \end{align}
 
-
-
 This is a system of two nonlinear equations with unkowns $C_x$ and $C_z$.
-Solving this system is beyond the capacities of the authors,
-but not Mathematica, although the answer that Mathematica produces
-in its raw form is half a page long.
+Solving this system is beyond symbolic manipulating capacities of the authors,
+but not Mathematica.
+However, Mathematica expends half a page expresing the answer
+in its raw form.
+
 Furthermore, there are actually two solutions, corresponding
 to the two sides of the $AB$ line which the circle $C$ could be
 on and satsify these constratints.
@@ -454,7 +457,7 @@ direction conformant to our problem set-up.
 
 However, by introducing new variables to represent repeated
 portions of this long expression, the expressions be
-made tractable and easily programmed.
+made tractable and easily programmed by computer.
 
 \begin{align}
 M &= (a + b + a N_x - b N_x)^2 - 4 a b N_z^2 \\
@@ -555,6 +558,9 @@ the formulae became intractably long even with the help of Mathematica.
 However, as a completely deterministic solid geometry system, there
 must be a closed-form solution, that perhaps mathematicians of greater
 skill or dilligence can find.
+For example, it might be fruitful to reformulate the problem purely
+in terms of the normal of the top plane as a linear algebra problem rather than
+considering Euler angles.
 
 Even if one had such a solution, it would be of limited value
 to robotocists because the inflation or deflation of spheres in
@@ -562,6 +568,11 @@ a macroscopic physically constructible Stewart platform would
 be ``soft'', and would deform under external pressure. The solutions
 presented here would likely have value only as approximate or initial
 solutions.
+
+We conjecture there may be situations in chemistry or astronomy
+beyond our ability to identify
+in which tangent spheres remain ideal spheres and these closed-form expressions
+would remain be accurate.
 
 \section{Conclusion}
 
@@ -573,9 +584,9 @@ The expressions are in the coordinate system of the the center
 of the threes spheres, which may be a signifiant limitation for some
 applications.
 
-An interactive, browse-based solution that allows real-time manipulation
+An interactive, browser-based solution that allows real-time manipulation
 of the mathematical system in both the forward and inverse directions
-using sliders has been given. The greatest value of this work
+using sliders has been given\cite{softrobotcalc}. The greatest value of this work
 may be the demonstrating the attractiveness of the solution.
 The existing of the apex line, which is so visually apparent and pleasing,
 may not be completely obvious upon first consideration.
