@@ -354,8 +354,8 @@ function GetXZC(a,b,N) {
   const x = (z0 > 0) ? x0 : x1;
   const z = (z0 > 0) ? z0 : z1;
 
-  if (z0 > 0) console.log("first!");
-  else console.log("second");
+//  if (z0 > 0) console.log("first!");
+//  else console.log("second");
 
   const c = Math.sqrt(x**2 + z**2)-a;
 
@@ -376,7 +376,6 @@ function computeInversion(a,theta,gamma) {
   var t = theta;
   var g = gamma;
   const N = computeNormalFromExtrinsicEuler(theta,gamma);
-  console.log("theta,gamma,N",theta,gamma,N);
   var U_x;
   var b;
   var U;
@@ -731,11 +730,12 @@ function testInversionExhaustively() {
           console.log("a,b,c,U_x,H_y,Z_z:",a,b,c,U_x,H_y,Z_z);
           console.log("theta, gamma           :",theta_deg,gamma_deg);
           console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
-//          debugger;
+          console.assert(false);
         }
       }
     }
   }
+  true;
 }
 
 function testInversionInterpretsSignsCorrectly() {
@@ -761,7 +761,6 @@ function testInversionSimply() {
   var theta = theta_deg * OneDeg_radians;
   var gamma = gamma_deg * OneDeg_radians;
   const [a,b,c,U_x,H_y,Z_z] = computeInversion(ai,theta,gamma);
-  debugger;
   var [calc_theta,calc_gamma,calc_zprime] = computeFromRadii(a,b,c);
   // c == null means we don't have three points of contact--probably, we need to check this.
   if (c != null) {
@@ -771,8 +770,10 @@ function testInversionSimply() {
       console.log("U_x,H_y,Z_z",U_x,H_y,Z_z);
       console.log("theta, gamma           :",theta_deg,gamma_deg);
       console.log("calculated theta, gamma:",calc_theta / OneDeg_radians, calc_gamma / OneDeg_radians);
+      console.assert(false);
     }
   }
+  return true;
 }
 
 function testInversionThetaZeroGamma15() {
@@ -825,11 +826,6 @@ function testGetXZC() {
 
 function runUnitTests() {
   testInversionSimply();
-
-
-  return;
-
-
   testCompute3TouchingCirclesSimple();
   testCompute3TouchingCircles();
 

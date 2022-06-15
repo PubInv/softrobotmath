@@ -201,9 +201,13 @@ the cone tangent to both is degenerate (that is, a cylinder, or a cone of
 $\psi = 0$ apex angle.)
 
 
-\section{The Tilt from the Radii}
+\section{The Euler Anglers from the Radii}
 
-Given $a,b$ and $c$, we seek the angles $\theta$ and $\gamma$.
+\subsection{Finding the Point C}
+
+Given $a,b$ and $c$, we seek the angles $\theta$ and $\gamma$ representing
+the Euler anglers of rotation around the $Z$ axis ($\theta$), and then the $X$ axis ($\gamma$).
+
 We seek the  point $C$ first.
 Call the angle $\angle ABC = \epsilon$, since the opposite side
 is labeled $e$.
@@ -214,8 +218,8 @@ The cosine law to compute the angle $\epsilon$:
 \end{align}
 
 It is clear that once $\epsilon$ has been calculated
-we can calculate $C_z$\footnote{We use the common convention that $C_x, C_y, and C_z$ represent the $x$, $y$ and $z$
-coordinate of the point or vector $C$.}:
+we can calculate $C_z$:\footnote{We use the common convention that $C_x, C_y, and C_z$ represent the $x$, $y$ and $z$
+coordinate of the point or vector $C$.}
 
 \begin{align}
  C_z  &= f\sin{\epsilon}
@@ -225,6 +229,8 @@ Noting that $B_x = d = a + b$,
   C_x   &= d - \cos{\epsilon}
 \end{align}
 
+
+\subsection{The Apex Line}
 
 \begin{figure}
      \centering
@@ -247,7 +253,6 @@ or Figure \ref{fig:rotation}.
 Finally, the top and bottom planes
 intersect at this line, because those planes are tangent to the three cones.
 
-We seek to compute the normal of the tangent plane.
 Observe that this plane is tangent to all three cones.
 Observe that the $AB$ cone intersects
 the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
@@ -261,66 +266,86 @@ where $r < s$ without loss of generality. Note that when $r = s$
 there is a special case,
 the cone tangent to both is degenerate (that is, a cylinder, or a cone of
 $\psi = 0$ apex angle.)
+
+Let $\theta$ be the rotation of the ground plane (the $XZ$ plane in this system) need to make
+it rest on the $A$ and $B$ spheres and intersect the $AB$ cone.
 Because we use $\theta$ as a rotation angle, it must be signed, and is
 negative if $a > b$.
 \begin{align}
   \theta &= \begin{cases}
-    \theta_{abs}, & \text{ if $a > b$, } \\
-    -\theta_{abs}, & \text{  otherwise}
+    \theta, & \text{ if $a > b$, } \\
+    -\theta, & \text{  otherwise}
 \end{cases} \label{eq:theta} \\
-  \phi_{abs} &= \arcsin{\frac{b - c}{b + c}}
 \end{align}
 
+\subsection{Computing $\gamma$}
+
+Note that in this paper, like THREE.js and many computer graphics systems,
+we use a right-handed coordinate system and describe angles of rotation as
+positive when counter-clockwise looking from a positive axis as the origin.
 
 \begin{figure}
      \centering
-     \includegraphics[width=0.9\textwidth]{figures/RotationMath.png}
+     \includegraphics[width=0.9\textwidth]{figures/RotationMathII.png}
      \caption{Rotation Math}
   \label{fig:rotation}
 \end{figure}
 
-A vector of length $a$ that is always rotated about the origin is always a point on the sphere.
-The first operation is to move this vector perpendicular to the $AB$ cone.
-A vector $N$ in the $Y$ direction and rotated counterclockwise
-about the $Z$-axis by $\theta$ is perpendicular to the $AB$ cone.
+In our main view (see Fig. \ref{fig:rotation}) and in the initial view
+of our software, thus has a positive $\gamma$ and negative $\theta$, when $a > b$ and $a > c$.
 
-However, we must rotate this vector $N$ about the $X$ axis by an unknown amount, $\gamma$, in order
-to orient the vector to line up properly with the
-desired tilt of the tangent plane despite not being a pure rotation about the $Z$ axis.
-Since this angle is computed in the $YZ$ plane, we compute a projection of the point $V$ into
-that plane, forming a triangle in the $YZ$ plane.
-
-Call this point $Z'$, the intersection
-of the apex line with the $Z$-axis. Let $h$ be the height of the intersection of the y-axis with the $AB$ cone.
-Then $\gamma$ is the angle we need to rotate the plane by so that it intersects with the
-$Z$-axis at a point, referred to as $Z'$.
-By basic geometry of simialr triangles, this is computed from the right triangle of the origin with $h$ and $I_z$.
-Points $U, V, $ and $W$ represent the apices of the apices of the cones tangent to $A$ and $B$, $B$ and $C$,
-and $C$ and $A$ respectively. Recall that $A = [0,0,0]$.
-
+In order to compute $\gamma$, we seek to form a triangle in the $YZ$ plane.
+After a rotation of $\theta$ about the $Z$ axis, the top plane intersects the $X$ axis
+at a point $U = [U_x,0,0]$, the apex of the AB cone:
 \begin{align}
-  U &= A + (B-A) \frac{a}{\sin{\theta}} \\
-  V &= B + (C-B) \frac{b}{\sin{\phi_{abs}}} \\
-  Z'&= \begin{cases}
+  U_x = \frac{a}{\sin{(-\theta)}}
+\end{align}
+
+The $y$ coodinate of the point $H$ where where the top plane intersects
+the $Y$ axis is:
+\begin{align}
+  H_y &= U_x \tan{\theta}
+\end{align}
+
+Any rotation about the $X$ axis of the top plane (and $H$) will keep that
+point in the $YZ$ plane and a distance $ h = H_y$ from the origin.
+
+Call the intersection
+of the $Z$-axis apex line with apex line $Z'$, and let $z = Z_z$.
+Then $\gamma$ is the angle we need to rotate the plane already rotated by $\theta$ so that it intersects with the
+$Z$-axis at $Z'$.
+Points $U$ and $V$ represent the apices of the apices of the cones tangent to $A$ and $B$, $A$ and $C$, respectively.
+The apex of the $BC$ cone, $W$, is also on the apex line but not used in our calculations.
+
+The point $V$ is computable as the apex of the $AC$ cone:
+\begin{align}
+  \phi &= \arcsin{\frac{a - c}{a + c}} \\
+  V &= A + (C-A) \frac{b}{\sin{\phi}} \\
+  V &= C (\frac{b(a+c)}{a-c}) \\
+\end{align}
+
+The $z$ coordinate of the point $Z'$ can be calculated from
+$Z$ intercept
+fact that it is collinear with $U$ and $V$, which has a slope
+in the $XZ$ plane of $\frac{V_z}{U_x-V_x}$:
+\begin{align}
+  z&= \begin{cases}
     V_z, & \text{ if $a = b$ } \\
-    \frac{U_z V_x}{U_x - V_x}, & \text{ if  $a \neq b$}
+    \frac{V_z U_x}{U_x - V_x}, & \text{ if  $a \neq b$}
   \end{cases}
   \label{eq:zprime} \\
 \end{align}
 
-The point $H$ is the intesection of the $AB$ cone with the $y$ axis (and therefore the intersection
-of the top plane with the $y$ axis.
-\begin{align}
-  H_y &= U_x \tan{\theta}
-\end{align}
-This is right triangle of the origin with the points $U$ and $H$. (The hypotenuse
-of this triangle is $\overline{HU}$, and side adjacent to $\theta$ is $\overline{AU}$.)
-It is computed by projecting the contact point of the top plane in the $xy$-plane
-onto the $xz$-plane. This allows $\gamma$ to be computed as a pure rotation
-about the $x$-axis.
 
+The line $Z'H'$ is tangent to a circle of radius $h$ around the point $A$
+in the $YZ$ plane, so $\angle Z'H'A$ is a right angle.
+The point $H'$ is in the top plane by definition and $Z'$ is in the top plane
+beacuse it is on the apex line.
+The hypotenuse of the $\triangle Z'H'A$ is the line $AZ'$ on the $Z$ axis of
+length $z$, and the angle $\gamma = \angle AZ'H$ has an opposite side of length $h$,
+so:
 \begin{align}
-  \gamma &= \arcsin{\frac{H_y}{Z'}} \label{eq:gamma}
+  \gamma &= \arcsin{\frac{h}{z}} \label{eq:gamma}
 \end{align}
 
 Equations \ref{eq:theta} and \ref{eq:gamma} give the Euler angles
@@ -511,30 +536,49 @@ after again discarding the solution producing negative $z$ values:
 \end{align}
 which allows us to obtain obtain $c$ from \ref{eqn:cthetazero}.
 
+\section{Future Work and Relation to Robotics}
 
-\section{Usage}
+Our formulation of the problem with the center of the spheres in the $XZ$
+plane has allowed us to obtain a closed-form solution to both the forward
+and inverse problem.
 
-These equations can be used to compute the radii $b$ and $c$
-from a given radius $a$ and either a desired normal or euler
-angles. When implemented as a soft robot, it must be understand
-that the center plane is conceptual. The roboticists probably
-want to think of moving the top plane relative to the bottom plane,
-which can be implemented as a simple rigid disc.
-The angles and normals between the top and bottom and will be
-twice the angles\footnote{Megan, is this really true? Can we simply double the angles? I think so, but that might not be true.} measured against the center plane.
+A Stewart Platform could be constructed of three inflatable spheres.
+However, our formulation is inconvenient for that problem, because
+in practice you would know the bottom plane, and not the central plane,
+as you vary the diameters of the spheres through inflation or deflation.
+The angle between the top and bottom plane will be approximately but not
+exactly twice the angles that we have computed here.
 
-Furthermore, an implementation based on soft inflatable spheres
-will not be really acheive perfect spheres at any pressure.
-Nonetheless, because these equations are trivial to implement
-in a micro-controller, they make a good basis for a control
-algorithm because it allows the Jacobian to be expressed as a
-closed from solution. A Stewart platform implemented in this would
-be expected to be have ``softly'' in response to pressure,
-and yet have a predictable shape in the absence of external
-forces.
+We attemped to solve this problem by reformulating the problem in terms
+of a coordinate system based on fixed bottom plane, but
+the formulae became intractably long even with the help of Mathematica.
+However, as a completely deterministic solid geometry system, there
+must be a closed-form solution, that perhaps mathematicians of greater
+skill or dilligence can find.
 
-A series of such Stewart platforms stacked together would make
-a soft tentacle.
+Even if one had such a solution, it would be of limited value
+to robotocists because the inflation or deflation of spheres in
+a macroscopic physically constructible Stewart platform would
+be ``soft'', and would deform under external pressure. The solutions
+presented here would likely have value only as approximate or initial
+solutions.
+
+\section{Conclusion}
+
+Closed-form expressions of the problem of finding a plane resting on
+three spheres in contact have been given, and the inverse problem
+of finding the radii of three spheres necessary to support a plane
+on threes spheres in contact has been solved.
+The expressions are in the coordinate system of the the center
+of the threes spheres, which may be a signifiant limitation for some
+applications.
+
+An interactive, browse-based solution that allows real-time manipulation
+of the mathematical system in both the forward and inverse directions
+using sliders has been given. The greatest value of this work
+may be the demonstrating the attractiveness of the solution.
+The existing of the apex line, which is so visually apparent and pleasing,
+may not be completely obvious upon first consideration.
 
 \printbibliography
 
