@@ -15,7 +15,7 @@
  %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 \documentclass{article}
-\usepackage[backend=biber]{biblatex}
+\usepackage[backend=biber,style=ieee]{biblatex}
 \addbibresource{softrobotmath.bib}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -32,7 +32,7 @@
 \SetWatermarkScale{6}
 \SetWatermarkLightness{0.95}
 
-\title{Three Inflatable Spheres as a Theoretical Basis for a Parallel Manipulator}
+\title{The Plane Tangent to Three Spheres Touching Each Other}
 
 \author{Robert L. Read
   \thanks{read.robert@gmail.com}
@@ -47,22 +47,45 @@ Megan Cadena
 \maketitle
 
 \begin{abstract}
-  A Stewart Platform\cite{wiki:stewart} is a fundamental mechanism for varying the angle
-  between two objects.
-  A soft Stewart Platform can be made of two discs and
-  three inflatable spheres.
-  Soft robots are meant to deform under force, but it is useful to have
-  a closed-form description of a plane in contact with three spheres of changing size.
-  This papers gives closed-form expressions for the plane in contact with
-  three adjacent spheres from known radii, and closed-form expressions for
-  the much harder inverse problem of finding the radii to match a plane inclination.
-  An interactive,
+  Consider three planes in contact with each other. Their center points
+  define a plane. There are additionally two planes, a ``top'' plane and ``bottom'' plane
+  tangent to all three spheres, dependent on their radii.
+  This paper gives closed-form expressions for the top plane from known radii,
+  relative to the central plane,
+  and closed-form expressions for
+  the much harder inverse problem of finding the radii to match a top plane inclination.
+  An interactive, graphic, real-time,
   browser-based web page that dynamically solves the problem\cite{softrobotcalc}
-  using JavaScript implementations of this math.
+  using free-libre open source JavaScript implementations of this math.
+  These solution has definite but niche value for computer graphics, and is of interest
+  to robotocists who might make a Stewart Platform from inflatable spheres.
 \end{abstract}
 
 
 \section{Introduction}
+
+In 1881, the problem of computing the plane tangent to three spheres was
+set as an exercise in a textbook, {\em Practical Solid Geometry}\cite{payne1881},
+but not solved.
+
+The forward problem is given three radii,
+to determine the orientation of the top plane.
+The inverse problem is much harder: given a desired orientation and the radius of one
+sphere, find the radius of the other two spheres that achieves it.
+This paper gives closed-form expressions of both
+the forward and inverse problem of three inflatable spheres as pure solid geometry.
+Although this problem could be adequately solved numerically by with an iterative method,
+closed-form expressions are always preferable, especially sense they admit analytic derivatives.
+
+Additionally, we have created an online, interactive, browser based real-time simulation\cite{softrobotcalc} that implements
+the math in this paper in JavaScript, both verifying it and making it easy to reuse.
+All of the code is released under the GNU Public License\cite{AGPL3}.
+
+
+These formulae can be used to construct a model which can be graphically rendered to represent an interesting
+situation, and perhaps to provide some pedagogical intuition in solid geometry.
+
+\subsection{Motivation to Robotocists}
 
 A parallel manipulator varies the angle between two planes.
 The best known parallel manipulator is
@@ -76,35 +99,22 @@ One theoretical way to build such a manipulator is to have three enlargeable sph
 and constrained to always be in contact with each other.
 As these spheres are enlarged, perhaps by pneumatically inflating them changing
 their size, the top plane changes its orientation relative to the bottom plane.
-This creates 3 degrees of rotational freedom
+This creates three degrees of rotational freedom
 (ignoring the slight translation the spheres are capable of by consistently enlarging),
 which is slightly more constrained than the 6DOF Stewart Platform.
-In 1881, the problem of computing the plane tangent to three spheres was
-set as an exercise in a textbook, {\em Practical Solid Geometry}\cite{payne1881},
-but not solved.
-
-The forward problem is given three radii,
-to determine the orientation of the top plane.
-The inverse problem is much harder: given a desired orientation and the radius of one
-sphere, find the radius of the other two spheres that achieves it.
-This paper gives closed-form expressions of both
-the forward and inverse problem of three inflatable spheres as a parallel manipulator as pure solid geometry.
-
-Additionally, we have created an online, interactive, browser based real-time simulation\cite{softrobotcalc} that implements
-the math in this paper in JavaScript, both verifying it and making it easy to reuse.
-All of the code is released under the GNU Public License\cite{gplv3}.
 
 Soft robotics presume to operate under some deforming forces, so in any deformable robot the precise mathematics
 of positioning must always be corrected by a control system with feedback on the position.
 Nonetheless, having a closed-form expression of both the inverse and forward problem allow
 an initial Jacobian to be computed effortlessly, which is likely to assist any soft robotic control algorithm.
 
-\section{The Center Plane}
+In general it is not as mechanically easy to fix the center of a sphere as to fix a point on the surface.
+A robotocist might prefer to express the position of the top plane relative to the bottom plane.
+We undertook to do this but found it to be much more difficult than expressing the answer relative
+to the center plane. The solution equations, expressed by Mathematica, where several pages long.
+Perhaps a different researcher could find a more elegant formulation to solve the ``bottom plane formulation''.
 
-As kinematicists,
-our interest is in the slope of the plane of the tops of these spheres
-as if they were resting on a fixed-frame such as a table. Then by inflating or deflating spheres,
-we would be able to control the direction of the top plane or platform.
+\section{The Center Plane Formulation}
 
 Choosing the coordinate system of the $XZ$ plane through the center of the spheres greatly
 simplifies the derivations, because the center of the spheres always form tangent circles
@@ -115,7 +125,7 @@ The position of $A$ is fixed at the origin, $B$ is constrained to the $x$-axis t
 $C$ is constrained to the positive $xz$-plane. The center of these circles in the $xz$ plane can be
 calculated from the radii independent of the tilt they induce.
 In this coordinate system, the $y$-coordinate of the center of all spheres is $0$.
-Furthermore, a cone tangent to two spheres has its axis and apex in the $xz$-plane.
+Furthermore, a cone tangent to two kissing spheres has its axis and apex in the $xz$-plane.
 The projection of all three spheres into this plane produces three touching circles.
 We seek an expression for the normal of the plane of the tops of these spheres as a function
 purely of the three radii. Call this plane the {\em top plane}.
@@ -126,9 +136,6 @@ is alway a mirror image of each other across the coordinate $XZ$-plane.
 
 Define extrinsic Euler angles $\theta$ to be the rotation about the $Z$-axis and then $\gamma$ to
 be the rotation about the $X$-axis.
-The tilt of the top plane relative
-to the bottom plane is given by the $zx$ extrinsic Euler angles $(2\theta, 2\gamma)$.\footnote{Is this really true?
-We should be able to verify this with a JavaScript program.}
 
 Because there is a plane through any three points and we have three spheres, we can construct the plane through
 the center of these points.
@@ -151,7 +158,7 @@ Because the distance between adjacent circles is the sum of their radii, define:
 \begin{align}
   d  &= a + b \\
   e  &= a + c \\
-  f  &= b + c \\
+  f  &= b + c
 \end{align}
 
 Considering Fig. \ref{fig:Tangent}, varying the radius $c$ without constraint will cause
@@ -218,7 +225,7 @@ The cosine law to compute the angle $\epsilon$:
 \end{align}
 
 It is clear that once $\epsilon$ has been calculated
-we can calculate $C_z$:\footnote{We use the common convention that $C_x, C_y, and C_z$ represent the $x$, $y$ and $z$
+we can calculate $C_z$:\footnote{We use the common convention that $C_x, C_y$, and $C_z$ represent the $x$, $y$ and $z$
 coordinate of the point or vector $C$.}
 
 \begin{align}
@@ -247,14 +254,20 @@ three spheres taken two at a time.
 Taking two adjacent spheres defines a cone tangent to both spheres whose apex is in the $XZ$ plane.
 Call the apex of the $AB$ cone $U$, the $AC$ cone $V$, and the $BC$ cone $W$.
 
-It is a beautiful fact that the the apices $U,V$ and $W$ are collinear
+
+Each of these points by construction is in the top plane and bottom plane, because each of these planes
+is tangent to each of the three cones.
+The intersection of two planes, unless completely consident or empty, is a line.
+If any radius is positive, the planes cannot be entirely coinicident.
+Therefore it is a beautiful fact that the apices $U,V$ and $W$ are collinear
 on the {\em apex line} which is in the $XZ$ plane, depicted in both Figure \ref{fig:fixed}
 or Figure \ref{fig:rotation}.
+
 Finally, the top and bottom planes
 intersect at this line, because those planes are tangent to the three cones.
 
-Observe that this plane is tangent to all three cones.
-Observe that the $AB$ cone intersects
+Because this plane is tangent to all three cones,
+the $AB$ cone intersects
 the $A$ sphere in a circle on the surface of the $A$ perpendicular to and centered on the $X$ axis.
 
 The apex half-angle $\psi$ of a cone which envelopes (by being tangent to) two tangent
@@ -262,25 +275,24 @@ spheres of radii $r,s$, is:
 \begin{align}
  \psi_{abs} &= \arcsin{\frac{s - r}{s + r}}
 \end{align}
-where $r < s$ without loss of generality. Note that when $r = s$
-there is a special case,
-the cone tangent to both is degenerate (that is, a cylinder, or a cone of
-$\psi = 0$ apex angle.)
+where $r < s$ without loss of generality.
 
 Let $\theta$ be the rotation of the ground plane (the $XZ$ plane in this system) need to make
 it rest on the $A$ and $B$ spheres and intersect the $AB$ cone.
+
 Because we use $\theta$ as a rotation angle, it must be signed, and is
 negative if $a > b$.
 \begin{align}
   \theta &= \begin{cases}
-    \theta, & \text{ if $a > b$, } \\
-    -\theta, & \text{  otherwise}
+    \psi_{abs}, & \text{ if $a > b$, } \\
+    -\psi_{abs}, & \text{  otherwise}
 \end{cases} \label{eq:theta} \\
 \end{align}
 
+
 \subsection{Computing $\gamma$}
 
-Note that in this paper, like THREE.js and many computer graphics systems,
+Note that in this paper, like THREE.js\cite{dirksen2018learn} and many computer graphics systems,
 we use a right-handed coordinate system and describe angles of rotation as
 positive when counter-clockwise looking from a positive axis as the origin.
 
@@ -320,7 +332,7 @@ Call the intersection
 of the $Z$-axis apex line with apex line $Z'$, and let $z = Z_z$.
 Then $\gamma$ is the angle we need to rotate the plane already rotated by $\theta$ so that it intersects with the
 $Z$-axis at $Z'$.
-Points $U$ and $V$ represent the apices of the apices of the cones tangent to $A$ and $B$, $A$ and $C$, respectively.
+Points $U$ and $V$ represent the apices of the cones tangent to $A$ and $B$, $A$ and $C$, respectively.
 The apex of the $BC$ cone, $W$, is also on the apex line but not used in our calculations.
 
 The point $V$ is computable as the apex of the $AC$ cone:
@@ -390,7 +402,7 @@ the circle centered on $B$.
 
 Then we do not know the point $C$ but know the distance $a+c$ from
 the point $A$ (the origin) and the distance $b+c$ from the known
-point $B$. These two constraints can be generated from the Pythagorean Theorem and can be expressed:
+point $B$. These two constraints and the Pythagorean Theorem allow us to assert:
 \begin{align}
 a + c &= \sqrt{C_x^2 + C_z ^2} \label{eq:a_constraint}\\
 b + c &= \sqrt{(a+b-C_x)^2 + C_z^2} \label{eq:b_constraint}
@@ -456,7 +468,7 @@ We have selected the solution that place $C$ in the positive $Z$
 direction conformant to our problem set-up.
 
 However, by introducing new variables to represent repeated
-portions of this long expression, the expressions be
+portions of this long expression, the expressions are
 made tractable and easily programmed by computer.
 
 \begin{align}
@@ -486,7 +498,7 @@ The variable $c$ can be computed from $a$, $C_x$ and $C_z$
 form Eqn. \ref{eq:a_constraint}.
 
 This math can be found in the JavaScript which is licensed
-under the GPL\cite{gplv3} at our website\cite{softrobotcalc}.
+under the GPL\cite{german2009empirical} at our website\cite{softrobotcalc}.
 
 \section{Special Cases of the Inverse Problem}
 
@@ -539,7 +551,29 @@ after again discarding the solution producing negative $z$ values:
 \end{align}
 which allows us to obtain obtain $c$ from \ref{eqn:cthetazero}.
 
-\section{Future Work and Relation to Robotics}
+\section{The Interactive Software}
+
+By coding these equations into JavaScript and using the THREE.js
+graphic rendering system, we can make an interactive pannable, zoomable, rotatable
+rendering of the physical geometry described in the paper, as
+shown in Figure \ref{fig:threecones}.
+Because these are closed-form expressions, computing them is almost
+instantaneous, allowing smooth rotational parallax viewing.
+This  figure shows the sliders which can be moved to change the view
+in real-time. Because the inverse problem has been solved, one can
+change either the radii or the Euler angles of the top plane.
+Additionally, this figure uses the transparency featurs of THREE.js to
+render the three cones whose apices fall on the apex line.
+
+\begin{figure}
+     \centering
+     \includegraphics[width=0.99\textwidth]{figures/ThreeCones.png}
+     \caption{Interactive Browser View with Sliders Showing Three Cones}
+  \label{fig:threecones}
+\end{figure}
+
+
+\section{Future Work}
 
 Our formulation of the problem with the center of the spheres in the $XZ$
 plane has allowed us to obtain a closed-form solution to both the forward
@@ -562,17 +596,11 @@ For example, it might be fruitful to reformulate the problem purely
 in terms of the normal of the top plane as a linear algebra problem rather than
 considering Euler angles.
 
-Even if one had such a solution, it would be of limited value
-to robotocists because the inflation or deflation of spheres in
+If one had such a solution, it would be of some value
+to robotocists as approximate or initial
+solutions because the inflation or deflation of spheres in
 a macroscopic physically constructible Stewart platform would
-be ``soft'', and would deform under external pressure. The solutions
-presented here would likely have value only as approximate or initial
-solutions.
-
-We conjecture there may be situations in chemistry or astronomy
-beyond our ability to identify
-in which tangent spheres remain ideal spheres and these closed-form expressions
-would remain be accurate.
+be ``soft'', and would deform under external pressure.
 
 There are some combinations of radii, when one sphere is much smaller than the
 other two, in which a plane cannot be tangent to all three spheres.
@@ -589,7 +617,7 @@ The expressions are in the coordinate system of the the center
 of the threes spheres, which may be a significant limitation for some
 applications.
 
-An interactive, browser-based solution that allows real-time manipulation
+An interactive, graphic, browser-based solution that allows real-time manipulation
 of the mathematical system in both the forward and inverse directions
 using sliders has been given\cite{softrobotcalc}. The greatest value of this work
 may be the demonstrating the attractiveness of the solution.
@@ -600,3 +628,6 @@ may not be completely obvious upon first consideration.
 
 
 \end{document}
+
+
+%% This is non-sense---I don't know what I meant.
