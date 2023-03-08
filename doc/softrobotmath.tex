@@ -1,4 +1,4 @@
- %% Copyright (C) 2021 by
+ %% Copyright (C) 2021,2023 by
  %%   Robert L. Read <read.robert@gmail.com>, Megan Cadena <megancad@gmail.com>
 
  %% This program is free software: you can redistribute it and/or modify
@@ -21,18 +21,18 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mathtools}
-\usepackage{draftwatermark}
+%% \usepackage{draftwatermark}
 \usepackage{listings}
 
 \usepackage{flexisym}
 \usepackage{breqn}
 \breqnsetup{breakdepth={1}}
 
-\SetWatermarkText{DRAFT}
-\SetWatermarkScale{6}
-\SetWatermarkLightness{0.95}
+%% \SetWatermarkText{DRAFT}
+%% \SetWatermarkScale{6}
+%% \SetWatermarkLightness{0.95}
 
-\title{The Plane Tangent to Three Spheres Touching Each Other}
+\title{The Plane Tangent to Three Spheres Touching}
 
 \author{Robert L. Read
   \thanks{read.robert@gmail.com}
@@ -54,10 +54,10 @@ Megan Cadena
   relative to the central plane,
   and closed-form expressions for
   the much harder inverse problem of finding the radii to match a top plane inclination.
-  An interactive, graphic, real-time,
+  Based on this math, an interactive, graphic, real-time,
   browser-based web page that dynamically solves the problem\cite{softrobotcalc}
-  using free-libre open source JavaScript implementations of this math.
-  These solution has definite but niche value for computer graphics, and is of interest
+  using free-libre open source JavaScript is provided.
+  This solution has definite but niche value for computer graphics, and is of interest
   to robotocists who might make a Stewart Platform from inflatable spheres.
 \end{abstract}
 
@@ -66,7 +66,7 @@ Megan Cadena
 
 In 1881, the problem of computing the plane tangent to three spheres was
 set as an exercise in a textbook, {\em Practical Solid Geometry}\cite{payne1881},
-but not solved.
+but it was not solved there.
 
 The forward problem is given three radii,
 to determine the orientation of the top plane.
@@ -74,7 +74,7 @@ The inverse problem is much harder: given a desired orientation and the radius o
 sphere, find the radius of the other two spheres that achieves it.
 This paper gives closed-form expressions of both
 the forward and inverse problem of three inflatable spheres as pure solid geometry.
-Although this problem could be adequately solved numerically by with an iterative method,
+Although this problem could be adequately solved numerically with an iterative method,
 closed-form expressions are always preferable, especially sense they admit analytic derivatives.
 
 Additionally, we have created an online, interactive, browser based real-time simulation\cite{softrobotcalc} that implements
@@ -89,7 +89,7 @@ situation, and perhaps to provide some pedagogical intuition in solid geometry.
 
 A parallel manipulator varies the angle between two planes.
 The best known parallel manipulator is
-a Stewart Platform\cite{wiki:stewart} which as 6 degrees or freedom.
+a Stewart Platform\cite{wiki:stewart} which has 6 degrees or freedom.
 Having a soft parallel manipulator analogous to a Stewart Platform would allow soft,
 gentle positioning,
 and might be particularly valuable {\it in vivo}\cite{white2018soft} or in some space applications\cite{glassner2020soft}.
@@ -112,14 +112,14 @@ In general it is not as mechanically easy to fix the center of a sphere as to fi
 A robotocist might prefer to express the position of the top plane relative to the bottom plane.
 We undertook to do this but found it to be much more difficult than expressing the answer relative
 to the center plane. The solution equations, expressed by Mathematica, where several pages long.
-Perhaps a different researcher could find a more elegant formulation to solve the ``bottom plane formulation''.
+Perhaps a different researcher could find a more elegant formulation to solve the ``bottom plane formulation.''
 
 \section{The Center Plane Formulation}
 
 Choosing the coordinate system of the $XZ$ plane through the center of the spheres greatly
 simplifies the derivations, because the center of the spheres always form tangent circles
 in this plane. Call this plane the {\em center plane.}
-Following computer graphics convention, we think of the $Y$ dimension as vertical and a
+Following computer graphics convention, this paper considers the $Y$ dimension as vertical and uses a
 right-handed set of axes.
 The position of $A$ is fixed at the origin, $B$ is constrained to the $x$-axis touching $A$, and
 $C$ is constrained to the positive $xz$-plane. The center of these circles in the $xz$ plane can be
@@ -176,7 +176,7 @@ Luckily, to develop a formula for $\psi$, we can treat the problem as a two-dime
 as shown in Fig. \ref{fig:conehalf}
 
 
-\begin{figure}
+\begin{figure}[hbt!]
      \centering
      \includegraphics[width=0.8\textwidth]{figures/HalfAngleOfConeTangenttoTwoTangentSpheres.png}
      \caption{Half-angle of Cone Tangent to Two Tangent Spheres}
@@ -233,7 +233,7 @@ coordinate of the point or vector $C$.}
 \end{align}
 Noting that $B_x = d = a + b$,
 \begin{align}
-  C_x   &= d - \cos{\epsilon}
+  C_x   &= d - f\cos{\epsilon}
 \end{align}
 
 
@@ -319,7 +319,7 @@ at a point $U = [U_x,0,0]$, the apex of the AB cone:
   U_x = \frac{a}{\sin{(-\theta)}}
 \end{align}
 
-The $y$ coordinate of the point $H$ where where the top plane intersects
+The $y$ coordinate of the point $H$ where the top plane intersects
 the $Y$ axis is:
 \begin{align}
   H_y &= U_x \tan{\theta}
